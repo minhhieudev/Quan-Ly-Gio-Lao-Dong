@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { connectToDB } from "@mongodb";
 import CongTacGiangDay from "@models/CongTacGiangDay";
 import CongTacChamThi from "@models/CongTacChamThi";

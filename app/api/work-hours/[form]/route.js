@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import mongoose from "mongoose";
 import { connectToDB } from "@mongodb";
 import CongTacGiangDay from "@models/CongTacGiangDay";

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { connectToDB } from '@mongodb';
 import PcChamThi from '@models/PcChamThi';
 

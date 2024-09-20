@@ -1,4 +1,5 @@
-import mongoose from "mongoose";
+export const dynamic = 'force-dynamic';
+
 import { connectToDB } from "@mongodb";
 import TongHopLaoDong from "@models/TongHopLaoDong";
 
