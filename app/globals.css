@@ -314,3 +314,11 @@
 }
 
 
+.bg {
+  background-image: url(https://static.hieuluat.vn/uploaded/Images/Original/2023/05/19/nguoi-thuc-hien-ung-dung-phuong-phap-nghien-cuu-nhat-quan_1905162139.jpg);
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+  background-blend-mode: darken; 
+  background-color: rgba(0, 0, 0, 0.5); 
+}

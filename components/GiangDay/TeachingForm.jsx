@@ -134,6 +134,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         if (res.ok) {
           const data = await res.json();
           setListSelect(data);
+          console.log("Data:",data)
           //setFilteredData(data);
         } else {
           toast.error("Không thể tải dữ liệu");

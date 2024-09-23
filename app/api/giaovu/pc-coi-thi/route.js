@@ -12,32 +12,37 @@ export const GET = async (req) => {
     const namHoc = searchParams.get('namHoc');
     const loaiKyThi = searchParams.get('loaiKyThi');
     const loai = searchParams.get('loai');
+    const ky = searchParams.get('ky');
+
+    console.log(namHoc)
 
     // Tạo đối tượng điều kiện tìm kiếm
     let filter = {};
 
     // Nếu có tham số namHoc, thêm vào điều kiện tìm kiếm
-   
-    // Nếu có tham số loaiKyThi, thêm vào điều kiện tìm kiếm
-    if (loaiKyThi) {
-      filter.loaiKyThi = loaiKyThi;
-    }
-    if (namHoc) {
+    if (namHoc && namHoc !== 'undefined') {
       filter.namHoc = namHoc;
     }
 
-    if (loai) {
+    // Nếu có tham số loaiKyThi, thêm vào điều kiện tìm kiếm
+    if (loaiKyThi && loaiKyThi !== 'undefined') {
+      filter.loaiKyThi = loaiKyThi;
+    }
+
+    // Nếu có tham số ky và nó không phải là 'undefined', thêm vào điều kiện tìm kiếm
+    if (ky && ky !== 'undefined') {
+      filter.ky = ky;
+    }
+
+    // Nếu có tham số loai và nó không phải là 'undefined', thêm vào điều kiện tìm kiếm
+    if (loai && loai !== 'undefined') {
       filter.loai = loai;
     }
 
-    // Nếu không có cả namHoc lẫn loaiKyThi thì trả về lỗi
-    if (!namHoc && !loaiKyThi) {
-      return new Response(JSON.stringify({ message: "Thiếu tham số năm học hoặc loại kỳ thi." }), { status: 400 });
-    }
-
-
     // Tìm kiếm các bản ghi phân công giảng dạy theo điều kiện filter
     const assignments = await PcCoiThi.find(filter);
+
+    console.log('fil:n', filter);
 
     // Trả về phản hồi thành công
     return new Response(JSON.stringify(assignments), { status: 200 });
@@ -49,6 +54,7 @@ export const GET = async (req) => {
 };
 
 
+
 export const POST = async (req) => {
   try {
     await connectToDB();
@@ -58,7 +64,7 @@ export const POST = async (req) => {
 
     // Kiểm tra xem dữ liệu có hợp lệ không
     const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi } = data;
-    if (!hocPhan || !nhomLop || !ngayThi || !namHoc || !loaiKyThi) {
+    if (!hocPhan || !nhomLop || !ngayThi || !namHocs || !loaiKyThi) {
       return new Response(JSON.stringify({ message: "Dữ liệu không hợp lệ, vui lòng điền đầy đủ các trường bắt buộc." }), { status: 400 });
     }
 
@@ -75,6 +81,7 @@ export const POST = async (req) => {
       ghiChu: data.ghiChu || '',
       phongThi:data.phongThi,
       namHoc,
+      ky: data.ky,
       loaiKyThi:data.loaiKyThi,
       loai: data.loai || ""
     });

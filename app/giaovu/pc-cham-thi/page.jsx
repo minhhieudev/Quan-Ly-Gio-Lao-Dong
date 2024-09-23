@@ -20,7 +20,7 @@ const PcChamThiTable = () => {
   const [loai, setLoai] = useState("chinh-quy");
 
   const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
 
   const router = useRouter();
 
@@ -119,15 +119,13 @@ const PcChamThiTable = () => {
       title: 'Cán bộ coi thi 1',
       dataIndex: 'cb1',
       key: 'cb1',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
       title: 'Cán bộ coi thi 2',
       dataIndex: 'cb2',
       key: 'cb2',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
       title: 'Số bài',
@@ -141,6 +139,7 @@ const PcChamThiTable = () => {
       dataIndex: 'hinhThucThoiGianThi',
       key: 'hinhThucThoiGianThi',
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: 120,
     },
     {
       title: 'Hành động',
@@ -262,7 +261,7 @@ const PcChamThiTable = () => {
             setCurrent(page);
             setPageSize(size);
           }}
-          pageSizeOptions={['5', '10', '25', '50', '100']}
+          pageSizeOptions={[ '10', '25', '50', '100', '200']}
           showSizeChanger
           className="flex justify-end"
         />

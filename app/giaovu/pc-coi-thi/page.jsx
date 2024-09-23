@@ -17,10 +17,11 @@ const PcCoiThiTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [loai, setLoai] = useState("chinh-quy");
+  const [loai, setLoai] = useState("");
+  const [ky, setKy] = useState("");
 
   const [current, setCurrent] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(10);
 
   const router = useRouter();
 
@@ -30,7 +31,7 @@ const PcCoiThiTable = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/giaovu/pc-coi-thi?namHoc=${namHoc}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
+        const res = await fetch(`/api/giaovu/pc-coi-thi?namHoc=${namHoc}&loaiKyThi=${loaiKyThi}&loai=${loai}&ky=${ky}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -49,7 +50,7 @@ const PcCoiThiTable = () => {
     };
 
     fetchData();
-  }, [namHoc, loaiKyThi, loai]);
+  }, [namHoc, loaiKyThi, loai, ky]);
 
   useEffect(() => {
     const filtered = dataList.filter((item) =>
@@ -197,7 +198,7 @@ const PcCoiThiTable = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="flex gap-2">
           <div className="text-heading4-bold">LOẠI:</div>
-          <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
+          <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
             <Option value="chinh-quy">Chính quy</Option>
             <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
           </Select>
@@ -217,6 +218,9 @@ const PcCoiThiTable = () => {
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
+            allowClear
+
+
           >
             <Option value="2021-2022">2021-2022</Option>
             <Option value="2022-2023">2022-2023</Option>
@@ -226,11 +230,26 @@ const PcCoiThiTable = () => {
         </div>
 
         <div className="w-[25%] flex items-center gap-2">
+          <label className="block text-sm font-semibold mb-1">Kỳ:</label>
+          <Select
+            placeholder="Chọn kỳ"
+            onChange={(value) => setKy(value)}
+            className="w-[50%]"
+            allowClear
+          >
+            <Option value="1">1</Option>
+            <Option value="2">2</Option>
+          </Select>
+        </div>
+
+        <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>
           <Select
             placeholder="Chọn loại kỳ thi"
             onChange={(value) => setLoaiKyThi(value)}
             className="w-[50%]"
+            allowClear
+
           >
             <Option value="Học kỳ 1">Học kỳ 1</Option>
             <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>

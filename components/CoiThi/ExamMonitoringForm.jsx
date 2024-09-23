@@ -10,6 +10,7 @@ import moment from 'moment';
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
+import { PlusOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -42,7 +43,44 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     const [selectedTab, setSelectedTab] = useState('Kết quả coi thi');
     const [loadings, setLoadings] = useState(true);
+    const [isAddingNew, setIsAddingNew] = useState(false);
+    const [newHocPhan, setNewHocPhan] = useState("");
 
+    const handleAddNewClick = () => {
+        setIsAddingNew(!isAddingNew);
+    };
+
+    const handleSaveNewHocPhan = () => {
+        const newHocPhanObj = {
+            _id: Math.random().toString(36).substr(2, 9),
+            hocPhan: newHocPhan,
+            ky: '',
+            time: "",
+            ngayThi: '',
+        };
+
+        // Cập nhật listSelect với học phần mới
+        setListSelect([...listSelect, newHocPhanObj]);
+
+        // Reset trạng thái thêm mới và input học phần
+        setIsAddingNew(false);
+        setNewHocPhan("");
+    };
+
+    const convertDateFormat = (dateString) => {
+        const parts = dateString.split('/');
+        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    };
+   
+    const handleSelectChange = (value) => {
+        const selectedHocPhan = listSelect.find(item => item._id == value);
+        if (selectedHocPhan) {
+            setValue("ngayThi",convertDateFormat(selectedHocPhan.ngayThi) ); // Lấy giá trị từ selectedHocPhan
+            setValue("ky", selectedHocPhan.ky || '');
+            setValue("thoiGianThi", selectedHocPhan.time.join(',') || ''); // Đảm bảo bạn có trường này
+        }
+    };
+    
 
     useEffect(() => {
         if (editRecord) {
@@ -80,34 +118,35 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     useEffect(() => {
         if (!namHoc && !ky) return;
-    
+
         const fetchData = async () => {
-          try {
-            setLoading(true);
-    
-            const res = await fetch(`/api/giaovu/pc-coi-thi/get-for-gv/?namHoc=${namHoc}&gvGiangDay=${currentUser.username}`, {
-              method: "GET",
-              headers: { "Content-Type": "application/json" },
-            });
-    
-    
-            if (res.ok) {
-              const data = await res.json();
-              setListSelect(data);
-              //setFilteredData(data);
-            } else {
-              toast.error("Không thể tải dữ liệu");
+            try {
+                setLoading(true);
+
+                const res = await fetch(`/api/giaovu/pc-coi-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+
+                if (res.ok) {
+                    const data = await res.json();
+                    setListSelect(data);
+                    console.log('Data:', data)
+                    //setFilteredData(data);
+                } else {
+                    toast.error("Không thể tải dữ liệu");
+                }
+                setLoading(false);
+            } catch (err) {
+                console.log('Error:', err);
+                toast.error("Lỗi khi tải dữ liệu");
+                setLoading(false);
             }
-            setLoading(false);
-          } catch (err) {
-            console.log('Error:', err);
-            toast.error("Lỗi khi tải dữ liệu");
-            setLoading(false);
-          }
         };
-    
+
         fetchData();
-      }, [namHoc, ky]);
+    }, [namHoc, ky]);
 
     const calculateTotals = () => {
         onUpdateCongTacCoiThi(totalSoTietQuyChuan);
@@ -122,29 +161,30 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             toast.error('Vui lòng nhập năm học!')
             return
         }
-        try {
-            const method = editRecord ? "PUT" : "POST";
-            const res = await fetch("/api/work-hours/CongTacCoiThi", {
-                method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
-                headers: { "Content-Type": "application/json" },
-            });
+        console.log('data:',data)
+        // try {
+        //     const method = editRecord ? "PUT" : "POST";
+        //     const res = await fetch("/api/work-hours/CongTacCoiThi", {
+        //         method,
+        //         body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
+        //         headers: { "Content-Type": "application/json" },
+        //     });
 
-            if (res.ok) {
-                const newData = await res.json();
-                if (editRecord && newData) {
-                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
-                } else {
-                    setDataList(prevData => [...prevData, newData]);
-                }
-                toast.success("Record saved successfully!");
-                onReset(); // Reset form after success
-            } else {
-                toast.error("Failed to save record");
-            }
-        } catch (err) {
-            toast.error("An error occurred while saving data");
-        }
+        //     if (res.ok) {
+        //         const newData = await res.json();
+        //         if (editRecord && newData) {
+        //             setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+        //         } else {
+        //             setDataList(prevData => [...prevData, newData]);
+        //         }
+        //         toast.success("Record saved successfully!");
+        //         onReset(); // Reset form after success
+        //     } else {
+        //         toast.error("Failed to save record");
+        //     }
+        // } catch (err) {
+        //     toast.error("An error occurred while saving data");
+        // }
     };
     const onReset = () => {
         reset(formSchema);
@@ -252,36 +292,99 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" >
                     <Space direction="vertical" className="w-full">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center w-full">
+
+
+                            {!isAddingNew && (
+                                <Form.Item
+                                    label={
+                                        <span className="font-bold text-xl">
+                                            Học phần coi thi <span className="text-red-600">*</span>
+                                        </span>
+                                    }
+                                    className="w-full"
+                                    validateStatus={errors.hocPhan ? 'error' : ''}
+                                    help={errors.hocPhan?.message}
+                                >
+                                    <Space className="flex ">
+                                        <div className="w-[200px]">
+                                            <Controller
+
+                                                name="hocPhan"
+                                                control={control}
+                                                rules={{ required: "Học phần là bắt buộc" }}
+                                                render={({ field }) => (
+                                                    <Select
+                                                        showSearch
+                                                        allowClear
+                                                        placeholder="Nhập hoặc chọn tên học phần..."
+                                                        {...field}
+                                                        options={listSelect.map(item => ({
+                                                            value: item._id,  
+                                                            label: item.hocPhan.join(', '),  
+                                                        }))}
+                                                        filterOption={(input, option) =>
+                                                            option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                        }
+                                                        onChange={(value) => {
+                                                            field.onChange(value);
+                                                            handleSelectChange(value);
+                                                        }}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+
+                                    </Space>
+                                </Form.Item>
+                            )}
+                            {isAddingNew && (
+                                <Form.Item
+                                    label={<span className="font-bold text-xl">Thêm học phần mới</span>}
+                                    className="w-full"
+                                >
+                                    <Space className="w-full">
+                                        <Input
+                                            value={newHocPhan}
+                                            onChange={(e) => setNewHocPhan(e.target.value)}
+                                            placeholder="Nhập tên học phần mới..."
+                                            className="w-[90%]"
+                                        />
+                                        <Button type="primary" onClick={handleSaveNewHocPhan}>
+                                            Lưu
+                                        </Button>
+                                    </Space>
+                                </Form.Item>
+                            )}
                             <Form.Item
-                                label={<span className="font-bold text-xl">Học phần</span>}
+                                label={<span className="font-bold text-xl">Thêm</span>}
+                                className="w-full flex-1"
                             >
-                                <Controller
-                                    name="hocPhan"
-                                    control={control}
-                                    render={({ field }) => <Input className="input-text" {...field} />}
+                                <Button
+                                    icon={<PlusOutlined />}
+                                    onClick={handleAddNewClick}
                                 />
                             </Form.Item>
 
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Học kỳ <span className="text-red-600">*</span></span>}
-                                className="w-[40%]"
-                                validateStatus={errors.ky ? 'error' : ''}
-                                help={errors.ky?.message}
-                            >
-                                <Controller
-                                    name="ky"
-                                    control={control}
-                                    rules={{ required: "Học kỳ là bắt buộc" }}
-                                    render={({ field }) => (
-                                        <Radio.Group {...field} className="font-semibold">
-                                            <Radio value="1">Kỳ 1</Radio>
-                                            <Radio value="2">Kỳ 2</Radio>
-                                        </Radio.Group>
-                                    )}
-                                />
-                            </Form.Item>
                         </div>
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Học kỳ <span className="text-red-600">*</span></span>}
+                            className="w-[40%]"
+                            validateStatus={errors.ky ? 'error' : ''}
+                            help={errors.ky?.message}
+                        >
+                            <Controller
+                                name="ky"
+                                control={control}
+                                rules={{ required: "Học kỳ là bắt buộc" }}
+                                render={({ field }) => (
+                                    <Radio.Group {...field} className="font-semibold">
+                                        <Radio value="1">Kỳ 1</Radio>
+                                        <Radio value="2">Kỳ 2</Radio>
+                                    </Radio.Group>
+                                )}
+                            />
+                        </Form.Item>
 
                         <div className="flex justify-between">
                             <Form.Item

@@ -23,7 +23,6 @@ const formSchema = {
   phongThi: '',
   diaDiem: '',
   ghiChu: "",
-  namHoc: "",
   loaiKyThi: "",
   loai: ""
 };
@@ -39,14 +38,16 @@ const TeachingAssignmentForm = () => {
   const router = useRouter();
 
   const [loai, setLoai] = useState("");
+  const [ky, setKy] = useState("");
+  const [namHocs, setNamHocs] = useState("");
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const onSubmit = async (data) => {
 
-    if (loai == "") {
-      toast.error("Vui lòng chọn Loại hình đào tạo trước !");
+    if (loai == "" || namHocs == "" || ky == "") {
+      toast.error("Vui lòng chọn đủ Loại hình, năm học và kỳ !");
       return
     }
 
@@ -60,7 +61,7 @@ const TeachingAssignmentForm = () => {
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/giaovu/pc-coi-thi`, {
         method,
-        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai }),
+        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai, namHocs, ky}),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -107,11 +108,12 @@ const TeachingAssignmentForm = () => {
 
   const handleFileUpload = (e) => {
 
-    if (loai == "") {
-      toast.error("Vui lòng chọn Loại hình đào tạo trước !");
+    if (loai == "" || namHocs == "" || ky == "") {
+      toast.error("Vui lòng chọn đủ Loại hình, năm học và kỳ !");
       fileInputRef.current.value = "";
       return
     }
+   
     const file = e.target.files[0];
     const reader = new FileReader();
 
@@ -161,7 +163,7 @@ const TeachingAssignmentForm = () => {
               namHoc,
               hocPhan: [row[1]],
               nhomLop: [row[2]],
-              ngayThi: dayjs(row[3]).format('DD/MM/YYYY'), // Chuyển đổi ngày sử dụng dayjs
+              ngayThi: dayjs(row[3]).format('DD/MM/YYYY'), 
               ca: row[4],
               phongThi: row[5],
               cb1: row[6],
@@ -169,7 +171,8 @@ const TeachingAssignmentForm = () => {
               time: [row[8]],
               diaDiem: row[9],
               ghiChu: row[10] || '',
-              loai
+              loai,
+              ky
             };
           } else if (typeof row[0] === 'undefined') {
             if (currentEntry) {
@@ -206,41 +209,41 @@ const TeachingAssignmentForm = () => {
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>
         <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">PHÂN CÔNG COI THI</h2>
+
+      </div>
+
+      <div className="flex justify-between items-center mb-3">
         <div className="flex gap-2">
-          <div className="text-heading4-bold">LOẠI:</div>
+          <div className="text-base-bold">Loại:</div>
           <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
             <Option value="chinh-quy">Chính quy</Option>
             <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
           </Select>
         </div>
-      </div>
+        <div className="flex gap-2">
+          <div className="text-base-bold">Năm học:</div>
+          <Select
+            placeholder="Chọn năm học"
+            onChange={(value) => setNamHocs(value)}
+            className="w-[50%]"
+          >
+            <Option value="2021-2022">2021-2022</Option>
+            <Option value="2022-2023">2022-2023</Option>
+            <Option value="2023-2024">2023-2024</Option>
+            <Option value="2024-2025">2024-2025</Option>
+          </Select>
+        </div>
+        <div className="flex gap-2">
+          <div className="text-base-bold">Kỳ:</div>
+          <Select placeholder="Chọn kỳ..." onChange={(value) => setKy(value)}>
+            <Option value="1">1</Option>
+            <Option value="2">2</Option>
+          </Select>
+        </div>
 
+      </div>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Năm học */}
-          <Form.Item
-            label="Năm học"
-            validateStatus={errors.namHoc ? 'error' : ''}
-            help={errors.namHoc?.message}
-          >
-            <Controller
-              name="namHoc"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  placeholder="Chọn năm học"
-                  onChange={(value) => setNamHoc(value)}
-                  className="w-[50%]"
-                  {...field}
-                >
-                  <Option value="2021-2022">2021-2022</Option>
-                  <Option value="2022-2023">2022-2023</Option>
-                  <Option value="2023-2024">2023-2024</Option>
-                  <Option value="2024-2025">2024-2025</Option>
-                </Select>
-              )}
-            />
-          </Form.Item>
 
           {/* Loại kỳ thi */}
           <Form.Item

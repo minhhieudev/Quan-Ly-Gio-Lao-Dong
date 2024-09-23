@@ -68,7 +68,7 @@ const Form = ({ type }) => {
             <div>
               <div className="input">
                 <input
-                  defaultValue="admin@gmail.com"
+                  defaultValue=""
                   {...register("username", {
                     required: "Username is required",
                     validate: (value) => {
@@ -92,7 +92,7 @@ const Form = ({ type }) => {
           <div>
             <div className="input">
               <input
-                defaultValue="123456@"
+                defaultValue="admin@gmail.com"
                 {...register("email", { required: "Email is required" })}
                 type="email"
                 placeholder="Email"
@@ -108,7 +108,7 @@ const Form = ({ type }) => {
           <div>
             <div className="input">
               <input
-                defaultValue=""
+                defaultValue="123456@"
                 {...register("password", {
                   required: "Password is required",
                   validate: (value) => {
@@ -136,7 +136,7 @@ const Form = ({ type }) => {
           </button>
         </form>
 
-        {type === "register" ? (
+        {/* {type === "register" ? (
           <Link href="/" className="link flex gap-1">
             <p className="text-center">Bạn đã có tài khoản? </p>
             <p className="text-red-400">Đăng nhập</p>
@@ -146,7 +146,7 @@ const Form = ({ type }) => {
             <p className="text-center">Bạn chưa có tài khoản? </p>
             <p className="text-red-400">Đăng ký ngay</p>
           </Link>
-        )}
+        )} */}
       </div>
     </div>
   );

@@ -28,7 +28,8 @@ export const POST = async (req) => {
           nhomLop, 
           phongThi, 
           time ,
-          loai
+          loai,
+          ky
         } = item;
 
         // Chuyển đổi các giá trị từ mảng thành chuỗi nếu cần
@@ -48,7 +49,8 @@ export const POST = async (req) => {
               ghiChu,
               phongThi,
               time: timeArray,
-              loai
+              loai,
+              ky
             }
           }, 
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới
