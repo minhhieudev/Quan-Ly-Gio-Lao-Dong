@@ -338,8 +338,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="flex gap-3 max-sm:flex-col">
-      <div className="p-4 shadow-xl bg-white rounded-xl flex-[30%]">
+    <div className="flex gap-2 max-sm:flex-col">
+      <div className="p-4 shadow-xl bg-white rounded-xl flex-[20%]">
         <Title className="text-center" level={3}>CÔNG TÁC GIẢNG DẠY</Title>
 
         <Form onFinish={handleSubmit(onSubmit)} layout="Inline" className="">
@@ -558,16 +558,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 dataSource={dataList}
                 rowKey="_id"
                 pagination={{ current, pageSize, total: dataList.length, onChange: handleTableChange }}
-                summary={() => (
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell colSpan={7} className="font-bold text-lg text-right">
-                      Tổng số giờ:
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell className="font-bold text-lg text-red-600">
-                      {totalHours}
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                )}
               />
             }
           </TabPane>

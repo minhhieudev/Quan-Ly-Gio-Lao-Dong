@@ -24,8 +24,8 @@ const TopBar = () => {
           <img src="https://upload.wikimedia.org/wikipedia/vi/2/2e/Dai_hoc_phu_yen_logo.png" alt="logo" className="logo" />
         </Link>
         <div className="max-sm:hidden">
-          <div className="text-heading4-bold">TRƯỜNG ĐẠI HỌC PHÚ YÊN</div>
-          <p className="text-small-bold ml-1">HỆ THỐNG QUẢN LÝ GIỜ LAO ĐỘNG</p>
+          <div className="text-bold font-bold">TRƯỜNG ĐẠI HỌC PHÚ YÊN</div>
+          <p className="font-bold text-[12px]">HỆ THỐNG QUẢN LÝ GIỜ LAO ĐỘNG</p>
         </div>
       </div>
 
@@ -34,14 +34,14 @@ const TopBar = () => {
           <Link
             href="/admin"
             className={`${pathname === "/admin" ? "text-red-1" : ""
-              } text-heading4-bold`}
+              } font-bold`}
           >
             Admin
           </Link>}
         <Link
           href="/work-hours"
           className={`${pathname === "/work-hours" ? "text-red-1" : ""
-            } text-heading4-bold`}
+            } font-bold`}
         >
           Home
         </Link>
