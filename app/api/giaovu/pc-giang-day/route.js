@@ -84,6 +84,11 @@ export const POST = async (req) => {
       existingRecord.phong = data.phong || existingRecord.phong;
       existingRecord.lop = data.lop || existingRecord.lop;
 
+      existingRecord.hinhThucTH = data.hinhThucTH || existingRecord.hinhThucTH;
+      existingRecord.boMon = data.boMon || existingRecord.boMon;
+      existingRecord.nganh = data.nganh || existingRecord.nganh;
+      existingRecord.khoa = data.khoa || existingRecord.khoa;
+
       // Lưu bản ghi đã cập nhật
       await existingRecord.save();
 
@@ -106,6 +111,11 @@ export const POST = async (req) => {
         namHoc: data.namHoc,
         ky: data.ky,
         tuanHoc: data.tuanHoc || "",
+
+        hinhThucTH: data.hinhThucTH || "",
+        boMon: data.boMon || "",
+        nganh: data.nganh || "",
+        khoa: data.khoa || "",
       });
 
       // Lưu bản ghi mới vào database

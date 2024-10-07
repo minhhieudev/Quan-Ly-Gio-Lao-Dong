@@ -13,7 +13,7 @@ const SideBar = () => {
     paths.includes(pathname) ? { color: 'red' } : { color: 'black' };
 
   return (
-    <div className="flex flex-col gap-4 bg-white shadow-xl p-6 rounded-xl mt-3 h-[85vh] font-bold overflow-y-auto text-black">
+    <div className="flex flex-col gap-4 bg-white shadow-xl p-6 rounded-xl mt-3 h-[85vh] font-bold overflow-y-auto text-black text-[15px]">
       <h2 className="text-xl font-bold text-gray-800 mb-4">ADMIN</h2>
       <Link href="/admin/dashboard" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <DashboardOutlined style={{ fontSize: "20px" }} className="text-orange-500"/>

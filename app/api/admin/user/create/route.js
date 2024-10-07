@@ -1,7 +1,6 @@
 import User from "@models/User";
 import { connectToDB } from "@mongodb";
 
-// POST multiple users with update if email exists
 export const POST = async (req) => {
   try {
     await connectToDB();
@@ -18,15 +17,41 @@ export const POST = async (req) => {
     // Duyệt qua danh sách users và xử lý từng user
     const processedUsers = await Promise.all(
       users.map(async (user) => {
-        const email = user[1]; // Email của user
+        const maGV = user[0];
+        const maNgach = user[3];
+
+        let GCGD = 0
+        let GCNCKH = 0
+        let GCPVCD = 0
+
+        if (maNgach) {
+          if (maNgach == 'V07.01.01') {
+            GCGD = 230
+            GCNCKH = 300
+            GCPVCD = 57
+          }
+          if (maNgach == 'V07.01.02') {
+            GCGD = 250
+            GCNCKH = 260
+            GCPVCD = 77
+          }
+          if (maNgach == 'V07.01.03') {
+            GCGD = 270
+            GCNCKH = 195
+            GCPVCD = 121
+          }
+        }
 
         // Tìm và cập nhật nếu người dùng tồn tại, nếu không thì tạo mới
         const updatedUser = await User.findOneAndUpdate(
-          { email }, // Tìm người dùng theo email
+          { maGV },
           {
-            username: user[0], // Cập nhật các trường thông tin
+            username: user[1], // Cập nhật các trường thông tin
             khoa: user[2],
-            role: user[3],
+            maNgach: user[3],
+            GCGD,
+            GCNCKH,
+            GCPVCD
           },
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới
         );

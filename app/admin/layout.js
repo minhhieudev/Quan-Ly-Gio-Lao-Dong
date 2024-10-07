@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
           <TopBar />
           <div className="flex justify-between h-[45vh] ml-3">
             <div className="w-[15%]"><SideBar /></div>
-            <div className="w-[83%] mx-auto">{children}</div>
+            <div className="w-[84%] mx-auto">{children}</div>
           </div>
           <Toaster />
         </Provider>

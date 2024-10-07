@@ -3,12 +3,9 @@ import mongoose from "mongoose";
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
-    required: true,
-    unique: true,
   },
   khoa: {
     type: String,
@@ -25,6 +22,48 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "user",
   },
+
+
+  donViQuanLy: {
+    type: String,
+  },
+  maNgach: {
+    type: String,
+  },
+  hocHamHocVi: {
+    type: String,
+  },
+  dinhMucGioChuan: {
+    type: Number,
+  },
+  chucVuChinhQuyen: {
+    type: String,
+    default: "Không"
+  },
+  chucVuKiemNhiem: {
+    type: String,
+    default: "Không"
+
+  },
+  chucVuDoanTheXH: {
+    type: String,
+    default: "Không"
+
+  },
+
+  maGV: {
+    type: String,
+  },
+  GCGD: {
+    type: Number,
+  },
+  GCNCKH: {
+    type: Number,
+  },
+  GCPVCD: {
+    type: Number,
+  },
+
 });
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
