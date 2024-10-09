@@ -388,10 +388,8 @@ const UserForm = () => {
 
                             <div className="flex justify-between">
                                 <Form.Item
-                                    label={<span className="font-bold text-xl">Định mức giờ chuẩn <span className="text-red-600">*</span></span>}
+                                    label={<span className="font-bold text-xl">Định mức giờ chuẩn</span>}
                                     className="w-[40%] p-0"
-                                    validateStatus={errors.dinhMucGioChuan ? 'error' : ''}
-                                    help={errors.dinhMucGioChuan?.message}
                                 >
                                     <Controller
                                         name="dinhMucGioChuan"
