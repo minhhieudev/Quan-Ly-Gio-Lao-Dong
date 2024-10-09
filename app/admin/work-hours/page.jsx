@@ -15,9 +15,9 @@ const WorkHours = () => {
   };
 
   return (
-    <div className=' bg-white rounded-xl h-[70vh] mx-auto  mt-6 max-sm:h-[70vh] shadow-xl'>
-      <div className="flex items-center h-full">
-          <Space size="middle" className='flex flex-1 justify-around items-center max-md:flex-col'>
+    <div className=' bg-white rounded-xl h-[70vh] mx-auto w-[90%]  mt-6 max-sm:h-[70vh] shadow-xl'>
+      <div className="flex items-center h-full ">
+          <Space size="middle" className='flex flex-1 justify-around items-center flex-grow'>
             <Button
               className={`custom-button-1 button-chinh-quy`}
               onClick={() => handlePage('chinh-quy')}

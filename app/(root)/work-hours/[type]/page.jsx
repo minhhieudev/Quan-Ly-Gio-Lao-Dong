@@ -223,11 +223,11 @@ const Pages = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center mt-2">
-      <div className=" mb-2 w-[98%]  flex justify-between gap-3">
-        <div className="w-[70%]  p-1 flex bg-white items-center justify-between rounded-md">
+    <div className="flex flex-col justify-center items-center mt-1 h-[20%]">
+      <div className=" mb-1 w-[98%]  flex justify-between gap-3">
+        <div className="w-[70%]  flex bg-white items-center justify-between rounded-md">
           <Button
-            className="button-kiem-nhiem text-white font-bold shadow-md"
+            className="button-kiem-nhiem text-white font-bold shadow-md ml-1"
             onClick={() => router.push(`/work-hours`)}
             size="small"
           >
@@ -238,11 +238,11 @@ const Pages = () => {
               }}
             /> QUAY LẠI</div>
           </Button>
-          <div className="flex-grow text-center rounded-xl text-heading4-bold mr-3">
+          <div className="flex-grow text-center rounded-xl font-bold mr-3">
             {`HỆ ${getTitle()}`}
           </div>
         </div>
-        <div className="w-[30%]  p-2 bg-white rounded-md flex gap-2 items-center">
+        <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
           <div className='text-base-bold'>Năm học :</div>
           <Select
             className="w-[60%]"
@@ -252,7 +252,7 @@ const Pages = () => {
             placeholder="Chọn năm học"
           />
         </div>
-        <div className="w-[30%]  p-2 bg-white rounded-md flex gap-2 items-center">
+        <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
           <div className='text-base-bold'>Kỳ học:</div>
           <Select
             className="w-[60%]"
@@ -265,7 +265,7 @@ const Pages = () => {
       </div>
 
       {type !== 'boi-duong' && (
-        <div className="p-2 bg-white w-[98%] rounded-xl shadow-md">
+        <div className="px-2 py-1 bg-white w-[98%] rounded-xl shadow-md">
           <div className="flex space-x-4 justify-around items-center max-sm:flex-col max-sm:gap-4">
             {getButtonList().map((buttonText) => (
               <Button
@@ -280,7 +280,7 @@ const Pages = () => {
         </div>
       )}
 
-      <div className="py-2 w-[98%] max-sm:hidden">
+      <div className="py-1 w-[98%] max-sm:hidden">
         <Row gutter={[16, 16]}>
           <Col span={24}>
             {renderForm()}

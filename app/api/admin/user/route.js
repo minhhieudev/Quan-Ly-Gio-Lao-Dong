@@ -19,19 +19,39 @@ export const GET = async (req, res) => {
 export const POST = async (req, res) => {
   try {
     await connectToDB();
-    const { username, email, khoa, role } = await req.json();
+    const { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV } = await req.json();
 
     // Kiểm tra email đã tồn tại
-    let existingUser = await User.findOne({ email });
+    let newUser = await User.findOne({ email });
 
-    if (existingUser) {
+    let GCGD = 0
+    let GCNCKH = 0
+    let GCPVCD = 0
+
+    if (maNgach) {
+      if (maNgach == 'V07.01.01') {
+        GCGD = 230
+        GCNCKH = 300
+        GCPVCD = 57
+      }
+      if (maNgach == 'V07.01.02') {
+        GCGD = 250
+        GCNCKH = 260
+        GCPVCD = 77
+      }
+      if (maNgach == 'V07.01.03') {
+        GCGD = 270
+        GCNCKH = 195
+        GCPVCD = 121
+      }
+    }
+
+    if (newUser) {
       // Nếu tồn tại, cập nhật thông tin
-      existingUser.username = username;
-      existingUser.khoa = khoa;
-      existingUser.role = role;
-      await existingUser.save();
+      newUser = { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV }
+      await newUser.save();
 
-      return new Response(JSON.stringify(existingUser), { status: 200 });
+      return new Response(JSON.stringify(newUser), { status: 200 });
     } else {
       // Nếu chưa tồn tại, tạo mới user
       const newUser = new User({
@@ -39,6 +59,7 @@ export const POST = async (req, res) => {
         email,
         khoa,
         role,
+        maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, GCGD, GCNCKH, GCPVCD, maGV
       });
 
       await newUser.save();
@@ -55,22 +76,49 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { id, username, email, khoa, role } = await req.json();
+    const { id, username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV } = await req.json();
 
-    const userToUpdate = await User.findById(id);
+    let userToUpdate = await User.findById(id);
 
     if (!userToUpdate) {
       return new Response("User not found", { status: 404 });
     }
 
-    userToUpdate.username = username;
-    userToUpdate.email = email;
-    userToUpdate.khoa = khoa;
-    userToUpdate.role = role;
+    let GCGD = 0
+    let GCNCKH = 0
+    let GCPVCD = 0
 
-    await userToUpdate.save();
+    if (maNgach) {
+      if (maNgach == 'V07.01.01') {
+        GCGD = 230
+        GCNCKH = 300
+        GCPVCD = 57
+      }
+      if (maNgach == 'V07.01.02') {
+        GCGD = 250
+        GCNCKH = 260
+        GCPVCD = 77
+      }
+      if (maNgach == 'V07.01.02') {
+        GCGD = 270
+        GCNCKH = 195
+        GCPVCD = 121
+      }
+    }
 
-    return new Response(JSON.stringify(userToUpdate), { status: 200 });
+    await User.findByIdAndDelete(id);
+
+    const newUser = new User({
+      username,
+      email,
+      khoa,
+      role,
+      maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, GCGD, GCNCKH, GCPVCD, maGV
+    });
+
+    await newUser.save();
+
+    return new Response(JSON.stringify(newUser), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response("Failed to update user", { status: 500 });

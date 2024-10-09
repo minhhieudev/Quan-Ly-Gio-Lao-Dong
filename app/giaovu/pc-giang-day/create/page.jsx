@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Select, InputNumber, Row, Col, Spin } from "antd";
 import toast from "react-hot-toast";
@@ -39,6 +39,8 @@ const TeachingAssignmentForm = () => {
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [khoaOptions, setKhoaOptions] = useState([]);
+
 
   const onSubmit = async (data) => {
     try {
@@ -67,6 +69,31 @@ const TeachingAssignmentForm = () => {
     setEditRecord(null);
   };
 
+  useEffect(() => {
+    getListKhoa()
+  }, []);
+
+  const getListKhoa = async () => {
+    try {
+      const res = await fetch(`/api/admin/khoa`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+
+        // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
+        const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+
+        setKhoaOptions(tenKhoaList);
+      } else {
+        toast.error("Failed to get khoa");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data khoa");
+    }
+  };
+
   const createMany = async (ListData) => {
     setIsUploading(true); // Bắt đầu hiển thị hiệu ứng xoay
     try {
@@ -90,6 +117,7 @@ const TeachingAssignmentForm = () => {
       setIsUploading(false); // Ẩn hiệu ứng xoay khi hoàn thành
     }
   };
+
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];

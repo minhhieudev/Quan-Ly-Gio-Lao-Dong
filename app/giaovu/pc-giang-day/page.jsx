@@ -158,12 +158,12 @@ const TeachingAssignmentTable = () => {
       width: 145,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
-    {
-      title: 'Tuần bắt đầu học',
-      dataIndex: 'tuanHoc',
-      key: 'tuanHoc',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-    },
+    // {
+    //   title: 'Tuần bắt đầu học',
+    //   dataIndex: 'tuanHoc',
+    //   key: 'tuanHoc',
+    //   render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+    // },
     {
       title: 'Hành động',
       key: 'action',
