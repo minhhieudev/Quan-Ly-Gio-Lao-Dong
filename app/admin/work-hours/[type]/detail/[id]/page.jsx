@@ -16,7 +16,7 @@ const Pages = () => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 10,
+      pageSize: 5,
     },
   });
   const [searchText, setSearchText] = useState('');

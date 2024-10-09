@@ -18,7 +18,7 @@ const App = () => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 6,
+      pageSize: 4,
     },
   });
   const [searchText, setSearchText] = useState('');
@@ -669,7 +669,7 @@ const App = () => {
 
   return (
     <div className='p-2 font-bold text-center bg-white rounded-md shadow-md m-auto  my-3'>
-      <div className="flex items-center justify-center mb-3">
+      <div className="flex items-center justify-center mb-0">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
           onClick={() => router.push(`/admin/work-hours`)}
@@ -738,7 +738,7 @@ const App = () => {
         onChange={handleTableChange}
       />
 
-      <div className="mt-2 flex justify-center gap-6">
+      <div className="mt-0 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
           onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}
