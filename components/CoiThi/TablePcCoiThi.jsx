@@ -80,7 +80,7 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'Thời gian (phút)',
+      title: 'Thời gian',
       dataIndex: 'time',
       key: 'time',
       width: 20,
@@ -118,7 +118,7 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto" style={{ maxHeight: '49vh' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}

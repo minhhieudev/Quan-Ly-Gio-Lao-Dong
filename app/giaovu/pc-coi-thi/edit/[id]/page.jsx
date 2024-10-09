@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Select, InputNumber, Row, Col ,DatePicker} from "antd";
+import { Button, Input, Form, Select, InputNumber, Row, Col, DatePicker } from "antd";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -117,19 +117,19 @@ const PcCoiThiForm = () => {
         </div>
       </div>
 
-      <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 font-bold">
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Mã học phần" validateStatus={errors.hocPhan ? 'error' : ''} help={errors.hocPhan?.message}>
+      <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 font-bold flex flex-col">
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex-1 min-w-[250px]">
+            <Form.Item label="Tên học phần" validateStatus={errors.hocPhan ? 'error' : ''} help={errors.hocPhan?.message}>
               <Controller
                 name="hocPhan"
                 control={control}
-                rules={{ required: "Vui lòng nhập mã học phần" }}
-                render={({ field }) => <Input placeholder="Nhập mã học phần, cách nhau bởi dấu phẩy" {...field} />}
+                rules={{ required: "Vui lòng nhập tên học phần" }}
+                render={({ field }) => <Input placeholder="Nhập tên học phần, cách nhau bởi dấu phẩy" {...field} />}
               />
             </Form.Item>
-          </Col>
-          <Col span={12}>
+          </div>
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Nhóm / lớp" validateStatus={errors.nhomLop ? 'error' : ''} help={errors.nhomLop?.message}>
               <Controller
                 name="nhomLop"
@@ -138,10 +138,11 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <Input placeholder="Nhập nhóm lớp, cách nhau bởi dấu phẩy" {...field} />}
               />
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex-1 min-w-[250px]">
             <Form.Item
               label="Ngày thi"
               validateStatus={errors.ngayThi ? 'error' : ''}
@@ -161,9 +162,9 @@ const PcCoiThiForm = () => {
                 )}
               />
             </Form.Item>
-          </Col>
+          </div>
 
-          <Col span={12}>
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Ca thi" validateStatus={errors.ca ? 'error' : ''} help={errors.ca?.message}>
               <Controller
                 name="ca"
@@ -172,32 +173,9 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <InputNumber min={1} placeholder="Nhập ca thi..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item label="Cán bộ coi thi 1" validateStatus={errors.cb1 ? 'error' : ''} help={errors.cb1?.message}>
-              <Controller
-                name="cb1"
-                control={control}
-                rules={{ required: "Vui lòng nhập cán bộ coi thi 1" }}
-                render={({ field }) => <Input placeholder="Nhập cán bộ coi thi 1..." {...field} />}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Cán bộ coi thi 2" validateStatus={errors.cb2 ? 'error' : ''} help={errors.cb2?.message}>
-              <Controller
-                name="cb2"
-                control={control}
-                rules={{ required: "Vui lòng nhập cán bộ coi thi 2" }}
-                render={({ field }) => <Input placeholder="Nhập cán bộ coi thi 2..." {...field} />}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
+          </div>
+
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Thời gian thi (phút)" validateStatus={errors.time ? 'error' : ''} help={errors.time?.message}>
               <Controller
                 name="time"
@@ -206,20 +184,34 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <Input placeholder="Nhập thời gian thi, cách nhau bởi dấu phẩy" {...field} />}
               />
             </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item label="Phòng thi" validateStatus={errors.phongThi ? 'error' : ''} help={errors.phongThi?.message}>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex-1 min-w-[250px]">
+            <Form.Item label="Cán bộ coi thi 1" validateStatus={errors.cb1 ? 'error' : ''} help={errors.cb1?.message}>
               <Controller
-                name="phongThi"
+                name="cb1"
                 control={control}
-                rules={{ required: "Vui lòng nhập phòng thi" }}
-                render={({ field }) => <Input placeholder="Nhập phòng thi..." {...field} />}
+                rules={{ required: "Vui lòng nhập cán bộ coi thi 1" }}
+                render={({ field }) => <Input placeholder="Nhập cán bộ coi thi 1..." {...field} />}
               />
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
+          </div>
+          <div className="flex-1 min-w-[250px]">
+            <Form.Item label="Cán bộ coi thi 2" validateStatus={errors.cb2 ? 'error' : ''} help={errors.cb2?.message}>
+              <Controller
+                name="cb2"
+                control={control}
+                rules={{ required: "Vui lòng nhập cán bộ coi thi 2" }}
+                render={({ field }) => <Input placeholder="Nhập cán bộ coi thi 2..." {...field} />}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Địa điểm thi" validateStatus={errors.diaDiem ? 'error' : ''} help={errors.diaDiem?.message}>
               <Controller
                 name="diaDiem"
@@ -228,8 +220,8 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <Input placeholder="Nhập địa điểm thi..." {...field} />}
               />
             </Form.Item>
-          </Col>
-          <Col span={12}>
+          </div>
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Ghi chú" validateStatus={errors.ghiChu ? 'error' : ''} help={errors.ghiChu?.message}>
               <Controller
                 name="ghiChu"
@@ -237,10 +229,21 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <Input.TextArea placeholder="Nhập ghi chú..." {...field} />}
               />
             </Form.Item>
-          </Col>
-        </Row>
-        <Row gutter={16}>
-          <Col span={12}>
+          </div>
+          <div className="flex-1 min-w-[250px]">
+            <Form.Item label="Phòng thi" validateStatus={errors.phongThi ? 'error' : ''} help={errors.phongThi?.message}>
+              <Controller
+                name="phongThi"
+                control={control}
+                rules={{ required: "Vui lòng nhập phòng thi" }}
+                render={({ field }) => <Input placeholder="Nhập phòng thi..." {...field} />}
+              />
+            </Form.Item>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap justify-between gap-4">
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Năm học" validateStatus={errors.namHoc ? 'error' : ''} help={errors.namHoc?.message}>
               <Controller
                 name="namHoc"
@@ -249,8 +252,8 @@ const PcCoiThiForm = () => {
                 render={({ field }) => <Input placeholder="Nhập năm học..." {...field} />}
               />
             </Form.Item>
-          </Col>
-          <Col span={12}>
+          </div>
+          <div className="flex-1 min-w-[250px]">
             <Form.Item label="Loại kỳ thi" validateStatus={errors.loaiKyThi ? 'error' : ''} help={errors.loaiKyThi?.message}>
               <Controller
                 name="loaiKyThi"
@@ -265,13 +268,15 @@ const PcCoiThiForm = () => {
                 )}
               />
             </Form.Item>
-          </Col>
-        </Row>
+          </div>
+        </div>
+
         <div className="flex justify-end space-x-2">
           <Button type="default" onClick={resetForm} danger>Reset</Button>
-          <Button type="primary" htmlType="submit" loading={isSubmitting} >Submit</Button>
+          <Button type="primary" htmlType="submit" loading={isSubmitting}>Lưu</Button>
         </div>
       </Form>
+
     </div>
   );
 };

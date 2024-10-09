@@ -12,7 +12,7 @@ const { Option } = Select;
 const PcChamThiTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("");
+  const [namHoc, setNamHoc] = useState("2023-2024");
   const [loaiKyThi, setLoaiKyThi] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,15 +53,26 @@ const PcChamThiTable = () => {
 
   useEffect(() => {
     const filtered = dataList.filter((item) => {
-      const cb1 = item.cb1?.toLowerCase().includes(searchTerm.toLowerCase());
-      const cb2 = item.cb2?.toLowerCase().includes(searchTerm.toLowerCase());
-      const hocPhan = typeof item.hocPhan === 'string' && item.hocPhan.toLowerCase().includes(searchTerm.toLowerCase());
-  
-      return cb1 || cb2 || hocPhan;
+      if (Array.isArray(item.hocPhan)) {
+        // Nếu hocPhan là mảng, kiểm tra xem bất kỳ phần tử nào trong mảng có chứa searchTerm không
+        return item.hocPhan.some(
+          (hp) =>
+            typeof hp === 'string' &&
+            hp.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
+        );
+      } else if (typeof item.hocPhan === 'string') {
+        // Nếu hocPhan là chuỗi, kiểm tra trực tiếp
+        return item.hocPhan
+          .trim()
+          .toLowerCase()
+          .includes(searchTerm.trim().toLowerCase());
+      }
+      return false;
     });
     setFilteredData(filtered);
   }, [searchTerm, dataList]);
-  
+
+
 
   const handleDelete = async (id) => {
     try {
@@ -135,7 +146,7 @@ const PcChamThiTable = () => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'Hình thức/Thời gian thi',
+      title: 'HT/TG',
       dataIndex: 'hinhThucThoiGianThi',
       key: 'hinhThucThoiGianThi',
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
@@ -145,7 +156,7 @@ const PcChamThiTable = () => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button size="small" onClick={() => router.push(`/giaovu/pc-cham-thi/edit/${record._id}`)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -169,31 +180,32 @@ const PcChamThiTable = () => {
   );
 
   return (
-    <div className="py-2 px-3 shadow-xl bg-white rounded-xl mt-3 h-[85vh] flex flex-col">
+    <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-1 h-[92vh] flex flex-col">
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <div className="flex gap-2">
-          <div className="text-heading4-bold">LOẠI:</div>
-          <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
-            <Option value="chinh-quy">Chính quy</Option>
-            <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
+          <div className="font-bold text-small-bold">LOẠI:</div>
+          <Select value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
+            <Option value="chinh-quy">chinh-quy</Option>
+            <Option value="lien-thong-vlvh">lien-thong-vlvh</Option>
           </Select>
         </div>
-        <h2 className="font-bold text-heading3-bold text-center text-green-500">DANH SÁCH PHÂN CÔNG CHẤM THI</h2>
+        <h2 className="font-bold text-[18px] text-center text-green-500">DANH SÁCH PHÂN CÔNG CHẤM THI</h2>
         <Button
-          className="button-dang-day text-white font-bold shadow-md mb-2"
+          className="button-dang-day text-white font-bold shadow-md mb-2 text-small-bold"
           onClick={() => router.push(`/giaovu/pc-cham-thi/create`)}
         >
           TẠO MỚI
         </Button>
       </div>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-2 text-small-bold">
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
-          <Select
+          <Select size="small"
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
+            value={namHoc}
           >
             <Option value="2021-2022">2021-2022</Option>
             <Option value="2022-2023">2022-2023</Option>
@@ -204,7 +216,7 @@ const PcChamThiTable = () => {
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>
-          <Select
+          <Select size="small"
             placeholder="Chọn loại kỳ thi"
             onChange={(value) => setLoaiKyThi(value)}
             className="w-[50%]"
@@ -223,8 +235,8 @@ const PcChamThiTable = () => {
         </div>
 
         <div className="w-[20%]">
-          <Input.Search
-            placeholder="Tìm kiếm học phần, giảng viên..."
+          <Input.Search size="small"
+            placeholder="Tìm kiếm học phần..."
             allowClear
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -236,7 +248,7 @@ const PcChamThiTable = () => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto text-small-bold" style={{ maxHeight: 'calc(85vh - 80px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}
@@ -261,7 +273,7 @@ const PcChamThiTable = () => {
             setCurrent(page);
             setPageSize(size);
           }}
-          pageSizeOptions={[ '10', '25', '50', '100', '200']}
+          pageSizeOptions={['10', '25', '50', '100', '200']}
           showSizeChanger
           className="flex justify-end"
         />

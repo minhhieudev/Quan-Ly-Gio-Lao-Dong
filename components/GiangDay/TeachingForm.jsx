@@ -316,7 +316,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -328,6 +328,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           </Popconfirm>
         </Space>
       ),
+      width:20
     },
   ];
 
@@ -338,12 +339,12 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="flex gap-2 max-sm:flex-col">
-      <div className="p-4 shadow-xl bg-white rounded-xl flex-[20%]">
-        <Title className="text-center" level={3}>CÔNG TÁC GIẢNG DẠY</Title>
+    <div className="flex gap-2 max-sm:flex-col h-full">
+      <div className="px-3 py-1 shadow-xl bg-white rounded-xl flex-[20%]">
+        <Title className="text-center" level={5}>CÔNG TÁC GIẢNG DẠY</Title>
 
         <Form onFinish={handleSubmit(onSubmit)} layout="Inline" className="">
-          <Space direction="vertical" >
+          <Space direction="vertical " size="0" >
             <Form.Item
               label={
                 <span className="font-bold text-xl">
@@ -454,7 +455,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 <Space direction="vertical" size="middle" className="w-full">
                   <div className="flex justify-between">
                     <Form.Item
-                      label={<span className="font-semibold text-base">Lý thuyết <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">LT <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietLT ? 'error' : ''}
                       help={errors.soTietLT?.message}
                     >
@@ -468,7 +469,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
                     <Form.Item
                       className="max-sm:ml-20"
-                      label={<span className="font-semibold text-base">Thực hành <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">TH <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietTH ? 'error' : ''}
                       help={errors.soTietTH?.message}
                     >
@@ -487,7 +488,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 <Space direction="vertical" size="middle" className="w-full">
                   <div className="flex justify-between">
                     <Form.Item
-                      label={<span className="font-semibold text-base">Lý thuyết <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">LT <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietQCLT ? 'error' : ''}
                       help={errors.soTietQCLT?.message}
                     >
@@ -501,7 +502,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
                     <Form.Item
                       className="max-sm:ml-20"
-                      label={<span className="font-semibold text-base">Thực hành <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">TH <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietQCTH ? 'error' : ''}
                       help={errors.soTietQCTH?.message}
                     >

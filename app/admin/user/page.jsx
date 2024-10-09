@@ -2,12 +2,13 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Select, Table, Popconfirm, Spin } from "antd";
+import { Button, Input, Form, Space, Typography, Select, Modal, Table, Popconfirm, Spin, Pagination } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
 import * as XLSX from 'xlsx';
 import { SearchOutlined } from '@ant-design/icons'
+import { FileExcelOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -27,7 +28,6 @@ const UserForm = () => {
         defaultValues: formSchema,
     });
     const [current, setCurrent] = useState(1);
-    const [pageSize] = useState(5);
     const [searchName, setSearchName] = useState("");
     const [selectedKhoa, setSelectedKhoa] = useState("");
     const [selectedRole, setSelectedRole] = useState("");
@@ -37,8 +37,15 @@ const UserForm = () => {
     const quyenOptions = ["Giảng viên", "Giáo vụ", "Admin"];
 
     const fileInputRef = useRef(null);
-    const [isUploading, setIsUploading] = useState(false); // Trạng thái upload
+    const [isUploading, setIsUploading] = useState(false);
     const [showForm, setShowForm] = useState(false);
+    const [pageSize, setPageSize] = useState(10);
+
+    // Phân trang dữ liệu
+    const paginatedData = filteredList.slice(
+        (current - 1) * pageSize,
+        current * pageSize
+    );
 
     useEffect(() => {
         fetchData();
@@ -168,7 +175,7 @@ const UserForm = () => {
     };
 
     const createManyUser = async (ListDataUser) => {
-        setIsUploading(true); 
+        setIsUploading(true);
         try {
             const method = "POST";
             const res = await fetch("/api/admin/user/create", {
@@ -258,7 +265,7 @@ const UserForm = () => {
         //     title: 'GCPVCD',
         //     dataIndex: 'GCPVCD',
         //     key: 'GCPVCD',
-           
+
 
         // },
         {
@@ -300,7 +307,7 @@ const UserForm = () => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
+                <Space size="small">
                     <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
@@ -320,255 +327,251 @@ const UserForm = () => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-2 max-sm:flex-col mt-4 h-[83vh]">
+        <div className=" mt-1 h-[92vh]">
             {showForm && (
-                <div className="p-4 shadow-xl bg-white rounded-xl flex-[20%]">
-                    <Title className="text-center" level={4}>QUẢN LÝ NGƯỜI DÙNG</Title>
-
-                    <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
-                        <Space direction="vertical" className="w-full">
-                            <div className="flex justify-between">
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Họ tên giảng viên <span className="text-red-600">*</span></span>}
-                                    className="w-[40%] p-0"
-                                    validateStatus={errors.username ? 'error' : ''}
-                                    help={errors.username?.message}
-                                >
-                                    <Controller
-                                        name="username"
-                                        control={control}
-                                        rules={{ required: "Họ tên giảng viên là bắt buộc" }}
-                                        render={({ field }) => <Input className="input-text" placeholder="Nhập tên giảng viên ..." {...field} />}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Email <span className="text-red-600">*</span></span>}
-                                    className="w-[40%]"
-                                    validateStatus={errors.email ? 'error' : ''}
-                                    help={errors.email?.message}
-                                >
-                                    <Controller
-                                        name="email"
-                                        control={control}
-                                        rules={{ required: "Email là bắt buộc" }}
-                                        render={({ field }) => <Input className="input-text" placeholder="Nhập email ..." {...field} />}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="flex justify-between">
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Mã ngạch <span className="text-red-600">*</span></span>}
-                                    className="w-[40%] p-0"
-                                    validateStatus={errors.maNgach ? 'error' : ''}
-                                    help={errors.maNgach?.message}
-                                >
-                                    <Controller
-                                        name="maNgach"
-                                        control={control}
-                                        rules={{ required: "Mã ngạch là bắt buộc" }}
-                                        render={({ field }) => <Input className="input-text" placeholder="Nhập mã ngạch ..." {...field} />}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Học hàm, học vị <span className="text-red-600">*</span></span>}
-                                    className="w-[40%]"
-                                    validateStatus={errors.hocHamHocVi ? 'error' : ''}
-                                    help={errors.hocHamHocVi?.message}
-                                >
-                                    <Controller
-                                        name="hocHamHocVi"
-                                        control={control}
-                                        rules={{ required: "Học hàm, học vị là bắt buộc" }}
-                                        render={({ field }) => <Input className="input-text" placeholder="Nhập học hàm, học vị ..." {...field} />}
-                                    />
-                                </Form.Item>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Định mức giờ chuẩn</span>}
-                                    className="w-[40%] p-0"
-                                >
-                                    <Controller
-                                        name="dinhMucGioChuan"
-                                        control={control}
-                                        rules={{ required: "Định mức giờ chuẩn là bắt buộc" }}
-                                        render={({ field }) => <Input className="input-text" placeholder="Nhập định mức giờ chuẩn ..." {...field} />}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Chức vụ chính quyền </span>}
-                                    className="w-[40%]"
-                                    help={errors.chucVuChinhQuyen?.message}
-                                >
-                                    <Controller
-                                        name="chucVuChinhQuyen"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select className="w-full" placeholder="Chọn chức vụ chính quyền" {...field}>
-                                                <Option key={'Trưởng phòng QLCL'} value={'Trưởng phòng QLCL'}> Trưởng phòng QLCL</Option>
-                                                <Option key={'Phó trưởng khoa'} value={'Phó trưởng khoa'}> Phó trưởng khoa</Option>
-                                                <Option key={'Phó trưởng phòng QLCL'} value={'Phó trưởng phòng QLCL'}> Phó trưởng phòng QLCL</Option>
-                                            </Select>
-                                        )}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="flex justify-between">
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Chức vụ kiêm nhiệm</span>}
-                                    className="w-[40%]"
-                                    help={errors.chucVuKiemNhiem?.message}
-                                >
-                                    <Controller
-                                        name="chucVuKiemNhiem"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select className="w-full" placeholder="Chọn chức vụ kiêm nhiệm" {...field}>
-                                                <Option key={'Giáo vụ khoa'} value={'Giáo vụ khoa'}> Giáo vụ khoa</Option>
-                                                <Option key={'Kỹ thuật viên'} value={'Kỹ thuật viên'}> Kỹ thuật viên</Option>
-                                                <Option key={'Phó TBM'} value={'Phó TBM'}> Phó TBM</Option>
-                                                <Option key={'TBM'} value={'TBM'}> TBM</Option>
-                                                <Option key={'Viên chức phòng đào tạo'} value={'Viên chức phòng đào tạo'}> Viên chức phòng đào tạo</Option>
-                                                <Option key={'Nhân viên - QLCL'} value={'Nhân viên - QLCL'}> Nhân viên - QLCL</Option>
-                                            </Select>
-                                        )}
-                                    />
-                                </Form.Item>
-
-                                <Form.Item
-                                    label={<span className="font-bold text-xl">Chức vụ đoàn thể XH </span>}
-                                    className="w-[40%]"
-                                    help={errors.chucVuDoanTheXH?.message}
-                                >
-                                    <Controller
-                                        name="chucVuDoanTheXH"
-                                        control={control}
-                                        render={({ field }) => (
-                                            <Select className="w-full" placeholder="Chọn chức vụ đoàn thể XH" {...field}>
-                                                <Option key={'CTCĐ'} value={'CTCĐ'}> CTCĐ</Option>
-                                                <Option key={'Bí thư CBPBC - TT'} value={'Bí thư CBPBC - TT'}> Bí thư CBPBC - TT</Option>
-                                                <Option key={'Phó bi thư CB'} value={'Phó bi thư CB'}> Phó bi thư CB</Option>
-                                                <Option key={'Phó trưởng phòng QLCL'} value={'Phó trưởng phòng QLCL'}> Tổ trưởng tổ CĐ TV....</Option>
-                                            </Select>
-                                        )}
-                                    />
-                                </Form.Item>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <div className="w-[40%]">
+                <Modal
+                    title="QUẢN LÝ NGƯỜI DÙNG"
+                    visible={showForm}
+                    //onOk={handleOk}
+                    onCancel={() => { setShowForm(!showForm) }}
+                    footer={null} // Disable default footer to use custom buttons
+                    width={'900px'}
+                    height={'600px'}
+                >
+                    <div className="p-2 shadow-xl bg-white rounded-xl ">
+                        <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
+                            <Space direction="vertical" className="w-full">
+                                <div className="flex justify-between gap-2">
                                     <Form.Item
-                                        label={<span className="font-bold text-xl">Khoa <span className="text-red-600">*</span></span>}
-                                        validateStatus={errors.khoa ? 'error' : ''}
-                                        help={errors.khoa?.message}
+                                        label={<span className="font-bold text-xl">Họ tên giảng viên <span className="text-red-600">*</span></span>}
+                                        className="w-[40%] p-0"
+                                        validateStatus={errors.username ? 'error' : ''}
+                                        help={errors.username?.message}
                                     >
                                         <Controller
-                                            name="khoa"
+                                            name="username"
                                             control={control}
-                                            rules={{ required: "Khoa là bắt buộc" }}
+                                            rules={{ required: "Họ tên giảng viên là bắt buộc" }}
+                                            render={({ field }) => <Input className="input-text" placeholder="Nhập tên giảng viên ..." {...field} />}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Email <span className="text-red-600">*</span></span>}
+                                        className="w-[40%]"
+                                        validateStatus={errors.email ? 'error' : ''}
+                                        help={errors.email?.message}
+                                    >
+                                        <Controller
+                                            name="email"
+                                            control={control}
+                                            rules={{ required: "Email là bắt buộc" }}
+                                            render={({ field }) => <Input className="input-text" placeholder="Nhập email ..." {...field} />}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Mã ngạch <span className="text-red-600">*</span></span>}
+                                        className="w-[40%] p-0"
+                                        validateStatus={errors.maNgach ? 'error' : ''}
+                                        help={errors.maNgach?.message}
+                                    >
+                                        <Controller
+                                            name="maNgach"
+                                            control={control}
+                                            rules={{ required: "Mã ngạch là bắt buộc" }}
+                                            render={({ field }) => <Input className="input-text" placeholder="Nhập mã ngạch ..." {...field} />}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div className="flex justify-between gap-2">
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Học hàm, học vị </span>}
+                                        className="w-[40%]"
+                                    >
+                                        <Controller
+                                            name="hocHamHocVi"
+                                            control={control}
+                                            render={({ field }) => <Input className="input-text" placeholder="Nhập học hàm, học vị ..." {...field} />}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Định mức giờ chuẩn</span>}
+                                        className="w-[40%] p-0"
+                                    >
+                                        <Controller
+                                            name="dinhMucGioChuan"
+                                            control={control}
+                                            render={({ field }) => <Input className="input-text" placeholder="Nhập định mức giờ chuẩn ..." {...field} />}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Chức vụ chính quyền </span>}
+                                        className="w-[40%]"
+                                        help={errors.chucVuChinhQuyen?.message}
+                                    >
+                                        <Controller
+                                            name="chucVuChinhQuyen"
+                                            control={control}
                                             render={({ field }) => (
-                                                <Select className="w-full" placeholder="Chọn khoa" {...field}>
-                                                    {khoaOptions.map(khoa => (
-                                                        <Option key={khoa} value={khoa}>
-                                                            {khoa}
-                                                        </Option>
-                                                    ))}
+                                                <Select className="w-full" placeholder="Chọn chức vụ chính quyền" {...field}>
+                                                    <Option key={'Trưởng phòng QLCL'} value={'Trưởng phòng QLCL'}> Trưởng phòng QLCL</Option>
+                                                    <Option key={'Phó trưởng khoa'} value={'Phó trưởng khoa'}> Phó trưởng khoa</Option>
+                                                    <Option key={'Phó trưởng phòng QLCL'} value={'Phó trưởng phòng QLCL'}> Phó trưởng phòng QLCL</Option>
+                                                </Select>
+                                            )}
+                                        />
+                                    </Form.Item>
+                                </div>
+                                <div className="flex justify-between">
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Chức vụ kiêm nhiệm</span>}
+                                        className="w-[40%]"
+                                        help={errors.chucVuKiemNhiem?.message}
+                                    >
+                                        <Controller
+                                            name="chucVuKiemNhiem"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select className="w-full" placeholder="Chọn chức vụ kiêm nhiệm" {...field}>
+                                                    <Option key={'Giáo vụ khoa'} value={'Giáo vụ khoa'}> Giáo vụ khoa</Option>
+                                                    <Option key={'Kỹ thuật viên'} value={'Kỹ thuật viên'}> Kỹ thuật viên</Option>
+                                                    <Option key={'Phó TBM'} value={'Phó TBM'}> Phó TBM</Option>
+                                                    <Option key={'TBM'} value={'TBM'}> TBM</Option>
+                                                    <Option key={'Viên chức phòng đào tạo'} value={'Viên chức phòng đào tạo'}> Viên chức phòng đào tạo</Option>
+                                                    <Option key={'Nhân viên - QLCL'} value={'Nhân viên - QLCL'}> Nhân viên - QLCL</Option>
+                                                </Select>
+                                            )}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Chức vụ đoàn thể XH </span>}
+                                        className="w-[40%]"
+                                        help={errors.chucVuDoanTheXH?.message}
+                                    >
+                                        <Controller
+                                            name="chucVuDoanTheXH"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select className="w-full" placeholder="Chọn chức vụ đoàn thể XH" {...field}>
+                                                    <Option key={'CTCĐ'} value={'CTCĐ'}> CTCĐ</Option>
+                                                    <Option key={'Bí thư CBPBC - TT'} value={'Bí thư CBPBC - TT'}> Bí thư CBPBC - TT</Option>
+                                                    <Option key={'Phó bi thư CB'} value={'Phó bi thư CB'}> Phó bi thư CB</Option>
+                                                    <Option key={'Phó trưởng phòng QLCL'} value={'Phó trưởng phòng QLCL'}> Tổ trưởng tổ CĐ TV....</Option>
                                                 </Select>
                                             )}
                                         />
                                     </Form.Item>
                                 </div>
 
-                                <div className="w-[40%]">
-                                    <Form.Item
-                                        label={<span className="font-bold text-xl">Đơn vị quản lý </span>}
-                                        className="p-0"
-                                        validateStatus={errors.donViQuanLy ? 'error' : ''}
-                                        help={errors.donViQuanLy?.message}
-                                    >
-                                        <Controller
-                                            name="donViQuanLy"
-                                            control={control}
-                                            render={({ field }) => <Input className="input-text" placeholder="Nhập đơn vị quản lý ..." {...field} />}
-                                        />
-                                    </Form.Item>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <div className="w-[40%]">
-                                    <Form.Item
-                                        label={<span className="font-bold text-xl">Quyền <span className="text-red-600">*</span></span>}
-                                        validateStatus={errors.role ? 'error' : ''}
-                                        help={errors.role?.message}
-                                    >
-                                        <Controller
-                                            name="role"
-                                            control={control}
-                                            rules={{ required: "Quyền là bắt buộc" }}
-                                            render={({ field }) => (
-                                                <Select className="w-full" placeholder="Chọn quyền" {...field}>
-                                                    {quyenOptions.map(role => (
-                                                        <Option key={role} value={role}>
-                                                            {role}
-                                                        </Option>
-                                                    ))}
-                                                </Select>
-                                            )}
-                                        />
-                                    </Form.Item>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between">
-                                <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
-                                    {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
-                                </Button>
-                                <Button className="ml-4" htmlType="button" onClick={onReset}>
-                                    Reset
-                                </Button>
-                            </div>
-                            <div className="text-center">
-                                <Spin spinning={isUploading}>
-                                    <label htmlFor="excelUpload">
-                                        <Button
-                                            className="mt-3 button-lien-thong-vlvh"
-                                            type="primary"
-                                            icon={<UploadOutlined />}
-                                            onClick={() => fileInputRef.current.click()}
-                                            disabled={isUploading}
+                                <div className="flex justify-between">
+                                    <div className="w-[40%]">
+                                        <Form.Item
+                                            label={<span className="font-bold text-xl">Khoa <span className="text-red-600">*</span></span>}
+                                            validateStatus={errors.khoa ? 'error' : ''}
+                                            help={errors.khoa?.message}
                                         >
-                                            {isUploading ? 'Đang tải lên...' : 'Import từ file Excel'}
-                                        </Button>
-                                    </label>
-                                </Spin>
+                                            <Controller
+                                                name="khoa"
+                                                control={control}
+                                                rules={{ required: "Khoa là bắt buộc" }}
+                                                render={({ field }) => (
+                                                    <Select className="w-full" placeholder="Chọn khoa" {...field}>
+                                                        {khoaOptions.map(khoa => (
+                                                            <Option key={khoa} value={khoa}>
+                                                                {khoa}
+                                                            </Option>
+                                                        ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </Form.Item>
+                                    </div>
 
-                                <div className="hidden">
-                                    <input
-                                        type="file"
-                                        accept=".xlsx, .xls"
-                                        onChange={handleFileUpload}
-                                        className="hidden"
-                                        id="excelUpload"
-                                        ref={fileInputRef}
-                                    />
+                                    <div className="w-[40%]">
+                                        <Form.Item
+                                            label={<span className="font-bold text-xl">Đơn vị quản lý </span>}
+                                            className="p-0"
+                                            validateStatus={errors.donViQuanLy ? 'error' : ''}
+                                            help={errors.donViQuanLy?.message}
+                                        >
+                                            <Controller
+                                                name="donViQuanLy"
+                                                control={control}
+                                                render={({ field }) => <Input className="input-text" placeholder="Nhập đơn vị quản lý ..." {...field} />}
+                                            />
+                                        </Form.Item>
+                                    </div>
+
+                                    <Form.Item
+                                            label={<span className="font-bold text-xl">Quyền <span className="text-red-600">*</span></span>}
+                                        >
+                                            <Controller
+                                                name="role"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Select className="w-full" placeholder="Chọn quyền" {...field}>
+                                                        {quyenOptions.map(role => (
+                                                            <Option key={role} value={role}>
+                                                                {role}
+                                                            </Option>
+                                                        ))}
+                                                    </Select>
+                                                )}
+                                            />
+                                        </Form.Item>
                                 </div>
-                            </div>
 
-                        </Space>
-                    </Form>
-                </div>
+                                <div className="flex justify-between">
+                                    <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
+                                        {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                                    </Button>
+                                    <Button className="ml-4" htmlType="button" onClick={onReset}>
+                                        Reset
+                                    </Button>
+                                </div>
+                                <div className="text-center">
+                                    <Spin spinning={isUploading}>
+                                        <label htmlFor="excelUpload">
+                                            <Button
+                                                className="mt-3 button-lien-thong-vlvh"
+                                                type="primary"
+                                                icon={<UploadOutlined />}
+                                                onClick={() => fileInputRef.current.click()}
+                                                disabled={isUploading}
+                                            >
+                                                {isUploading ? 'Đang tải lên...' : 'Import từ file Excel'}
+                                            </Button>
+                                        </label>
+                                    </Spin>
+
+                                    <div className="hidden">
+                                        <input
+                                            type="file"
+                                            accept=".xlsx, .xls"
+                                            onChange={handleFileUpload}
+                                            className="hidden"
+                                            id="excelUpload"
+                                            ref={fileInputRef}
+                                        />
+                                    </div>
+                                </div>
+
+                            </Space>
+                        </Form>
+                    </div>
+                </Modal>
             )}
-            <div className="p-3 shadow-xl bg-white rounded-xl flex-[65%]">
-                <div className="flex flex-col gap-2 justify-between items-center mb-4">
-                    <Title level={3} className="text-center">DANH SÁCH NGƯỜI DÙNG</Title>
+            <div className="p-2 shadow-xl bg-white rounded-xl ">
+                <div className="flex flex-col gap-0 justify-between items-center mb-0">
+                    <Title level={4} className="text-center text-[18px]">DANH SÁCH NGƯỜI DÙNG</Title>
                     <div className="flex gap-3 justify-between w-full">
                         <div className="flex flex-1">
-                            <Input
+                            <Input size="small"
                                 className="w-[30%] flex-1"
                                 placeholder="Tìm kiếm theo tên giảng viên"
                                 value={searchName}
@@ -579,7 +582,7 @@ const UserForm = () => {
                         </div>
                         <div className="flex flex-1 gap-1">
                             <div className="text-base-bold">Khoa:</div>
-                            <Select
+                            <Select size="small"
                                 className="w-[30%] flex-1"
                                 placeholder="Lọc theo khoa"
                                 allowClear
@@ -595,7 +598,7 @@ const UserForm = () => {
                         </div>
                         <div className="flex flex-1 gap-1">
                             <div className="text-base-bold">Quyền:</div>
-                            <Select
+                            <Select size="small"
                                 className="w-[30%] flex-1"
                                 placeholder="Lọc theo quyền"
                                 allowClear
@@ -617,17 +620,35 @@ const UserForm = () => {
                     </div>
                 </div>
 
-                <Table
-                    dataSource={filteredList}
-                    columns={columns}
-                    rowKey="_id"
-                    pagination={{
-                        current,
-                        pageSize,
-                        total: filteredList.length,
-                        onChange: (page) => setCurrent(page),
-                    }}
-                />
+                <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+                    <Table
+                        columns={columns}
+                        dataSource={paginatedData}
+                        rowKey="_id"
+                        pagination={false} // Tắt phân trang trên Table
+                    />
+                </div>
+
+                <div className="mt-2 flex justify-between">
+                    <Button
+                        className="button-lien-thong-vlvh text-white font-bold shadow-md "
+                    //onClick={() => exportToExcelTongHop() }
+                    ><FileExcelOutlined />
+                        Xuất file Excel
+                    </Button>
+                    <Pagination
+                        current={current}
+                        pageSize={pageSize}
+                        total={filteredList.length}
+                        onChange={(page, size) => {
+                            setCurrent(page);
+                            setPageSize(size);
+                        }}
+                        pageSizeOptions={['10', '25', '50', '100', '200']}
+                        showSizeChanger
+                        className="flex justify-end"
+                    />
+                </div>
             </div>
         </div>
     );

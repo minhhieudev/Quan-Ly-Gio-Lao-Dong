@@ -11,7 +11,7 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
     //const ky = searchParams.get('ky');
-    const cb =  'Võ Thị Tem';
+    const cb =  'Lê Thị Kim Anh';
 
     let filter = {};
     

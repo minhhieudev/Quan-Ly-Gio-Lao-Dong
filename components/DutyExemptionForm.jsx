@@ -100,7 +100,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
-                toast.success("Record saved successfully!");
+                toast.success("Lưu thành công!");
                 onReset();
             } else {
                 toast.error("Failed to save record");
@@ -169,18 +169,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                <Space size="small">
+                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)} // Sử dụng ID để xoá
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="primary" danger>Xoá</Button>
+                        <Button size="small" type="primary" danger>Xoá</Button>
                     </Popconfirm>
                 </Space>
             ),
+            width: 20
         },
     ];
 
@@ -195,8 +196,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-5 max-sm:flex-col">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[40%]">
+        <div className="flex gap-2 max-sm:flex-col h-full">
+            <div className="p-5 shadow-xl bg-white rounded-xl flex-[20%]">
                 <Title className="text-center" level={3}>CÔNG TÁC KIÊM NHIỆM</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">

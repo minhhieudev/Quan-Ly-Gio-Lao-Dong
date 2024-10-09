@@ -61,7 +61,7 @@ const TeachingAssignmentForm = () => {
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/giaovu/pc-coi-thi`, {
         method,
-        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai, namHocs, ky}),
+        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai, namHoc: namHocs, ky }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -113,7 +113,7 @@ const TeachingAssignmentForm = () => {
       fileInputRef.current.value = "";
       return
     }
-   
+
     const file = e.target.files[0];
     const reader = new FileReader();
 
@@ -163,7 +163,7 @@ const TeachingAssignmentForm = () => {
               namHoc,
               hocPhan: [row[1]],
               nhomLop: [row[2]],
-              ngayThi: dayjs(row[3]).format('DD/MM/YYYY'), 
+              ngayThi: dayjs(row[3]).format('DD/MM/YYYY'),
               ca: row[4],
               phongThi: row[5],
               cb1: row[6],
@@ -200,7 +200,7 @@ const TeachingAssignmentForm = () => {
   };
 
   return (
-    <div className="p-4 bg-white shadow-lg rounded-lg mt-3 w-[70%] mx-auto font-bold">
+    <div className="p-3 bg-white shadow-lg rounded-lg mt-3 w-[80%] mx-auto font-bold">
       <div className="flex items-center justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
@@ -243,13 +243,14 @@ const TeachingAssignmentForm = () => {
 
       </div>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-wrap gap-4">
 
           {/* Loại kỳ thi */}
           <Form.Item
             label="Loại kỳ thi"
             validateStatus={errors.loaiKyThi ? 'error' : ''}
             help={errors.loaiKyThi?.message}
+            className="flex-1 min-w-[250px]"
           >
             <Controller
               name="loaiKyThi"
@@ -258,7 +259,7 @@ const TeachingAssignmentForm = () => {
                 <Select
                   placeholder="Nhập loại kỳ thi"
                   onChange={(value) => setLoaiKyThi(value)}
-                  className="w-[50%]"
+                  className="w-full"
                   {...field}
                 >
                   <Option value="Học kỳ 1">Học kỳ 1</Option>
@@ -275,11 +276,13 @@ const TeachingAssignmentForm = () => {
               )}
             />
           </Form.Item>
+
           {/* Học phần */}
           <Form.Item
             label="Học phần"
             validateStatus={errors.hocPhan ? 'error' : ''}
             help={errors.hocPhan?.message}
+            className="flex-1 min-w-[250px]"
           >
             <Controller
               name="hocPhan"
@@ -291,64 +294,86 @@ const TeachingAssignmentForm = () => {
             />
           </Form.Item>
 
-          {/* Nhóm lớp */}
-          <Form.Item
-            label="Nhóm lớp"
-            validateStatus={errors.nhomLop ? 'error' : ''}
-            help={errors.nhomLop?.message}
-          >
-            <Controller
-              name="nhomLop"
-              control={control}
-              rules={{ required: "Nhóm lớp là bắt buộc" }}
-              render={({ field }) => (
-                <Input placeholder="Nhập nhóm/lớp (ngăn cách bởi dấu phẩy)..." {...field} />
-              )}
-            />
-          </Form.Item>
+          {/* Nhóm lớp và Ngày thi */}
+          <div className="flex flex-1 gap-4">
+            <Form.Item
+              label="Nhóm lớp"
+              validateStatus={errors.nhomLop ? 'error' : ''}
+              help={errors.nhomLop?.message}
+              className="flex-1 min-w-[200px]"
+            >
+              <Controller
+                name="nhomLop"
+                control={control}
+                rules={{ required: "Nhóm lớp là bắt buộc" }}
+                render={({ field }) => (
+                  <Input placeholder="Nhập nhóm/lớp..." {...field} />
+                )}
+              />
+            </Form.Item>
 
-          {/* Ngày thi */}
-          <Form.Item
-            label="Ngày thi"
-            validateStatus={errors.ngayThi ? 'error' : ''}
-            help={errors.ngayThi?.message}
-          >
-            <Controller
-              name="ngayThi"
-              control={control}
-              rules={{ required: "Ngày thi là bắt buộc" }}
-              render={({ field }) => (
-                <DatePicker
-                  {...field}
-                  format="DD/MM/YYYY"
-                  onChange={(date, dateString) => field.onChange(dateString)}
-                  value={field.value ? dayjs(field.value, 'DD/MM/YYYY') : null}
-                />
-              )}
-            />
-          </Form.Item>
+            <Form.Item
+              label="Ngày thi"
+              validateStatus={errors.ngayThi ? 'error' : ''}
+              help={errors.ngayThi?.message}
+              className="flex-1 min-w-[200px]"
+            >
+              <Controller
+                name="ngayThi"
+                control={control}
+                rules={{ required: "Ngày thi là bắt buộc" }}
+                render={({ field }) => (
+                  <DatePicker
+                    format="DD/MM/YYYY"
+                    onChange={(date, dateString) => field.onChange(dateString)}
+                    value={field.value ? dayjs(field.value, 'DD/MM/YYYY') : null}
+                  />
+                )}
+              />
+            </Form.Item>
+          </div>
 
-          {/* Ca */}
-          <Form.Item
-            label="Ca"
-            validateStatus={errors.ca ? 'error' : ''}
-            help={errors.ca?.message}
-          >
-            <Controller
-              name="ca"
-              control={control}
-              rules={{ required: "Ca là bắt buộc" }}
-              render={({ field }) => (
-                <Input type="number" placeholder="Nhập ca" {...field} />
-              )}
-            />
-          </Form.Item>
+          {/* Ca và Thời gian */}
+          <div className="flex flex-1 gap-4">
+            <Form.Item
+              label="Ca"
+              validateStatus={errors.ca ? 'error' : ''}
+              help={errors.ca?.message}
+              className="flex-1 min-w-[100px]"
+            >
+              <Controller
+                name="ca"
+                control={control}
+                rules={{ required: "Ca là bắt buộc" }}
+                render={({ field }) => (
+                  <Input type="number" placeholder="Nhập ca" {...field} />
+                )}
+              />
+            </Form.Item>
 
+            <Form.Item
+              label="Thời gian (phút)"
+              validateStatus={errors.time ? 'error' : ''}
+              help={errors.time?.message}
+              className="flex-1 min-w-[150px]"
+            >
+              <Controller
+                name="time"
+                control={control}
+                render={({ field }) => (
+                  <Input placeholder="Nhập thời gian..." {...field} />
+                )}
+              />
+            </Form.Item>
+          </div>
+
+          {/* Các field khác */}
           {/* Phòng thi */}
           <Form.Item
             label="Phòng thi"
             validateStatus={errors.phongThi ? 'error' : ''}
             help={errors.phongThi?.message}
+            className="flex-1 min-w-[250px]"
           >
             <Controller
               name="phongThi"
@@ -359,56 +384,45 @@ const TeachingAssignmentForm = () => {
             />
           </Form.Item>
 
-          {/* Cán bộ coi thi 1 */}
-          <Form.Item
-            label="Cán bộ coi thi 1"
-            validateStatus={errors.cb1 ? 'error' : ''}
-            help={errors.cb1?.message}
-          >
-            <Controller
-              name="cb1"
-              control={control}
-              render={({ field }) => (
-                <Input placeholder="Nhập cán bộ coi thi 1" {...field} />
-              )}
-            />
-          </Form.Item>
+          {/* Cán bộ coi thi 1 và 2 */}
+          <div className="flex flex-1 gap-4">
+            <Form.Item
+              label="Cán bộ coi thi 1"
+              validateStatus={errors.cb1 ? 'error' : ''}
+              help={errors.cb1?.message}
+              className="flex-1 min-w-[200px]"
+            >
+              <Controller
+                name="cb1"
+                control={control}
+                render={({ field }) => (
+                  <Input placeholder="Nhập cán bộ coi thi 1" {...field} />
+                )}
+              />
+            </Form.Item>
 
-          {/* Cán bộ coi thi 2 */}
-          <Form.Item
-            label="Cán bộ coi thi 2"
-            validateStatus={errors.cb2 ? 'error' : ''}
-            help={errors.cb2?.message}
-          >
-            <Controller
-              name="cb2"
-              control={control}
-              render={({ field }) => (
-                <Input placeholder="Nhập cán bộ coi thi 2" {...field} />
-              )}
-            />
-          </Form.Item>
-
-          {/* Thời gian */}
-          <Form.Item
-            label="Thời gian (phút)"
-            validateStatus={errors.time ? 'error' : ''}
-            help={errors.time?.message}
-          >
-            <Controller
-              name="time"
-              control={control}
-              render={({ field }) => (
-                <Input placeholder="Nhập thời gian (ngăn cách bởi dấu phẩy)..." {...field} />
-              )}
-            />
-          </Form.Item>
+            <Form.Item
+              label="Cán bộ coi thi 2"
+              validateStatus={errors.cb2 ? 'error' : ''}
+              help={errors.cb2?.message}
+              className="flex-1 min-w-[200px]"
+            >
+              <Controller
+                name="cb2"
+                control={control}
+                render={({ field }) => (
+                  <Input placeholder="Nhập cán bộ coi thi 2" {...field} />
+                )}
+              />
+            </Form.Item>
+          </div>
 
           {/* Địa điểm thi */}
           <Form.Item
             label="Địa điểm thi"
             validateStatus={errors.diaDiem ? 'error' : ''}
             help={errors.diaDiem?.message}
+            className="flex-1 min-w-[250px]"
           >
             <Controller
               name="diaDiem"
@@ -424,6 +438,7 @@ const TeachingAssignmentForm = () => {
             label="Ghi chú"
             validateStatus={errors.ghiChu ? 'error' : ''}
             help={errors.ghiChu?.message}
+            className="flex-1"
           >
             <Controller
               name="ghiChu"
@@ -433,8 +448,6 @@ const TeachingAssignmentForm = () => {
               )}
             />
           </Form.Item>
-
-
         </div>
 
         {/* Action Buttons */}
@@ -463,7 +476,6 @@ const TeachingAssignmentForm = () => {
                 type="file"
                 accept=".xlsx, .xls"
                 onChange={handleFileUpload}
-                className="hidden"
                 id="excelUpload"
                 ref={fileInputRef}
               />
@@ -475,6 +487,7 @@ const TeachingAssignmentForm = () => {
           </Button>
         </div>
       </Form>
+
 
     </div>
   );

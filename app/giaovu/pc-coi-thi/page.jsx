@@ -12,12 +12,12 @@ const { Option } = Select;
 const PcCoiThiTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("");
+  const [namHoc, setNamHoc] = useState('2024-2025');
   const [loaiKyThi, setLoaiKyThi] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [loai, setLoai] = useState("");
+  const [loai, setLoai] = useState("chinh-quy");
   const [ky, setKy] = useState("");
 
   const [current, setCurrent] = useState(1);
@@ -56,7 +56,11 @@ const PcCoiThiTable = () => {
     const filtered = dataList.filter((item) =>
       item.cb1.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.cb2.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.hocPhan.toLowerCase().includes(searchTerm.toLowerCase())
+      item.hocPhan.some(
+        (hp) =>
+          typeof hp === 'string' &&
+          hp.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
+      )
     );
     setFilteredData(filtered);
   }, [searchTerm, dataList]);
@@ -93,7 +97,7 @@ const PcCoiThiTable = () => {
       key: 'hocPhan',
       render: (text) => (
         <span style={{ color: 'green', fontWeight: 'bold' }}>
-          {Array.isArray(text) ? text.join(', ') : text}
+          {Array.isArray(text) ? text.join(' || ') : text}
         </span>
       ),
     },
@@ -111,6 +115,7 @@ const PcCoiThiTable = () => {
       title: 'Ngày thi',
       dataIndex: 'ngayThi',
       key: 'ngayThi',
+      width: 20,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
@@ -124,25 +129,23 @@ const PcCoiThiTable = () => {
       title: 'Phòng thi',
       dataIndex: 'phongThi',
       key: 'phongThi',
-      width: 120,
+      width: 20,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 1',
+      title: 'Cán bộ 1',
       dataIndex: 'cb1',
       key: 'cb1',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 2',
+      title: 'Cán bộ 2',
       dataIndex: 'cb2',
       key: 'cb2',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
-      title: 'Thời gian (phút)',
+      title: 'Thời gian',
       dataIndex: 'time',
       key: 'time',
       width: 20,
@@ -153,7 +156,7 @@ const PcCoiThiTable = () => {
       ),
     },
     {
-      title: 'Địa điểm thi',
+      title: 'Địa điểm',
       dataIndex: 'diaDiem',
       key: 'diaDiem',
       width: 20,
@@ -163,13 +166,14 @@ const PcCoiThiTable = () => {
       title: 'Ghi chú',
       dataIndex: 'ghiChu',
       key: 'ghiChu',
+      width: 20,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button size="small" onClick={() => router.push(`/giaovu/pc-coi-thi/edit/${record._id}`)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -193,17 +197,17 @@ const PcCoiThiTable = () => {
   );
 
   return (
-    <div className="py-2 px-3 shadow-xl bg-white rounded-xl mt-3 h-[85vh] flex flex-col">
+    <div className="py-1 px-2 shadow-xl bg-white rounded-xl mt-1 h-[92vh] flex flex-col">
 
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-0">
         <div className="flex gap-2">
-          <div className="text-heading4-bold">LOẠI:</div>
-          <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
-            <Option value="chinh-quy">Chính quy</Option>
-            <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
+          <div className="text-[14px] font-bold">LOẠI:</div>
+          <Select value={loai}  size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
+            <Option value="chinh-quy">chinh-quy</Option>
+            <Option value="lien-thong-vlvh">lien-thong-vlvh</Option>
           </Select>
         </div>
-        <h2 className="font-bold text-heading3-bold text-center text-green-500">DANH SÁCH PHÂN CÔNG COI THI</h2>
+        <h2 className="font-bold text-heading3-bold text-center text-green-500 text-[18px]">DANH SÁCH PHÂN CÔNG COI THI</h2>
         <Button
           className="button-dang-day text-white font-bold shadow-md mb-2"
           onClick={() => router.push(`/giaovu/pc-coi-thi/create`)}
@@ -211,16 +215,16 @@ const PcCoiThiTable = () => {
           TẠO MỚI
         </Button>
       </div>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-0 text-[15px]">
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
           <Select
+            size="small"
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
             allowClear
-
-
+            value={namHoc}
           >
             <Option value="2021-2022">2021-2022</Option>
             <Option value="2022-2023">2022-2023</Option>
@@ -232,6 +236,7 @@ const PcCoiThiTable = () => {
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Kỳ:</label>
           <Select
+            size="small"
             placeholder="Chọn kỳ"
             onChange={(value) => setKy(value)}
             className="w-[50%]"
@@ -244,7 +249,7 @@ const PcCoiThiTable = () => {
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>
-          <Select
+          <Select size="small"
             placeholder="Chọn loại kỳ thi"
             onChange={(value) => setLoaiKyThi(value)}
             className="w-[50%]"
@@ -265,7 +270,7 @@ const PcCoiThiTable = () => {
         </div>
 
         <div className="w-[20%]">
-          <Input.Search
+          <Input.Search size="small"
             placeholder="Tìm kiếm học phần, giảng viên..."
             allowClear
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -278,7 +283,7 @@ const PcCoiThiTable = () => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}
@@ -303,7 +308,7 @@ const PcCoiThiTable = () => {
             setCurrent(page);
             setPageSize(size);
           }}
-          pageSizeOptions={['5', '10', '25', '50', '100']}
+          pageSizeOptions={['10', '25', '50', '100', '200']}
           showSizeChanger
           className="flex justify-end"
         />

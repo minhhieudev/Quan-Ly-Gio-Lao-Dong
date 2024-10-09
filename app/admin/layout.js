@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
       <body className={`${inter.className} bg-gray-200`}>
         <Provider>
           <TopBar />
-          <div className="flex justify-between h-[45vh] ml-3">
+          <div className="flex justify-between h-[45vh] ml-1">
             <div className="w-[15%]"><SideBar /></div>
             <div className="w-[84%] mx-auto">{children}</div>
           </div>

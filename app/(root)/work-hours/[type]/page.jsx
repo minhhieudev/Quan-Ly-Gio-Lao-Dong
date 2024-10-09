@@ -34,7 +34,7 @@ const Pages = () => {
     tong: 0,
   });
   const [kiemNhiem, setKiemNhiem] = useState(0);
-  const [namHoc, setNamHoc] = useState("");
+  const [namHoc, setNamHoc] = useState("2024-2025");
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -280,12 +280,8 @@ const Pages = () => {
         </div>
       )}
 
-      <div className="py-1 w-[98%] max-sm:hidden">
-        <Row gutter={[16, 16]}>
-          <Col span={24}>
+      <div className="py-1 w-[98%] h-[67vh] max-sm:hidden">
             {renderForm()}
-          </Col>
-        </Row>
       </div>
 
       {type !== 'boi-duong' &&

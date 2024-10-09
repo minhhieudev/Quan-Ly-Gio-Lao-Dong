@@ -99,7 +99,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
-                toast.success("Record saved successfully!");
+                toast.success("Lưu thành công!");
                 onReset(); // Reset form after success
             } else {
                 toast.error("Failed to save record");
@@ -184,18 +184,19 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                <Space size="small">
+                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="primary" danger>Xoá</Button>
+                        <Button size="small" type="primary" danger>Xoá</Button>
                     </Popconfirm>
                 </Space>
             ),
+            width: 20
         },
     ];
 
@@ -211,12 +212,12 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-5 max-sm:flex-col">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[40%]">
+        <div className="flex gap-2 max-sm:flex-col h-full">
+            <div className="p-5 shadow-xl bg-white rounded-xl flex-[15%]">
                 <Title className="text-center" level={3}>CÔNG TÁC RA ĐỀ THI</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">
-                    <Space direction="vertical" className="w-full">
+                    <Space direction="vertical" className="w-full" size={0}>
                         <div className="flex justify-between items-center">
                             <Form.Item
                                 label={<span className="font-bold text-xl">Học phần <span className="text-red-600">*</span></span>}
@@ -345,8 +346,8 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                 </Form>
             </div>
 
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[60%]">
-                <Title className="text-center" level={3}>Danh sách đề thi</Title>
+            <div className="px-4  py-2 shadow-xl bg-white rounded-xl flex-[60%]">
+                <Title className="text-center" level={3}>DANH SÁCH</Title>
 
                 <Table
                     columns={columns}

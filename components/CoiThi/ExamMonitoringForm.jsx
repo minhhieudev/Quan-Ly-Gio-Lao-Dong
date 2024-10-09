@@ -71,16 +71,16 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         const parts = dateString.split('/');
         return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
     };
-   
+
     const handleSelectChange = (value) => {
-        const selectedHocPhan = listSelect.find(item => item._id == value);
+        const selectedHocPhan = listSelect.find(item => item.hocPhan == value);
         if (selectedHocPhan) {
-            setValue("ngayThi",convertDateFormat(selectedHocPhan.ngayThi) ); // Lấy giá trị từ selectedHocPhan
+            setValue("ngayThi", convertDateFormat(selectedHocPhan.ngayThi)); // Lấy giá trị từ selectedHocPhan
             setValue("ky", selectedHocPhan.ky || '');
             setValue("thoiGianThi", selectedHocPhan.time.join(',') || ''); // Đảm bảo bạn có trường này
         }
     };
-    
+
 
     useEffect(() => {
         if (editRecord) {
@@ -161,30 +161,30 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             toast.error('Vui lòng nhập năm học!')
             return
         }
-        console.log('data:',data)
-        // try {
-        //     const method = editRecord ? "PUT" : "POST";
-        //     const res = await fetch("/api/work-hours/CongTacCoiThi", {
-        //         method,
-        //         body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
-        //         headers: { "Content-Type": "application/json" },
-        //     });
+        console.log('data:', data)
+        try {
+            const method = editRecord ? "PUT" : "POST";
+            const res = await fetch("/api/work-hours/CongTacCoiThi", {
+                method,
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
+                headers: { "Content-Type": "application/json" },
+            });
 
-        //     if (res.ok) {
-        //         const newData = await res.json();
-        //         if (editRecord && newData) {
-        //             setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
-        //         } else {
-        //             setDataList(prevData => [...prevData, newData]);
-        //         }
-        //         toast.success("Record saved successfully!");
-        //         onReset(); // Reset form after success
-        //     } else {
-        //         toast.error("Failed to save record");
-        //     }
-        // } catch (err) {
-        //     toast.error("An error occurred while saving data");
-        // }
+            if (res.ok) {
+                const newData = await res.json();
+                if (editRecord && newData) {
+                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+                } else {
+                    setDataList(prevData => [...prevData, newData]);
+                }
+                toast.success("Record saved successfully!");
+                onReset(); // Reset form after success
+            } else {
+                toast.error("Failed to save record");
+            }
+        } catch (err) {
+            toast.error("An error occurred while saving data");
+        }
     };
     const onReset = () => {
         reset(formSchema);
@@ -223,12 +223,15 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         {
             title: 'Số tiết quy chuẩn',
             dataIndex: 'soTietQuyChuan',
-            key: 'soTietQuyChuan'
+            key: 'soTietQuyChuan',
+            render: (text) => <span style={{ fontWeight: 'bold', color:'blue' }}>{text}</span>,
+
         },
         {
             title: 'Học phần',
             dataIndex: 'hocPhan',
-            key: 'hocPhan'
+            key: 'hocPhan',
+            render: (text) => <span style={{ fontWeight: 'bold', color:'green' }}>{text}</span>,
         },
         {
             title: 'Thời gian thi',
@@ -250,15 +253,15 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                <Space size="small">
+                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="primary" danger>Xoá</Button>
+                        <Button size="small" type="primary" danger>Xoá</Button>
                     </Popconfirm>
                 </Space>
             ),
@@ -286,15 +289,13 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-5 max-sm:flex-col">
+        <div className="flex gap-2 max-sm:flex-col h-full">
             <div className="p-5 shadow-xl bg-white rounded-xl flex-[25%]">
-                <Title className="text-center" level={3}>CÔNG TÁC COI THI</Title>
+                <Title className="text-center" level={4}>CÔNG TÁC COI THI</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" >
-                    <Space direction="vertical" className="w-full">
+                    <Space direction="vertical" className="w-full" size={0}>
                         <div className="flex justify-between items-center w-full">
-
-
                             {!isAddingNew && (
                                 <Form.Item
                                     label={
@@ -320,8 +321,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                         placeholder="Nhập hoặc chọn tên học phần..."
                                                         {...field}
                                                         options={listSelect.map(item => ({
-                                                            value: item._id,  
-                                                            label: item.hocPhan.join(', '),  
+                                                            value: item.hocPhan[0],
+                                                            label: item.hocPhan.join(', '),
                                                         }))}
                                                         filterOption={(input, option) =>
                                                             option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -446,7 +447,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 <Tabs activeKey={selectedTab} onChange={handleTabChange}>
                     <TabPane tab="KẾT QUẢ COI THI" key="Kết quả coi thi">
                         {loadings ? <Spin size="large" /> :
-                            <div>
+                            <div >
                                 <Table
                                     columns={columns}
                                     dataSource={dataList}

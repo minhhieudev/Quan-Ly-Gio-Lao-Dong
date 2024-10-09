@@ -20,6 +20,7 @@ export const POST = async (req) => {
           cb2, 
           hocPhan, 
           loaiKyThi, 
+          ky,
           namHoc, 
           ngayThi, 
           nhomLop, 
@@ -37,7 +38,8 @@ export const POST = async (req) => {
               cb1,
               cb2,
               hinhThucThoiGianThi,
-              loai
+              loai,
+              ky
             }
           }, 
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới

@@ -222,6 +222,7 @@ const TeachingAssignmentForm = () => {
                   <Select placeholder="Chọn kì" {...field}>
                     <Option value="1">1</Option>
                     <Option value="2">2</Option>
+                    <Option value="he">Hè</Option>
                   </Select>
                 )}
               />

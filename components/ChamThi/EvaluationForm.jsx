@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcChamThi from "./TablePcChamThi";
+import { PlusOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -22,7 +23,7 @@ const formSchema = {
     soTietQuyChuan: 0,
     tongCong: 0,
     ghiChu: "",
-    hinhThucThoiGianThi:""
+    hinhThucThoiGianThi: ""
 };
 
 const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
@@ -47,7 +48,33 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
     const [selectedTab, setSelectedTab] = useState('Kết quả chấm thi');
     const [loadings, setLoadings] = useState(true);
+    const [isAddingNew, setIsAddingNew] = useState(false);
+    const [newHocPhan, setNewHocPhan] = useState("");
 
+    const handleAddNewClick = () => {
+        setIsAddingNew(!isAddingNew);
+    };
+    const handleSaveNewHocPhan = () => {
+        const newHocPhanObj = {
+            _id: Math.random().toString(36).substr(2, 9),
+            hocPhan: newHocPhan,
+            ky: "",
+            lopHocPhan: "",
+            canBoChamThi: '',
+            soBaiCham: 0,
+            soTietQuyChuan: 0,
+            tongCong: 0,
+            ghiChu: "",
+            hinhThucThoiGianThi: ""
+        };
+
+        // Cập nhật listSelect với học phần mới
+        setListSelect([...listSelect, newHocPhanObj]);
+
+        // Reset trạng thái thêm mới và input học phần
+        setIsAddingNew(false);
+        setNewHocPhan("");
+    };
 
     useEffect(() => {
         if (editRecord) {
@@ -146,10 +173,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
-                toast.success("Record saved successfully!");
+                toast.success("Thêm thành công!");
                 onReset(); // Reset form after success
             } else {
-                toast.error("Failed to save record");
+                toast.error("Lưu thất bại!");
             }
         } catch (err) {
             toast.error("An error occurred while saving data");
@@ -261,42 +288,99 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         }, 500);
     };
 
+    const handleSelectChange = (value) => {
+        const selectedHocPhan = listSelect.find(item => item.hocPhan == value);
+        if (selectedHocPhan) {
+            setValue("ky", selectedHocPhan.ky || '');
+            setValue("soBaiCham", selectedHocPhan.soBai);
+            setValue("hinhThucThoiGianThi", selectedHocPhan.hinhThucThoiGianThi);
+            setValue("lopHocPhan", selectedHocPhan.nhomLop.join(',') || '');
+            if (selectedHocPhan.cb1 == currentUser.username) {
+                setValue('canBoChamThi', '1')
+            }
+            if (selectedHocPhan.cb1 == currentUser.username) {
+                setValue('canBoChamThi', '2')
+            }
+        }
+    };
+
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-5 max-sm:flex-col">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[30%]">
-                <Title className="text-center" level={3}>CÔNG TÁC CHẤM THI</Title>
+        <div className="flex gap-2 max-sm:flex-col h-full">
+            <div className="px-4 py-2 shadow-xl bg-white rounded-xl flex-[20%]">
+                <Title className="text-center" level={5}>CÔNG TÁC CHẤM THI</Title>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-1 mt-10">
-                    <Space direction="vertical" className="w-full">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-1">
+                    <Space direction="vertical" className="w-full" size="0">
                         <div className="flex justify-between max-sm:flex-col">
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Học phần chấm thi <span className="text-red-600">*</span></span>}
-                                className="w-[40%]"
-                                validateStatus={errors.hocPhan ? 'error' : ''}
-                                help={errors.hocPhan?.message}
-                            >
-                                <Controller
-                                    name="hocPhan"
-                                    control={control}
-                                    rules={{ required: "Học phần là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập tên học phần ..." {...field} />}
-                                />
-                            </Form.Item>
+                            <div className="flex justify-between items-center w-full gap-3">
+                                {!isAddingNew && (
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Học phần <span className="text-red-600">*</span></span>}
+                                        className="w-[40%]"
+                                        validateStatus={errors.hocPhan ? 'error' : ''}
+                                        help={errors.hocPhan?.message}
+                                    >
+                                        <Controller
+                                            name="hocPhan"
+                                            control={control}
+                                            rules={{ required: "Học phần là bắt buộc" }}
+                                            render={({ field }) =>
+                                                <Select
+                                                    showSearch
+                                                    allowClear
+                                                    placeholder="Nhập hoặc chọn tên học phần..."
+                                                    {...field}
+                                                    options={listSelect.map(item => ({
+                                                        value: item.hocPhan[0],
+                                                        label: item.hocPhan,
+                                                    }))}
+                                                    filterOption={(input, option) =>
+                                                        option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                                    }
+                                                    onChange={(value) => {
+                                                        field.onChange(value);
+                                                        handleSelectChange(value);
+                                                    }}
 
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Lớp học phần <span className="text-red-600">*</span></span>}
-                                validateStatus={errors.lopHocPhan ? 'error' : ''}
-                                help={errors.lopHocPhan?.message}
-                            >
-                                <Controller
-                                    name="lopHocPhan"
-                                    control={control}
-                                    rules={{ required: "Lớp học phần là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập lớp ..." {...field} />}
-                                />
-                            </Form.Item>
+                                                />
+                                            }
+                                        />
+                                    </Form.Item>
+                                )}
+                                {isAddingNew && (
+                                    <Form.Item
+                                        label={<span className="font-bold text-xl">Thêm học phần mới</span>}
+                                        className="w-full"
+                                    >
+                                        <Space className="w-full">
+                                            <Input
+                                                value={newHocPhan}
+                                                onChange={(e) => setNewHocPhan(e.target.value)}
+                                                placeholder="Nhập tên học phần mới..."
+                                                className="w-[90%]"
+                                            />
+                                            <Button type="primary" onClick={handleSaveNewHocPhan}>
+                                                Lưu
+                                            </Button>
+                                        </Space>
+                                    </Form.Item>
+                                )}
+                                <Form.Item
+                                    label={<span className="font-bold text-xl">Thêm</span>}
+                                    className="w-full flex-1"
+                                >
+                                    <Button
+                                        icon={<PlusOutlined />}
+                                        onClick={handleAddNewClick}
+                                    />
+                                </Form.Item>
+
+                            </div>
+
+
+
                         </div>
                         <div className="flex justify-between items-center">
                             <Form.Item
@@ -339,6 +423,35 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         </div>
 
                         <div className="flex justify-between">
+                            <Form.Item
+                                label={<span className="font-bold text-xl">Số bài chấm <span className="text-red-600">*</span></span>}
+                                validateStatus={errors.soBaiCham ? 'error' : ''}
+                                help={errors.soBaiCham?.message}
+                            >
+                                <Controller
+                                    name="soBaiCham"
+                                    control={control}
+                                    rules={{ required: "Số bài chấm là bắt buộc" }}
+                                    render={({ field }) => (
+                                        <InputNumber className="input-number" min={0} {...field} />
+                                    )}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                label={<span className="font-bold text-xl">Lớp <span className="text-red-600">*</span></span>}
+                                validateStatus={errors.lopHocPhan ? 'error' : ''}
+                                help={errors.lopHocPhan?.message}
+                            >
+                                <Controller
+                                    name="lopHocPhan"
+                                    control={control}
+                                    rules={{ required: "Lớp học phần là bắt buộc" }}
+                                    render={({ field }) => <Input className="input-text" placeholder="Nhập lớp ..." {...field} />}
+                                />
+                            </Form.Item>
+
+                        </div>
+                        <div className="flex justify-between">
 
                             <Form.Item
                                 label={<span className="font-bold text-xl">Hình thức thi: <span className="text-red-600">*</span></span>}
@@ -354,22 +467,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     )}
                                 />
                             </Form.Item>
-
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Số bài chấm <span className="text-red-600">*</span></span>}
-                                validateStatus={errors.soBaiCham ? 'error' : ''}
-                                help={errors.soBaiCham?.message}
-                            >
-                                <Controller
-                                    name="soBaiCham"
-                                    control={control}
-                                    rules={{ required: "Số bài chấm là bắt buộc" }}
-                                    render={({ field }) => (
-                                        <InputNumber className="input-number" min={0} {...field} />
-                                    )}
-                                />
-                            </Form.Item>
-
                             <Form.Item
                                 label={<span className="font-bold text-xl">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
                                 validateStatus={errors.soTietQuyChuan ? 'error' : ''}

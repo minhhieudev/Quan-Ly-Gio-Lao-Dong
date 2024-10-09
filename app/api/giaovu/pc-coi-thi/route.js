@@ -64,7 +64,7 @@ export const POST = async (req) => {
 
     // Kiểm tra xem dữ liệu có hợp lệ không
     const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi } = data;
-    if (!hocPhan || !nhomLop || !ngayThi || !namHocs || !loaiKyThi) {
+    if (!hocPhan || !nhomLop || !ngayThi || !namHoc || !loaiKyThi) {
       return new Response(JSON.stringify({ message: "Dữ liệu không hợp lệ, vui lòng điền đầy đủ các trường bắt buộc." }), { status: 400 });
     }
 

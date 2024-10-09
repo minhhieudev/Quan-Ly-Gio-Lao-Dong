@@ -12,7 +12,7 @@ const { Option } = Select;
 const TeachingAssignmentTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("");
+  const [namHoc, setNamHoc] = useState("2024-2025");
   const [kiHoc, setKiHoc] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -168,7 +168,7 @@ const TeachingAssignmentTable = () => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button size="small" onClick={() => router.push(`/giaovu/pc-giang-day/edit/${record._id}`)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -191,20 +191,20 @@ const TeachingAssignmentTable = () => {
   );
 
   return (
-    <div className="py-2 px-3 shadow-xl bg-white rounded-xl mt-3 h-[85vh] flex flex-col">
+    <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-1 h-[92vh] flex flex-col">
       <div className="flex items-center justify-center mb-3">
-        <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">DANH SÁCH PHÂN CÔNG GIẢNG DẠY</h2>
+        <h2 className="font-bold  flex-grow text-center text-[18px] text-green-500">DANH SÁCH PHÂN CÔNG GIẢNG DẠY</h2>
         <Button
-          className="button-dang-day text-white font-bold shadow-md mb-2"
+          className="button-dang-day text-white font-bold shadow-md mb-0"
           onClick={() => router.push(`/giaovu/pc-giang-day/create`)}
         >
           TẠO MỚI
         </Button>
       </div>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex justify-between items-center mb-0 text-small-bold">
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
-          <Select
+          <Select size="small" value={namHoc}
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
@@ -218,18 +218,19 @@ const TeachingAssignmentTable = () => {
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Kỳ học:</label>
-          <Select
+          <Select size="small"
             placeholder="Chọn kỳ học"
             onChange={(value) => setKiHoc(value)}
             className="w-[50%]"
           >
             <Option value="1">Kỳ 1</Option>
             <Option value="2">Kỳ 2</Option>
+            <Option value="he">Hè</Option>
           </Select>
         </div>
 
         <div className="w-[20%]">
-          <Input.Search
+          <Input.Search size="small"
             placeholder="Tìm kiếm môn học..."
             allowClear
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -242,7 +243,7 @@ const TeachingAssignmentTable = () => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}

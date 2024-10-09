@@ -19,12 +19,12 @@ const TablePcGiangDay = ({ namHoc, ky ,listSelect}) => {
   const user = session?.user;
 
   const columns = [
-    {
-      title: 'STT',
-      dataIndex: 'index',
-      width: 10,
-      render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
-    },
+    // {
+    //   title: 'STT',
+    //   dataIndex: 'index',
+    //   width: 10,
+    //   render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
+    // },
     {
       title: 'Mã MH',
       dataIndex: 'maMH',
@@ -100,12 +100,12 @@ const TablePcGiangDay = ({ namHoc, ky ,listSelect}) => {
       width: 145,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
-    {
-      title: 'Tuần bắt đầu học',
-      dataIndex: 'tuanHoc',
-      key: 'tuanHoc',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-    },
+    // {
+    //   title: 'Tuần bắt đầu học',
+    //   dataIndex: 'tuanHoc',
+    //   key: 'tuanHoc',
+    //   render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+    // },
   ];
 
   // Phân trang dữ liệu
@@ -121,7 +121,7 @@ const TablePcGiangDay = ({ namHoc, ky ,listSelect}) => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto cus-table" style={{ maxHeight: 'calc(85vh - 120px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}

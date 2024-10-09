@@ -80,12 +80,12 @@
 }
 
 .btn {
-  @apply flex items-center max-sm:text-small-bold justify-center rounded-xl p-3 bg-gradient-to-l from-blue-1 to-blue-3 text-body-bold text-white ;
+  @apply flex items-center max-sm:text-small-bold justify-center rounded-xl p-3 bg-gradient-to-l from-blue-1 to-blue-3 text-body-bold text-white;
 }
 
 /* Chat List */
 .chat-list {
-  @apply  flex flex-col gap-5 pb-2 h-full max-sm:gap-3 max-sm:h-[90%];
+  @apply flex flex-col gap-5 pb-2 h-full max-sm:gap-3 max-sm:h-[90%];
 }
 
 .input-search {
@@ -115,11 +115,11 @@
 
 /* Contacts */
 .create-chat-container {
-  @apply flex flex-col gap-5 h-full pb-2 max-sm:gap-3 ;
+  @apply flex flex-col gap-5 h-full pb-2 max-sm:gap-3;
 }
 
 .contact-bar {
-  @apply flex gap-7 items-start max-lg:flex-col flex-1 max-sm:gap-3 ;
+  @apply flex gap-7 items-start max-lg:flex-col flex-1 max-sm:gap-3;
 }
 
 .contact-list {
@@ -127,7 +127,7 @@
 }
 
 .contact {
-  @apply flex gap-3 items-center cursor-pointer ;
+  @apply flex gap-3 items-center cursor-pointer;
 }
 
 .create-chat {
@@ -135,7 +135,7 @@
 }
 
 .input-group-name {
-  @apply bg-white rounded-2xl px-5 py-3 outline-none ;
+  @apply bg-white rounded-2xl px-5 py-3 outline-none;
 }
 
 .selected-contact {
@@ -217,16 +217,17 @@
   box-shadow: 3px 4px 0 black;
 }
 
-.input-number{
+.input-number {
   border: 1.5px solid #222121;
   @apply shadow-md
 }
-.input-text{
+
+.input-text {
   border: 1.5px solid #5f5e5e;
   @apply shadow-md
-  
 }
-.text{
+
+.text {
   font-size: 30px;
 }
 
@@ -234,7 +235,7 @@
 /* styles.css */
 /* styles.css */
 .custom-button {
-  @apply text-white font-medium rounded-lg  px-8 py-4 transition-transform duration-300;
+  @apply text-white font-medium rounded-lg px-8 py-4 transition-transform duration-300;
 }
 
 .button-dang-day {
@@ -262,18 +263,17 @@
 }
 
 .button-boi-duong {
-  @apply bg-gradient-to-r from-teal-400 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none 
-  focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80;
+  @apply bg-gradient-to-r from-teal-400 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 shadow-lg shadow-teal-500/50 dark:shadow-lg dark:shadow-teal-800/80;
 }
 
 /* Thêm một đường viền dưới nút đang được chọn */
 .custom-button-active {
-  @apply  p-5 rounded-full;
+  @apply p-5 rounded-full;
 }
 
 /* styles.css */
 .custom-button-1 {
-  @apply text-white font-bold rounded-lg  px-8 py-4 h-40 w-80 transition-transform duration-300;
+  @apply text-white font-bold rounded-lg px-8 py-4 h-40 w-80 transition-transform duration-300;
 }
 
 /* Button Chinh Quý */
@@ -316,9 +316,22 @@
 
 .bg {
   background-image: url(https://static.hieuluat.vn/uploaded/Images/Original/2023/05/19/nguoi-thuc-hien-ung-dung-phuong-phap-nghien-cuu-nhat-quan_1905162139.jpg);
-  background-size: cover; 
-  background-repeat: no-repeat; 
-  background-position: center; 
-  background-blend-mode: darken; 
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-blend-mode: darken;
+  background-color: rgba(0, 0, 0, 0.5);
 }
+.ant-table-thead .ant-table-cell {
+  padding: 0 !important; 
+  text-align: center;
+}
+
+.ant-tabs-tab{
+  padding: 4px !important; 
+}
+.ant-form-item{
+  margin-bottom: 5px;
+}
+
+
