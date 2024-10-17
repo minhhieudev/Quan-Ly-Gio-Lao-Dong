@@ -11,10 +11,9 @@ export const GET = async (req) => {
     // Lấy các tham số từ query
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
-    //const ky = searchParams.get('ky');
-    //const gvGiangDay = searchParams.get('gvGiangDay');
-    const cb = 'Võ Thị Tem';
-    //const cb = searchParams.get('gvGiangDay') || 'Võ Thị Tem';
+    const ky = searchParams.get('ky');
+    const gvGiangDay = searchParams.get('gvGiangDay');
+   
 
     let filter = {};
     
@@ -22,14 +21,14 @@ export const GET = async (req) => {
       filter.namHoc = namHoc;
     }
 
-    // if (ky) {
-    //   filter.ky = ky;
-    // }
+    if (ky && ky !== 'null'&& ky !== 'undefined') {
+      filter.ky = ky;
+    }
 
-    if (cb) {
+    if (gvGiangDay) {
       filter.$or = [
-        { cb1: cb },
-        { cb2: cb }
+        { cb1: { $regex: gvGiangDay, $options: 'i' } },
+        { cb2: { $regex: gvGiangDay, $options: 'i' } }
       ];
     }
 

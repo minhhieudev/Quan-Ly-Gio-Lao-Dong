@@ -16,14 +16,36 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const listKhoa = ['KTCN', 'XHNV'];
+  const [khoaList, setKhoaList] = useState([]);
+
+  const fetchKhoaData = async () => {
+    try {
+      const res = await fetch(`/api/admin/khoa`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Khoa List:', data);
+        setKhoaList(data);
+      } else {
+        toast.error("Failed to fetch khoa data");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching khoa data");
+    }
+  };
+
+  useEffect(() => {
+    fetchKhoaData();
+  }, []);
 
   useEffect(() => {
     if (user) {
       reset({
         username: user?.username,
         profileImage: user?.profileImage,
-        khoa: user?.khoa || listKhoa[0]
+        khoa: user?.khoa || khoaList[0]
       });
     }
     setLoading(false);
@@ -40,8 +62,16 @@ const Profile = () => {
   } = useForm();
 
   const uploadPhoto = (result) => {
-    setValue("profileImage", result?.info?.secure_url);
+    console.log("Upload result:", result); // In ra kết quả từ Cloudinary
+    const secureUrl = result?.info?.secure_url;
+
+    if (secureUrl) {
+      setValue("profileImage", secureUrl);
+    } else {
+      console.error("Ảnh tải lên không thành công hoặc không có URL");
+    }
   };
+
 
   const updateUser = async (data) => {
     console.log('Data:', data);
@@ -65,7 +95,7 @@ const Profile = () => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="profile-page bg-gray-200 w-[40%] rounded-md shadow-md mx-auto p-4">
+    <div className="profile-page bg-white w-[40%] rounded-md shadow-md mx-auto p-4">
       <h1 className="text-heading3-bold">CHỈNH SỬA THÔNG TIN</h1>
 
       <form className="edit-profile" onSubmit={handleSubmit(updateUser)}>
@@ -93,14 +123,18 @@ const Profile = () => {
         <Controller
           name="khoa"
           control={control}
-          defaultValue={listKhoa[0]} 
+          rules={{ required: "Khoa là bắt buộc" }}
           render={({ field }) => (
-            <Select {...field} style={{ width: 180 }}>
-              {listKhoa.map((khoa, index) => (
-                <Option key={index} value={khoa}>
-                  {khoa}
-                </Option>
-              ))}
+            <Select className="w-full" placeholder="Chọn khoa" {...field}>
+              {khoaList.length > 0 ? (
+                khoaList.map(khoa => (
+                  <Option key={khoa._id} value={khoa.tenKhoa}>
+                    {khoa.tenKhoa}
+                  </Option>
+                ))
+              ) : (
+                <Option disabled>Không có khoa nào</Option>
+              )}
             </Select>
           )}
         />

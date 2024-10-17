@@ -254,7 +254,7 @@ const Pages = () => {
         </div>
         <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
           <div className='text-base-bold'>Kỳ học:</div>
-          <Select
+          <Select allowClear
             className="w-[60%]"
             value={kyHoc}
             onChange={handleKyHocChange}

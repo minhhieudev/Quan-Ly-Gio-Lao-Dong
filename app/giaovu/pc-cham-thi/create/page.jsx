@@ -22,7 +22,7 @@ const formSchema = {
   namHoc: "",
   loaiKyThi: "",
   loai: "",
-  hinhThucThoiGianThi:''
+  hinhThucThoiGianThi: ''
 };
 
 const TeachingAssignmentForm = () => {
@@ -35,7 +35,7 @@ const TeachingAssignmentForm = () => {
   const currentUser = session?.user;
   const router = useRouter();
 
-  const [loai, setLoai] = useState("");
+  const [loai, setLoai] = useState("chinh-quy");
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -185,10 +185,15 @@ const TeachingAssignmentForm = () => {
         <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">PHÂN CÔNG CHẤM THI</h2>
         <div className="flex gap-2">
           <div className="text-heading4-bold">LOẠI:</div>
-          <Select placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
+          <Select
+            defaultValue="chinh-quy" // Giá trị mặc định
+            placeholder="Chọn loại hình đào tạo..."
+            onChange={(value) => setLoai(value)}
+          >
             <Option value="chinh-quy">Chính quy</Option>
             <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
           </Select>
+
         </div>
       </div>
 
@@ -217,6 +222,30 @@ const TeachingAssignmentForm = () => {
             />
           </Form.Item>
 
+          <Form.Item
+            label="Học kỳ"
+            validateStatus={errors.ky ? 'error' : ''}
+            help={errors.ky?.message}
+          >
+            <Controller
+              name="ky"
+              control={control}
+              rules={{ required: 'Học kỳ là bắt buộc' }}
+              render={({ field }) => (
+                <Select
+                  placeholder="Chọn học kỳ"
+                  {...field}
+                  onChange={(value) => {
+                    field.onChange(value);
+                  }}
+                >
+                  <Option value="1">1</Option>
+                  <Option value="2">2</Option>
+                </Select>
+              )}
+            />
+          </Form.Item>
+
           {/* Loại kỳ thi */}
           <Form.Item
             label="Loại kỳ thi"
@@ -232,9 +261,15 @@ const TeachingAssignmentForm = () => {
                   {...field}
                 >
                   <Option value="Học kỳ 1">Học kỳ 1</Option>
+                  <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>
+                  <Option value="Học kỳ 1 (đợt 3)">Học kỳ 1 (đợt 3)</Option>
                   <Option value="Học kỳ 2">Học kỳ 2</Option>
+                  <Option value="Học kỳ 2 (đợt 2)">Học kỳ 2 (đợt 2)</Option>
+                  <Option value="Học kỳ 2 (đợt 3)">Học kỳ 2 (đợt 3)</Option>
+                  <Option value="Kỳ thi phụ (đợt 1)">Kỳ thi phụ (đợt 1)</Option>
+                  <Option value="Kỳ thi phụ (đợt 2)">Kỳ thi phụ (đợt 2)</Option>
+                  <Option value="Kỳ thi phụ (đợt 3)">Kỳ thi phụ (đợt 3)</Option>
                   <Option value="Học kỳ hè">Học kỳ hè</Option>
-                  <Option value="Kỳ thi phụ">Kỳ thi phụ</Option>
                 </Select>
               )}
             />
@@ -280,7 +315,8 @@ const TeachingAssignmentForm = () => {
                   placeholder="Chọn ngày thi"
                   style={{ width: '100%' }}
                   format="DD/MM/YYYY"
-                  {...field}
+                  onChange={(date, dateString) => field.onChange(dateString)}
+                  value={field.value ? dayjs(field.value, 'DD/MM/YYYY') : null}
                 />
               )}
             />

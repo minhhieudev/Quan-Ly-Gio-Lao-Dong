@@ -323,7 +323,7 @@
   background-color: rgba(0, 0, 0, 0.5);
 }
 .ant-table-thead .ant-table-cell {
-  padding: 0 !important; 
+  padding: 2px !important; 
   text-align: center;
 }
 

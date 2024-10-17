@@ -9,13 +9,14 @@ export const POST = async (req, { params }) => {
 
     const body = await req.json();
 
-    const { username, profileImage } = body;
+    const { username, profileImage, khoa } = body;
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       {
         username,
         profileImage,
+        khoa
       },
       { new: true }
     );

@@ -197,8 +197,8 @@ const PcCoiThiForm = () => {
             </Form.Item>
           </Col>
         </Row>
-        <Row gutter={16}>
-          <Col span={12}>
+      <Row gutter={16}>
+          <Col span={8}>
             <Form.Item label="Năm học" validateStatus={errors.namHoc ? 'error' : ''} help={errors.namHoc?.message}>
               <Controller
                 name="namHoc"
@@ -208,7 +208,22 @@ const PcCoiThiForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={8}>
+            <Form.Item label="Học kỳ" validateStatus={errors.ky ? 'error' : ''} help={errors.ky?.message}>
+              <Controller
+                name="ky"
+                control={control}
+                rules={{ required: "Vui lòng chọn học kỳ" }}
+                render={({ field }) => (
+                  <Select placeholder="Chọn học kỳ ..." {...field}>
+                    <Option value="1">1</Option>
+                    <Option value="2">2</Option>
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
             <Form.Item label="Loại kỳ thi" validateStatus={errors.loaiKyThi ? 'error' : ''} help={errors.loaiKyThi?.message}>
               <Controller
                 name="loaiKyThi"
@@ -216,9 +231,16 @@ const PcCoiThiForm = () => {
                 rules={{ required: "Vui lòng chọn loại kỳ thi" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn loại kỳ thi..." {...field}>
-                    <Option value="Chính thức">Chính thức</Option>
-                    <Option value="Phụ">Phụ</Option>
-                    <Option value="Hè">Hè</Option>
+                    <Option value="Học kỳ 1">Học kỳ 1</Option>
+                    <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>
+                    <Option value="Học kỳ 1 (đợt 3)">Học kỳ 1 (đợt 3)</Option>
+                    <Option value="Học kỳ 2">Học kỳ 2</Option>
+                    <Option value="Học kỳ 2 (đợt 2)">Học kỳ 2 (đợt 2)</Option>
+                    <Option value="Học kỳ 2 (đợt 3)">Học kỳ 2 (đợt 3)</Option>
+                    <Option value="Kỳ thi phụ (đợt 1)">Kỳ thi phụ (đợt 1)</Option>
+                    <Option value="Kỳ thi phụ (đợt 2)">Kỳ thi phụ (đợt 2)</Option>
+                    <Option value="Kỳ thi phụ (đợt 3)">Kỳ thi phụ (đợt 3)</Option>
+                    <Option value="Học kỳ hè">Học kỳ hè</Option>
                   </Select>
                 )}
               />
@@ -227,7 +249,7 @@ const PcCoiThiForm = () => {
         </Row>
         <div className="flex justify-end space-x-2">
           <Button type="default" onClick={resetForm} danger>Reset</Button>
-          <Button type="primary" htmlType="submit" loading={isSubmitting} >Submit</Button>
+          <Button type="primary" htmlType="submit" loading={isSubmitting} >Lưu</Button>
         </div>
       </Form>
     </div>

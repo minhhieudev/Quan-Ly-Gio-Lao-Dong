@@ -188,7 +188,7 @@ const TrainingTypeForm = (namHoc) => {
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
           <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -200,6 +200,8 @@ const TrainingTypeForm = (namHoc) => {
           </Popconfirm>
         </Space>
       ),
+      width: 20
+
     },
   ];
 

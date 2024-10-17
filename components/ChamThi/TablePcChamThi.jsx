@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
 import { useSession } from "next-auth/react";
 
-const TablePcChamThi = ({ namHoc, ky ,listSelect}) => {
+const TablePcChamThi = ({ namHoc, ky, listSelect }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -52,18 +52,16 @@ const TablePcChamThi = ({ namHoc, ky ,listSelect}) => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 1',
+      title: 'Cán bộ 1',
       dataIndex: 'cb1',
       key: 'cb1',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 2',
+      title: 'Cán bộ 2',
       dataIndex: 'cb2',
       key: 'cb2',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
       title: 'Số bài',
@@ -77,6 +75,8 @@ const TablePcChamThi = ({ namHoc, ky ,listSelect}) => {
       dataIndex: 'hinhThucThoiGianThi',
       key: 'hinhThucThoiGianThi',
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: 20,
+
     },
   ];
 

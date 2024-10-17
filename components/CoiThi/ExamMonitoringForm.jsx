@@ -265,6 +265,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     </Popconfirm>
                 </Space>
             ),
+            width: 20
         },
     ];
 

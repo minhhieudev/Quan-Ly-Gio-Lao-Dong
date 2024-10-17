@@ -12,8 +12,7 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
     const ky = searchParams.get('ky');
-    //const gvGiangDay = searchParams.get('gvGiangDay');
-    const gvGiangDay = 'Nguyễn Quốc Dũng'
+    const gvGiangDay = searchParams.get('gvGiangDay');
 
     // Tạo đối tượng điều kiện tìm kiếm
     let filter = {};
@@ -24,12 +23,12 @@ export const GET = async (req) => {
     }
 
     // Nếu có tham số ky, thêm vào điều kiện tìm kiếm
-    if (ky) {
+    if (ky && ky !== 'null'&& ky !== 'undefined') {
       filter.ky = ky;
     }
 
     if (gvGiangDay) {
-      filter.gvGiangDay = gvGiangDay;
+      filter.gvGiangDay = { $regex: new RegExp(gvGiangDay, 'i') }; 
     }
 
     // Nếu không có cả namHoc lẫn ky thì trả về lỗi

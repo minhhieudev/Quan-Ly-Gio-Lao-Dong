@@ -12,12 +12,10 @@ export const GET = async (req) => {
     const namHoc = searchParams.get('namHoc');
     const loaiKyThi = searchParams.get('loaiKyThi');
     const loai = searchParams.get('loai');
+    const ky = searchParams.get('hocKy');
 
-    // Tạo đối tượng điều kiện tìm kiếm
     let filter = {};
 
-    // Nếu có tham số namHoc, thêm vào điều kiện tìm kiếm
-   
     // Nếu có tham số loaiKyThi, thêm vào điều kiện tìm kiếm
     if (loaiKyThi) {
       filter.loaiKyThi = loaiKyThi;
@@ -28,6 +26,10 @@ export const GET = async (req) => {
 
     if (loai) {
       filter.loai = loai;
+    }
+
+    if (ky && ky !== 'null'&& ky !== 'undefined') {
+      filter.ky = ky;
     }
 
     // Nếu không có cả namHoc lẫn loaiKyThi thì trả về lỗi
@@ -57,7 +59,7 @@ export const POST = async (req) => {
     const data = await req.json();
 
     // Kiểm tra xem dữ liệu có hợp lệ không
-    const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi,soBai,hinhThucThoiGianThi } = data;
+    const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi,soBai,hinhThucThoiGianThi,ky } = data;
     if (!hocPhan || !nhomLop || !ngayThi || !namHoc || !loaiKyThi) {
       return new Response(JSON.stringify({ message: "Dữ liệu không hợp lệ, vui lòng điền đầy đủ các trường bắt buộc." }), { status: 400 });
     }
@@ -72,9 +74,10 @@ export const POST = async (req) => {
       diaDiem: data.diaDiem || 0,
       namHoc,
       soBai,
-      hinhThucThoiGian,
+      hinhThucThoiGianThi,
       loaiKyThi:data.loaiKyThi,
-      loai: data.loai || ""
+      loai: data.loai || "",
+      ky
     });
 
     // Lưu bản ghi mới vào database

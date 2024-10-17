@@ -259,6 +259,7 @@ const PcCoiThiTable = () => {
             <Option value="Học kỳ 1">Học kỳ 1</Option>
             <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>
             <Option value="Học kỳ 1 (đợt 3)">Học kỳ 1 (đợt 3)</Option>
+            <Option value="Kỳ thi phụ Học kỳ 2">Kỳ thi phụ Học kỳ 2</Option>
             <Option value="Học kỳ 2">Học kỳ 2</Option>
             <Option value="Học kỳ 2 (đợt 2)">Học kỳ 2 (đợt 2)</Option>
             <Option value="Học kỳ 2 (đợt 3)">Học kỳ 2 (đợt 3)</Option>

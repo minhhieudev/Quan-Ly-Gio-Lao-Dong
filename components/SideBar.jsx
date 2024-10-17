@@ -43,7 +43,7 @@ const SideBar = () => {
         <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
         <span style={getIconStyle(["/giaovu/pc-cham-thi"])}>Phân công chấm thi</span>
       </Link>
-      <Link href="/admin/email" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+      <Link href="/admin/send-email" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <MailFilled style={{ fontSize: "20px" }} className="text-teal-500"/>
         <span style={getIconStyle(["/giaovu/pc-ra-de"])}>Gửi Email</span>
       </Link>

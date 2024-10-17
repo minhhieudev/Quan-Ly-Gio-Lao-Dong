@@ -22,6 +22,8 @@ const PcChamThiTable = () => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  const [hocKy, setHocKy] = useState("");
+
   const router = useRouter();
 
   useEffect(() => {
@@ -30,7 +32,8 @@ const PcChamThiTable = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/giaovu/pc-cham-thi?namHoc=${namHoc}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
+        const res = await fetch(`/api/giaovu/pc-cham-thi?namHoc=${namHoc}&hocKy=${hocKy}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
+
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -49,7 +52,7 @@ const PcChamThiTable = () => {
     };
 
     fetchData();
-  }, [namHoc, loaiKyThi, loai]);
+  }, [namHoc, loaiKyThi, loai, hocKy]);
 
   useEffect(() => {
     const filtered = dataList.filter((item) => {
@@ -213,6 +216,20 @@ const PcChamThiTable = () => {
             <Option value="2024-2025">2024-2025</Option>
           </Select>
         </div>
+
+        <div className="w-[25%] flex items-center gap-2">
+          <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
+          <Select size="small" allowClear
+            placeholder="Chọn học kỳ"
+            onChange={(value) => setHocKy(value)}
+            className="w-[50%]"
+            value={hocKy}
+          >
+            <Option value="1">1</Option>
+            <Option value="2">2</Option>
+          </Select>
+        </div>
+
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>

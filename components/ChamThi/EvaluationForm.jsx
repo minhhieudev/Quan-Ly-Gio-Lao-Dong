@@ -121,7 +121,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             try {
                 setLoading(true);
 
-                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&gvGiangDay=${currentUser.username}`, {
+                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -257,7 +257,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
-                <Space size="middle">
+                <Space size="small">
                     <Button onClick={() => handleEdit(record)} size="small" type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
@@ -269,6 +269,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                     </Popconfirm>
                 </Space>
             ),
+            width: 20
         },
     ];
 
