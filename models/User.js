@@ -37,32 +37,22 @@ const UserSchema = new mongoose.Schema({
     type: Number,
   },
   chucVuChinhQuyen: {
-    type: String,
-    default: "Không"
+    type: [String],
+    default: ["Không"]
   },
   chucVuKiemNhiem: {
-    type: String,
-    default: "Không"
-
+    type: [String],
+    default: ["Không"]
   },
   chucVuDoanTheXH: {
-    type: String,
-    default: "Không"
-
+    type: [String],
+    default: ["Không"]
   },
 
   maGV: {
     type: String,
   },
-  GCGD: {
-    type: Number,
-  },
-  GCNCKH: {
-    type: Number,
-  },
-  GCPVCD: {
-    type: Number,
-  },
+ 
 
 });
 

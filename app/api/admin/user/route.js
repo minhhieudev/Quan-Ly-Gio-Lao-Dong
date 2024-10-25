@@ -24,28 +24,6 @@ export const POST = async (req, res) => {
     // Kiểm tra email đã tồn tại
     let newUser = await User.findOne({ email });
 
-    let GCGD = 0
-    let GCNCKH = 0
-    let GCPVCD = 0
-
-    if (maNgach) {
-      if (maNgach == 'V07.01.01') {
-        GCGD = 230
-        GCNCKH = 300
-        GCPVCD = 57
-      }
-      if (maNgach == 'V07.01.02') {
-        GCGD = 250
-        GCNCKH = 260
-        GCPVCD = 77
-      }
-      if (maNgach == 'V07.01.03') {
-        GCGD = 270
-        GCNCKH = 195
-        GCPVCD = 121
-      }
-    }
-
     if (newUser) {
       // Nếu tồn tại, cập nhật thông tin
       newUser = { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV }
@@ -59,7 +37,7 @@ export const POST = async (req, res) => {
         email,
         khoa,
         role,
-        maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, GCGD, GCNCKH, GCPVCD, maGV
+        maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy,  maGV
       });
 
       await newUser.save();
@@ -84,28 +62,6 @@ export const PUT = async (req, res) => {
       return new Response("User not found", { status: 404 });
     }
 
-    let GCGD = 0
-    let GCNCKH = 0
-    let GCPVCD = 0
-
-    if (maNgach) {
-      if (maNgach == 'V07.01.01') {
-        GCGD = 230
-        GCNCKH = 300
-        GCPVCD = 57
-      }
-      if (maNgach == 'V07.01.02') {
-        GCGD = 250
-        GCNCKH = 260
-        GCPVCD = 77
-      }
-      if (maNgach == 'V07.01.02') {
-        GCGD = 270
-        GCNCKH = 195
-        GCPVCD = 121
-      }
-    }
-
     await User.findByIdAndDelete(id);
 
     const newUser = new User({
@@ -113,7 +69,7 @@ export const PUT = async (req, res) => {
       email,
       khoa,
       role,
-      maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, GCGD, GCNCKH, GCPVCD, maGV
+      maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV
     });
 
     await newUser.save();

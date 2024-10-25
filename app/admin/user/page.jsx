@@ -27,7 +27,6 @@ const UserForm = () => {
     const { control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
-    const [current, setCurrent] = useState(1);
     const [searchName, setSearchName] = useState("");
     const [selectedKhoa, setSelectedKhoa] = useState("");
     const [selectedRole, setSelectedRole] = useState("");
@@ -40,6 +39,7 @@ const UserForm = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [pageSize, setPageSize] = useState(10);
+    const [current, setCurrent] = useState(1);
 
     // Phân trang dữ liệu
     const paginatedData = filteredList.slice(
@@ -243,11 +243,11 @@ const UserForm = () => {
             key: 'username',
             className: 'text-blue-500 font-bold'
         },
-        {
-            title: 'GCGD',
-            dataIndex: 'GCGD',
-            key: 'GCGD'
-        },
+        // {
+        //     title: 'GCGD',
+        //     dataIndex: 'GCGD',
+        //     key: 'GCGD'
+        // },
         {
             title: 'MA GV',
             dataIndex: 'maGV',
@@ -257,7 +257,7 @@ const UserForm = () => {
             title: 'Mã ngạch',
             dataIndex: 'maNgach',
             key: 'maNgach',
-            className: 'text-green-500 font-bold text-center',
+            className: 'text-green-500 font-bold ',
             width: 120,
 
         },
@@ -277,7 +277,7 @@ const UserForm = () => {
             title: 'Định mức GC',
             dataIndex: 'dinhMucGioChuan',
             key: 'dinhMucGioChuan',
-            className: 'text-red-700 font-bold text-center',
+            className: 'text-red-700 font-bold',
             width: 120,
 
 
@@ -308,14 +308,14 @@ const UserForm = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button  size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button size="small" type="primary" danger>Xoá</Button>
+                        <Button  size="small" type="primary" danger>Xoá</Button>
                     </Popconfirm>
                 </Space>
             ),
@@ -508,29 +508,29 @@ const UserForm = () => {
                                     </div>
 
                                     <Form.Item
-                                            label={<span className="font-bold text-xl">Quyền <span className="text-red-600">*</span></span>}
-                                        >
-                                            <Controller
-                                                name="role"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <Select className="w-full" placeholder="Chọn quyền" {...field}>
-                                                        {quyenOptions.map(role => (
-                                                            <Option key={role} value={role}>
-                                                                {role}
-                                                            </Option>
-                                                        ))}
-                                                    </Select>
-                                                )}
-                                            />
-                                        </Form.Item>
+                                        label={<span className="font-bold text-xl">Quyền <span className="text-red-600">*</span></span>}
+                                    >
+                                        <Controller
+                                            name="role"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Select className="w-full" placeholder="Chọn quyền" {...field}>
+                                                    {quyenOptions.map(role => (
+                                                        <Option key={role} value={role}>
+                                                            {role}
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+                                    </Form.Item>
                                 </div>
 
                                 <div className="flex justify-between">
                                     <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
                                         {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
                                     </Button>
-                                    <Button className="ml-4" htmlType="button" onClick={onReset}>
+                                    <Button danger className="ml-4" htmlType="button" onClick={onReset}>
                                         Reset
                                     </Button>
                                 </div>
@@ -569,21 +569,21 @@ const UserForm = () => {
             <div className="p-2 shadow-xl bg-white rounded-xl ">
                 <div className="flex flex-col gap-0 justify-between items-center mb-0">
                     <Title level={4} className="text-center text-[18px]">DANH SÁCH NGƯỜI DÙNG</Title>
-                    <div className="flex gap-3 justify-between w-full">
-                        <div className="flex flex-1">
+                    <div className="flex gap-3 justify-between w-full mb-2">
+                        <div className="flex-1">
                             <Input size="small"
-                                className="w-[30%] flex-1"
+                                className=" w-[70%] flex-1"
                                 placeholder="Tìm kiếm theo tên giảng viên"
                                 value={searchName}
                                 onChange={(e) => setSearchName(e.target.value)}
                                 prefix={<SearchOutlined />}
                             />
-
                         </div>
+
                         <div className="flex flex-1 gap-1">
                             <div className="text-base-bold">Khoa:</div>
                             <Select size="small"
-                                className="w-[30%] flex-1"
+                                className="w-[40%]"
                                 placeholder="Lọc theo khoa"
                                 allowClear
                                 value={selectedKhoa}
@@ -599,7 +599,7 @@ const UserForm = () => {
                         <div className="flex flex-1 gap-1">
                             <div className="text-base-bold">Quyền:</div>
                             <Select size="small"
-                                className="w-[30%] flex-1"
+                                className="w-[30%]"
                                 placeholder="Lọc theo quyền"
                                 allowClear
                                 value={selectedRole}
@@ -613,7 +613,7 @@ const UserForm = () => {
                             </Select>
                         </div>
                         <div >
-                            <Button type="primary" onClick={() => { setShowForm(!showForm) }} className="primary ">{showForm ? 'Ẩn Form' : 'Hiện Form'}</Button>
+                            <Button type="primary" onClick={() => { setShowForm(!showForm) }} className="primary ">{showForm ? 'Đóng' : 'Tạo mới'}</Button>
                         </div>
 
 
@@ -626,7 +626,7 @@ const UserForm = () => {
                         dataSource={paginatedData}
                         rowKey="_id"
                         pagination={false} // Tắt phân trang trên Table
-                        
+
                     />
                 </div>
 

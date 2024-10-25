@@ -57,6 +57,47 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const [isAddingNew, setIsAddingNew] = useState(false);
   const [newHocPhan, setNewHocPhan] = useState("");
 
+  const soTietLT = watch("soTietLT");
+
+  const [currentHocPhan, setCurrentHocPhan] = useState(null);
+
+
+  useEffect(() => {
+    if (soTietLT > 0) {
+      if (currentHocPhan) {
+        let hst = 0
+        let hsf = 0
+        let hsm = 1.5;
+        if (currentHocPhan.tietBD > 10 && !['2', '3', '4', '5', '6'].includes(thu)) {
+          hst = 0.2;
+        }
+
+        // Điều kiện cho soSVDK (Số lượng sinh viên)
+        if (currentHocPhan.soSVDK > 80) {
+          hsm = 1.5;  
+        } else if (currentHocPhan.soSVDK > 70) {
+          hsm = 1.4;  
+        } else if (currentHocPhan.soSVDK > 60) {
+          hsm = 1.3; 
+        } else if (currentHocPhan.soSVDK > 50) {
+          hsm = 1.2;  
+        } else if (currentHocPhan.soSVDK > 40) {
+          hsm = 1.1;  
+        }
+
+
+        /// Xử lý điều kiện địa điểm học  sẽ được tăng 0.2
+        // if(){
+
+        // }
+
+        const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst); 
+        setValue("soTietQCLT", calculatedSoTietQCLT);
+      }
+    }
+  }, [soTietLT, setValue]);
+
+
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
   };
@@ -69,21 +110,23 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       lop: "",
       soSVDK: 0,
     };
-  
+
     // Cập nhật listSelect với học phần mới
     setListSelect([...listSelect, newHocPhanObj]);
-  
+
     // Reset trạng thái thêm mới và input học phần
     setIsAddingNew(false);
     setNewHocPhan("");
   };
-  
+
 
 
   useEffect(() => {
     const tongCong = (soTietQCLT || 0) + (soTietQCTH || 0);
     setValue("tongCong", tongCong);
   }, [soTietQCLT, soTietQCTH, setValue]);
+
+
 
   useEffect(() => {
     if (editRecord) {
@@ -134,7 +177,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         if (res.ok) {
           const data = await res.json();
           setListSelect(data);
-          console.log("Data:",data)
+          console.log("Data:", data)
           //setFilteredData(data);
         } else {
           toast.error("Không thể tải dữ liệu");
@@ -200,6 +243,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const onReset = () => {
     reset(formSchema);
     setEditRecord(null);
+    setCurrentHocPhan(null)
   };
 
   const handleEdit = (record) => {
@@ -236,6 +280,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const handleSelectChange = (value) => {
     const selectedHocPhan = listSelect.find(item => item.tenMH == value);
     if (selectedHocPhan) {
+      setCurrentHocPhan(selectedHocPhan)
       setValue("soTinChi", selectedHocPhan.soTC);
       setValue("lopHocPhan", selectedHocPhan.lop);
       setValue("soSV", selectedHocPhan.soSVDK);
@@ -328,7 +373,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           </Popconfirm>
         </Space>
       ),
-      width:20
+      width: 20
     },
   ];
 
@@ -358,7 +403,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
               <Space className="flex">
                 <div className="w-[200px]">
                   <Controller
-                    
+
                     name="hocPhan"
                     control={control}
                     rules={{ required: "Học phần là bắt buộc" }}
@@ -488,21 +533,20 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 <Space direction="vertical" size="middle" className="w-full">
                   <div className="flex justify-between">
                     <Form.Item
-                      label={<span className="font-semibold text-base">LT <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">LTQC <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietQCLT ? 'error' : ''}
                       help={errors.soTietQCLT?.message}
                     >
                       <Controller
                         name="soTietQCLT"
                         control={control}
-                        rules={{ required: "Số tiết quy chuẩn LT là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
-                        render={({ field }) => <InputNumber className="input-number w-14" {...field} />}
+                        rules={{ required: "Số tiết quy chuẩn LT là bắt buộc" }}
+                        render={({ field }) => <InputNumber className="input-number w-14" readOnly {...field} />} // Disable input
                       />
                     </Form.Item>
-
                     <Form.Item
                       className="max-sm:ml-20"
-                      label={<span className="font-semibold text-base">TH <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">THQC <span className="text-red-600">*</span></span>}
                       validateStatus={errors.soTietQCTH ? 'error' : ''}
                       help={errors.soTietQCTH?.message}
                     >
@@ -510,7 +554,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         name="soTietQCTH"
                         control={control}
                         rules={{ required: "Số tiết quy chuẩn TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
-                        render={({ field }) => <InputNumber className="input-number w-14" {...field} />}
+                        render={({ field }) => <InputNumber className="input-number w-14" readOnly {...field} />}
                       />
                     </Form.Item>
                   </div>

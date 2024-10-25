@@ -1,11 +1,12 @@
 import User from "@models/User";
+import ChucVu from "@models/ChucVu";
+import MaNgach from "@models/MaNgach";
 import { connectToDB } from "@mongodb";
 
 export const POST = async (req) => {
   try {
     await connectToDB();
 
-    // Lấy dữ liệu từ body của yêu cầu
     const { users } = await req.json();
 
     console.log("Dữ liệu nhận được:", users);
@@ -17,29 +18,33 @@ export const POST = async (req) => {
     // Duyệt qua danh sách users và xử lý từng user
     const processedUsers = await Promise.all(
       users.map(async (user) => {
-        const maGV = user[0];
-        const maNgach = user[3];
+        const maGV = user[1];
+        const maNgach = user[6];
+        const maCV = user[3];
 
-        let GCGD = 0
-        let GCNCKH = 0
-        let GCPVCD = 0
+        // Lấy thông tin từ bảng MaNgach dựa trên maNgach
+        const maNgachData = await MaNgach.findOne({ maNgach });
 
-        if (maNgach) {
-          if (maNgach == 'V07.01.01') {
-            GCGD = 230
-            GCNCKH = 300
-            GCPVCD = 57
-          }
-          if (maNgach == 'V07.01.02') {
-            GCGD = 250
-            GCNCKH = 260
-            GCPVCD = 77
-          }
-          if (maNgach == 'V07.01.03') {
-            GCGD = 270
-            GCNCKH = 195
-            GCPVCD = 121
-          }
+        // Tính toán giá trị dinhMucGioChuan dựa trên dữ liệu MaNgach
+        const dinhMucGioChuan = maNgachData 
+          ? maNgachData.GCGD + maNgachData.GCNCKH + maNgachData.GCPVCD
+          : 0;
+
+        // Cập nhật các mảng chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH
+        let chucVuChinhQuyen = [];
+        let chucVuKiemNhiem = [];
+        let chucVuDoanTheXH = [];
+
+        if (user[5] === "Chính quyền") {
+          chucVuChinhQuyen.push(user[4]);
+        }
+
+        if (user[5] === "Cố vấn học tập" || user[5] === "Giáo vụ khoa") {
+          chucVuKiemNhiem.push(user[4]);
+        }
+
+        if (["Công đoàn", "Đảng", "Đoàn Hội"].includes(user[5])) {
+          chucVuDoanTheXH.push(user[4]);
         }
 
         // Tìm và cập nhật nếu người dùng tồn tại, nếu không thì tạo mới
@@ -47,11 +52,12 @@ export const POST = async (req) => {
           { maGV },
           {
             username: user[1], // Cập nhật các trường thông tin
-            khoa: user[2],
-            maNgach: user[3],
-            GCGD,
-            GCNCKH,
-            GCPVCD
+            maNgach, // để lấy giờ chuẩn giảng dạy và 2 cái nữa
+            maCV, // để lấy miễn giảm GD  và nhân với gcgd để lấy số giờ miễn giảm   ví dụ 0.15 * 270
+            dinhMucGioChuan, // Gán giá trị dinhMucGioChuan đã tính toán
+            chucVuChinhQuyen: chucVuChinhQuyen.length ? chucVuChinhQuyen : ["Không"],
+            chucVuKiemNhiem: chucVuKiemNhiem.length ? chucVuKiemNhiem : ["Không"],
+            chucVuDoanTheXH: chucVuDoanTheXH.length ? chucVuDoanTheXH : ["Không"],
           },
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới
         );
@@ -60,7 +66,6 @@ export const POST = async (req) => {
       })
     );
 
-    // Trả về danh sách người dùng đã xử lý
     return new Response(JSON.stringify(processedUsers), { status: 201 });
 
   } catch (err) {

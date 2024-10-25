@@ -40,8 +40,16 @@ const SideBar = () => {
         <span style={getIconStyle(["/giaovu/pc-coi-thi"])}>Phân công coi thi</span>
       </Link>
       <Link href="/giaovu/pc-cham-thi" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
-        <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-pink-500"/>
         <span style={getIconStyle(["/giaovu/pc-cham-thi"])}>Phân công chấm thi</span>
+      </Link>
+      <Link href="/admin/ma-ngach" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
+        <span style={getIconStyle(["/admin/ma-ngach"])}>Mã ngạch</span>
+      </Link>
+      <Link href="/admin/chuc-vu" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
+        <span style={getIconStyle(["/admin/chuc-vu"])}>Chức vụ</span>
       </Link>
       <Link href="/admin/send-email" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <MailFilled style={{ fontSize: "20px" }} className="text-teal-500"/>

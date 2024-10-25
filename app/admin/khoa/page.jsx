@@ -129,25 +129,29 @@ const KhoaForm = () => {
             title: 'Mã khoa',
             dataIndex: 'maKhoa',
             key: 'maKhoa',
+            className: 'text-red-700 font-bold ',
+
         },
         {
             title: 'Tên khoa',
             dataIndex: 'tenKhoa',
             key: 'tenKhoa',
+            className: 'text-green-700 font-bold ',
+
         },
         {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button  size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="primary" danger>Xoá</Button>
+                        <Button danger size="small" type="primary" >Xoá</Button>
                     </Popconfirm>
                 </Space>
             ),
@@ -158,8 +162,8 @@ const KhoaForm = () => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-5 max-sm:flex-col mt-4 h-[83vh]">
-            <div className="p-4 shadow-xl bg-white rounded-xl flex-[40%]">
+        <div className="flex gap-2 max-sm:flex-col mt-4 h-[83vh]">
+            <div className="p-4 shadow-xl bg-white rounded-xl flex-[25%]">
                 <Title className="text-center" level={3}>QUẢN LÝ KHOA</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
@@ -193,14 +197,14 @@ const KhoaForm = () => {
                         <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
                             {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
                         </Button>
-                        <Button className="ml-4" htmlType="button" onClick={onReset}>
+                        <Button danger className="ml-4" htmlType="button" onClick={onReset}>
                             Reset
                         </Button>
                     </Space>
                 </Form>
             </div>
 
-            <div className="p-3 shadow-xl bg-white rounded-xl flex-[60%]">
+            <div className="p-3 shadow-xl bg-white rounded-xl flex-[75%]">
                 <div className="flex flex-col gap-2 justify-between items-center mb-4">
                     <Title level={3} className="text-center">DANH SÁCH KHOA</Title>
                     <Input
