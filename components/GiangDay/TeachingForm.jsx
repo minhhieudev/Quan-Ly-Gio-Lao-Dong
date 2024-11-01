@@ -67,8 +67,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       if (currentHocPhan) {
         let hst = 0
         let hsf = 0
-        let hsm = 1.5;
-        if (currentHocPhan.tietBD > 10 && !['2', '3', '4', '5', '6'].includes(thu)) {
+        let hsm = 1;
+
+        if (currentHocPhan.tietBD >= 10 && !['2', '3', '4', '5', '6'].includes(thu)) {
           hst = 0.2;
         }
 

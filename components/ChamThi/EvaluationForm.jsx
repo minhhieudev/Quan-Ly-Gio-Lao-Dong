@@ -54,6 +54,26 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
     const handleAddNewClick = () => {
         setIsAddingNew(!isAddingNew);
     };
+
+    const soTietQC = watch("soTietQuyChuan");
+
+    useEffect(() => {
+        if (soTietLT > 0) {
+          if (currentHocPhan) {
+            let hst = 0
+            let hsf = 0
+            let hsm = 1;
+    
+            if (currentHocPhan.tietBD >= 10 && !['2', '3', '4', '5', '6'].includes(thu)) {
+              hst = 0.2;
+            }
+    
+            const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst); 
+            setValue("soTietQCLT", calculatedSoTietQCLT);
+          }
+        }
+      }, [soTietQC, setValue]);
+
     const handleSaveNewHocPhan = () => {
         const newHocPhanObj = {
             _id: Math.random().toString(36).substr(2, 9),
