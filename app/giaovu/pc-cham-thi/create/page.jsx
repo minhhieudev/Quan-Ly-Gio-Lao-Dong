@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Select, DatePicker, Spin } from "antd";
 import toast from "react-hot-toast";
@@ -22,7 +22,8 @@ const formSchema = {
   namHoc: "",
   loaiKyThi: "",
   loai: "",
-  hinhThucThoiGianThi: ''
+  hinhThuc: '',
+  thoiGian: ''
 };
 
 const TeachingAssignmentForm = () => {
@@ -35,10 +36,33 @@ const TeachingAssignmentForm = () => {
   const currentUser = session?.user;
   const router = useRouter();
 
-  const [loai, setLoai] = useState("chinh-quy");
+  const [loai, setLoai] = useState("Chính quy");
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [listOptions, setListOptions] = useState([]);
+
+
+  useEffect(() => {
+    fetchDataOption();
+  }, []);
+
+  const fetchDataOption = async () => {
+    try {
+      const res = await fetch(`/api/admin/hinh-thuc-thi`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setListOptions(data);
+      } else {
+        toast.error("Failed to fetch data");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data");
+    }
+  };
 
   const onSubmit = async (data) => {
     if (loai === "") {
@@ -48,7 +72,6 @@ const TeachingAssignmentForm = () => {
 
     // Không cần chuyển đổi các trường dạng chuỗi thành mảng nữa
     try {
-      console.log('Data:', data);
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/giaovu/pc-cham-thi`, {
         method,
@@ -113,8 +136,6 @@ const TeachingAssignmentForm = () => {
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-      console.log('Raw Data:', rawData);
-
       const structuredData = [];
       let currentEntry = null;
       let loaiKyThi = '';
@@ -150,7 +171,8 @@ const TeachingAssignmentForm = () => {
               ngayThi: dayjs(row[3]).format('DD/MM/YYYY'),
               cb1: row[4],
               cb2: row[5],
-              hinhThucThoiGianThi: row[7],
+              hinhThuc: row[7],
+              thoiGian: row[8],
               soBai: parseInt(row[6], 6) || 0, // Số bài là số nguyên, thêm kiểm tra nếu trường này có giá trị null
               loai
             };
@@ -162,7 +184,6 @@ const TeachingAssignmentForm = () => {
         structuredData.push(currentEntry);
       }
 
-      console.log('Structured Data:', structuredData);
       createMany(structuredData);
     };
 
@@ -186,12 +207,12 @@ const TeachingAssignmentForm = () => {
         <div className="flex gap-2">
           <div className="text-heading4-bold">LOẠI:</div>
           <Select
-            defaultValue="chinh-quy" // Giá trị mặc định
+            defaultValue="Chính quy" // Giá trị mặc định
             placeholder="Chọn loại hình đào tạo..."
             onChange={(value) => setLoai(value)}
           >
-            <Option value="chinh-quy">Chính quy</Option>
-            <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
+            <Option value="Chính quy">Chính quy</Option>
+            <Option value="Liên thông vlvh">Liên thông vừa làm vừa học</Option>
           </Select>
 
         </div>
@@ -363,16 +384,64 @@ const TeachingAssignmentForm = () => {
 
           {/* Hình thức thời gian */}
           <Form.Item
-            label="Hình thức thời gian"
-            validateStatus={errors.hinhThucThoiGianThi ? 'error' : ''}
-            help={errors.hinhThucThoiGianThi?.message}
+            label="Hình thức thi ..."
+            validateStatus={errors.hinhThuc ? 'error' : ''}
+            help={errors.hinhThuc?.message}
           >
             <Controller
-              name="hinhThucThoiGianThi"
+              name="hinhThuc"
               control={control}
-              render={({ field }) => <Input placeholder="Nhập hình thức thời gian" {...field} />}
+              render={({ field }) =>
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder="Chọn hình thức..."
+                  {...field}
+                  options={listOptions.map(item => ({
+                    value: item.ten,
+                    label: item.ten,
+                  }))}
+                // filterOption={(input, option) =>
+                //     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                // }
+                // onChange={(value) => {
+                //   field.onChange(value);
+                //   handleSelectChange2(value);
+                // }}
+                />
+              }
             />
           </Form.Item>
+
+          <Form.Item
+            label="Thời gian thi ..."
+            validateStatus={errors.thoiGian ? 'error' : ''}
+            help={errors.thoiGian?.message}
+          >
+            <Controller
+              name="thoiGian"
+              control={control}
+              render={({ field }) =>
+                <Select
+                  size="small"
+                  placeholder="Chọn thời gian thi..."
+                  allowClear
+                  className="w-[50%]"
+                  {...field}
+                  onChange={(value) => {
+                    field.onChange(value); // Cập nhật giá trị trong form
+                  }}
+                >
+                  <Option value="45">45</Option>
+                  <Option value="60">60</Option>
+                  <Option value="90">90</Option>
+                  <Option value="120">120</Option>
+                  <Option value="180">180</Option>
+                </Select>
+              }
+            />
+          </Form.Item>
+
 
         </div>
 

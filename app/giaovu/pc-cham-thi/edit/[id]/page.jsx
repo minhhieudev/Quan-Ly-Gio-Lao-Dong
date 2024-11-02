@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Select, InputNumber, Row, Col ,DatePicker} from "antd";
+import { Button, Input, Form, Select, InputNumber, Row, Col, DatePicker } from "antd";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined } from "@ant-design/icons";
@@ -18,7 +18,8 @@ const formSchema = {
   cb1: '',
   cb2: "",
   soBai: 0,
-  hinhThucThoiGianThi: "",
+  hinhThuc: "",
+  thoiGian: "",
   namHoc: "",
   loaiKyThi: ""
 };
@@ -36,6 +37,29 @@ const PcCoiThiForm = () => {
 
   const [loai, setLoai] = useState('');
 
+  const [listOptions, setListOptions] = useState([]);
+
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch(`/api/admin/hinh-thuc-thi`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setListOptions(data);
+      } else {
+        toast.error("Failed to fetch data");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data");
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -61,7 +85,7 @@ const PcCoiThiForm = () => {
   }, [id, reset]);
 
   const onSubmit = async (data) => {
-   
+
     try {
       const url = `/api/giaovu/pc-cham-thi`;
 
@@ -100,8 +124,8 @@ const PcCoiThiForm = () => {
         <div className="flex gap-2">
           <div className="text-heading4-bold">LOẠI:</div>
           <Select placeholder="Chọn loại hình đào tạo..." value={loai} onChange={(value) => setLoai(value)}>
-            <Option value="chinh-quy">Chính quy</Option>
-            <Option value="lien-thong-vlvh">Liên thông vừa làm vừa học</Option>
+            <Option value="Chính quy">Chính quy</Option>
+            <Option value="Liên thông vlvh">Liên thông vừa làm vừa học</Option>
           </Select>
         </div>
       </div>
@@ -153,7 +177,7 @@ const PcCoiThiForm = () => {
           </Col>
 
           <Col span={12}>
-            <Form.Item label="soBai" validateStatus={errors.soBai? 'error' : ''} help={errors.soBai?.message}>
+            <Form.Item label="soBai" validateStatus={errors.soBai ? 'error' : ''} help={errors.soBai?.message}>
               <Controller
                 name="soBai"
                 control={control}
@@ -186,18 +210,66 @@ const PcCoiThiForm = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={24}>
-            <Form.Item label="Hình thức/Thời gian " validateStatus={errors.hinhThucThoiGianThi ? 'error' : ''} help={errors.hinhThucThoiGianThi?.message}>
+          <Col span={12}>
+            <Form.Item label="Hình thức " validateStatus={errors.hinhThuc ? 'error' : ''} help={errors.hinhThuc?.message}>
               <Controller
-                name="hinhThucThoiGianThi"
+                name="hinhThuc"
                 control={control}
-                rules={{ required: "Vui lòng nhập thời gian/hình thức" }}
-                render={({ field }) => <Input placeholder="Nhập thời gian /hình thức" {...field} />}
+                render={({ field }) =>
+                  <Select
+                    showSearch
+                    allowClear
+                    placeholder="Chọn hình thức..."
+                    {...field}
+                    options={listOptions.map(item => ({
+                      value: item.ten,
+                      label: item.ten,
+                    }))}
+                  // filterOption={(input, option) =>
+                  //     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                  // }
+                  // onChange={(value) => {
+                  //   field.onChange(value);
+                  //   handleSelectChange2(value);
+                  // }}
+                  />
+                }
               />
             </Form.Item>
           </Col>
+          <Col span={12}>
+            <Form.Item
+              label="Thời gian thi ..."
+              validateStatus={errors.thoiGian ? 'error' : ''}
+              help={errors.thoiGian?.message}
+            >
+              <Controller
+                name="thoiGian"
+                control={control}
+                render={({ field }) =>
+                  <Select
+                    size="small"
+                    placeholder="Chọn thời gian thi..."
+                    allowClear
+                    className="w-[50%]"
+                    {...field}
+                    onChange={(value) => {
+                      field.onChange(value); // Cập nhật giá trị trong form
+                    }}
+                  >
+                    <Option value="45">45</Option>
+                    <Option value="60">60</Option>
+                    <Option value="90">90</Option>
+                    <Option value="120">120</Option>
+                    <Option value="180">180</Option>
+                  </Select>
+                }
+              />
+            </Form.Item>
+
+          </Col>
         </Row>
-      <Row gutter={16}>
+        <Row gutter={16}>
           <Col span={8}>
             <Form.Item label="Năm học" validateStatus={errors.namHoc ? 'error' : ''} help={errors.namHoc?.message}>
               <Controller

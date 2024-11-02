@@ -51,6 +51,10 @@ const SideBar = () => {
         <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
         <span style={getIconStyle(["/admin/chuc-vu"])}>Chức vụ</span>
       </Link>
+      <Link href="/admin/hinh-thuc-thi" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
+        <span style={getIconStyle(["/admin/hinh-thuc-thi"])}>DM hình thức thi</span>
+      </Link>
       <Link href="/admin/send-email" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <MailFilled style={{ fontSize: "20px" }} className="text-teal-500"/>
         <span style={getIconStyle(["/giaovu/pc-ra-de"])}>Gửi Email</span>

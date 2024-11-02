@@ -6,7 +6,7 @@ export const POST = async (req) => {
     await connectToDB();
 
     // Lấy dữ liệu từ body của yêu cầu
-    const { data } = await req.json();
+    const { data, loai } = await req.json();
 
     if (!data || !Array.isArray(data)) {
       return new Response(JSON.stringify({ message: "Invalid data format" }), { status: 400 });
@@ -29,6 +29,7 @@ export const POST = async (req) => {
         const tuanHoc = item[11];
         const namHoc = item[12]; 
         const ky = item[13]; 
+        const diaDiem = item[14] ==''? 'DHPY':item[14]; 
 
         // Tìm và cập nhật nếu tồn tại, nếu không thì tạo mới
         const updatedItem = await PcGiangDay.findOneAndUpdate(
@@ -42,6 +43,8 @@ export const POST = async (req) => {
             soTiet,
             lop,
             tuanHoc,
+            loai,
+            diaDiem
           }, 
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới
         );

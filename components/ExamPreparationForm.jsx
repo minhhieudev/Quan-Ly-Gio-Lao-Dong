@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Radio, InputNumber, Table, Popconfirm } from "antd";
+import { Button, Input, Form, Space, Typography, Radio, InputNumber, Table, Popconfirm, Select } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -24,7 +24,7 @@ const formSchema = {
 
 const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
+const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
@@ -38,6 +38,30 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
 
     const { type } = useParams();
     const [loading, setLoading] = useState(true);
+
+    const [listOptions, setListOptions] = useState([]);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`/api/admin/hinh-thuc-thi`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setListOptions(data);
+                setLoading(false);
+            } else {
+                toast.error("Failed to fetch data");
+            }
+        } catch (err) {
+            toast.error("An error occurred while fetching data");
+        }
+    };
 
     useEffect(() => {
         if (editRecord) {
@@ -80,7 +104,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
     }, [dataList]);
 
     const onSubmit = async (data) => {
-        if (namHoc == ''){
+        if (namHoc == '') {
             toast.error('Vui lòng nhập năm học!')
             return
         }
@@ -88,7 +112,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacRaDe", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id,namHoc }),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc, hocKy:ky }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -262,7 +286,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                                 />
                             </Form.Item>
 
-                            <Form.Item
+                            {/* <Form.Item
                                 label={<span className="font-bold text-xl">Học kỳ <span className="text-red-600">*</span></span>}
                                 className="w-[40%]"
                                 validateStatus={errors.hocKy ? 'error' : ''}
@@ -279,7 +303,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                                         </Radio.Group>
                                     )}
                                 />
-                            </Form.Item>
+                            </Form.Item> */}
                         </div>
                         <div className="flex justify-between">
                             <Form.Item
@@ -287,11 +311,29 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                                 validateStatus={errors.hinhThucThi ? 'error' : ''}
                                 help={errors.hinhThucThi?.message}
                             >
+
                                 <Controller
                                     name="hinhThucThi"
                                     control={control}
                                     rules={{ required: "Hình thức thi là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập hình thức thi ..." {...field} />}
+                                    render={({ field }) => (
+                                        <Select
+                                            showSearch
+                                            allowClear
+                                            placeholder="Chọn hình thức..."
+                                            {...field}
+                                            options={listOptions.map(item => ({
+                                                value: item.ten,
+                                                label: item.ten,
+                                            }))}
+                                            // filterOption={(input, option) =>
+                                            //     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            // }
+                                            onChange={(value) => {
+                                                field.onChange(value);
+                                            }}
+                                        />
+                                    )}
                                 />
                             </Form.Item>
 
@@ -300,12 +342,29 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                                 validateStatus={errors.thoiGianThi ? 'error' : ''}
                                 help={errors.thoiGianThi?.message}
                             >
+
                                 <Controller
                                     name="thoiGianThi"
                                     control={control}
-                                    rules={{ required: "Thời gian thi là bắt buộc" }}
-                                    render={({ field }) => <InputNumber className="input-text" placeholder="Nhập thời gian thi ..." {...field} />}
+                                    render={({ field }) =>
+                                        <Select
+                                            placeholder="Thời gian thi..."
+                                            allowClear
+                                            className="w-[20%]"
+                                            {...field}
+                                            onChange={(value) => {
+                                                field.onChange(value); // Cập nhật giá trị trong form
+                                            }}
+                                        >
+                                            <Option value="45">45</Option>
+                                            <Option value="60">60</Option>
+                                            <Option value="90">90</Option>
+                                            <Option value="120">120</Option>
+                                            <Option value="180">180</Option>
+                                        </Select>
+                                    }
                                 />
+
                             </Form.Item>
                         </div>
 
@@ -332,16 +391,18 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe,namHoc }) => {
                             </Form.Item>
                         </div>
 
-                        <Form.Item>
-                            <Space>
-                                <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                    {isSubmitting ? "Submitting..." : "Submit"}
-                                </Button>
-                                <Button type="default" danger onClick={onReset} disabled={isSubmitting}>
-                                    Reset
-                                </Button>
-                            </Space>
-                        </Form.Item>
+                        <div className="text-center mt-3">
+                            <Form.Item>
+                                <Space>
+                                    <Button type="primary" htmlType="submit" loading={isSubmitting}>
+                                        {isSubmitting ? "Submitting..." : "Lưu"}
+                                    </Button>
+                                    <Button type="default" danger onClick={onReset} disabled={isSubmitting}>
+                                        Reset
+                                    </Button>
+                                </Space>
+                            </Form.Item>
+                        </div>
                     </Space>
                 </Form>
             </div>

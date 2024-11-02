@@ -42,8 +42,6 @@ export const GET = async (req) => {
     // Tìm kiếm các bản ghi phân công giảng dạy theo điều kiện filter
     const assignments = await PcCoiThi.find(filter);
 
-    console.log('fil:n', filter);
-
     // Trả về phản hồi thành công
     return new Response(JSON.stringify(assignments), { status: 200 });
   } catch (err) {

@@ -75,24 +75,22 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
         // Điều kiện cho soSVDK (Số lượng sinh viên)
         if (currentHocPhan.soSVDK > 80) {
-          hsm = 1.5;  
+          hsm = 1.5;
         } else if (currentHocPhan.soSVDK > 70) {
-          hsm = 1.4;  
+          hsm = 1.4;
         } else if (currentHocPhan.soSVDK > 60) {
-          hsm = 1.3; 
+          hsm = 1.3;
         } else if (currentHocPhan.soSVDK > 50) {
-          hsm = 1.2;  
+          hsm = 1.2;
         } else if (currentHocPhan.soSVDK > 40) {
-          hsm = 1.1;  
+          hsm = 1.1;
         }
 
+        if (currentHocPhan.diaDiem && currentHocPhan.diaDiem.toLowerCase() !== 'dhpy') {
+          hsf = 0.2;
+      }
 
-        /// Xử lý điều kiện địa điểm học  sẽ được tăng 0.2
-        // if(){
-
-        // }
-
-        const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst); 
+        const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst);
         setValue("soTietQCLT", calculatedSoTietQCLT);
       }
     }
@@ -554,7 +552,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                       <Controller
                         name="soTietQCTH"
                         control={control}
-                        rules={{ required: "Số tiết quy chuẩn TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
                         render={({ field }) => <InputNumber className="input-number w-14" readOnly {...field} />}
                       />
                     </Form.Item>

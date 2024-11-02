@@ -17,12 +17,13 @@ const PcChamThiTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [loai, setLoai] = useState("chinh-quy");
+  const [loai, setLoai] = useState("Chính quy");
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
   const [hocKy, setHocKy] = useState("");
+
 
   const router = useRouter();
 
@@ -149,11 +150,18 @@ const PcChamThiTable = () => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'HT/TG',
-      dataIndex: 'hinhThucThoiGianThi',
-      key: 'hinhThucThoiGianThi',
+      title: 'HT',
+      dataIndex: 'hinhThuc',
+      key: 'hinhThuc',
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-      width: 120,
+      width: 60,
+    },
+    {
+      title: 'TG',
+      dataIndex: 'thoiGian',
+      key: 'thoiGian',
+      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: 60,
     },
     {
       title: 'Hành động',
@@ -189,8 +197,8 @@ const PcChamThiTable = () => {
         <div className="flex gap-2">
           <div className="font-bold text-small-bold">LOẠI:</div>
           <Select value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
-            <Option value="chinh-quy">chinh-quy</Option>
-            <Option value="lien-thong-vlvh">lien-thong-vlvh</Option>
+            <Option value="Chính quy">Chính quy</Option>
+            <Option value="Liên thông vlvh">Liên thông vlvh</Option>
           </Select>
         </div>
         <h2 className="font-bold text-[18px] text-center text-green-500">DANH SÁCH PHÂN CÔNG CHẤM THI</h2>
@@ -227,6 +235,7 @@ const PcChamThiTable = () => {
           >
             <Option value="1">1</Option>
             <Option value="2">2</Option>
+            <Option value="he">Hè</Option>
           </Select>
         </div>
 

@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 
 const PcChamThiSchema = new mongoose.Schema({
   hocPhan: {
-    type: [String],  
+    type: String,  
   },
   nhomLop: {
-    type: [String],  
+    type: String,  
   },
   ngayThi: {
     type: String,  
@@ -19,9 +19,7 @@ const PcChamThiSchema = new mongoose.Schema({
   soBai: {
     type: Number,  
   },
-  hinhThucThoiGianThi: {
-    type: String,  
-  },
+  
   namHoc: {
     type: String,  
   },
@@ -34,6 +32,13 @@ const PcChamThiSchema = new mongoose.Schema({
   ky: {
     type: String,
   },
+
+  hinhThuc:{
+    type: String
+  },
+  thoiGian:{
+    type: String
+  }
 }, {
   timestamps: true,
 });

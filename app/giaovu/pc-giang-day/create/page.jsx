@@ -40,6 +40,7 @@ const TeachingAssignmentForm = () => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [khoaOptions, setKhoaOptions] = useState([]);
+  const [loai, setLoai] = useState("Chính quy");
 
 
   const onSubmit = async (data) => {
@@ -47,7 +48,7 @@ const TeachingAssignmentForm = () => {
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/giaovu/pc-giang-day`, {
         method,
-        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id }),
+        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai: loai }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -100,7 +101,7 @@ const TeachingAssignmentForm = () => {
       const method = "POST";
       const res = await fetch("/api/giaovu/pc-giang-day/create", {
         method,
-        body: JSON.stringify({ data: ListData }),
+        body: JSON.stringify({ data: ListData, loai: loai }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -144,6 +145,9 @@ const TeachingAssignmentForm = () => {
         }
       });
 
+      console.log('rawData:', rawData);
+
+
       // Lọc và định dạng dữ liệu theo cấu trúc mong muốn
       let ListData = rawData
         .filter((row) => row[1] && row[2] && row[3]) // Lọc các dòng có dữ liệu cần thiết
@@ -160,8 +164,9 @@ const TeachingAssignmentForm = () => {
           const phong = row[10] || ""; // Phòng học
           const lop = row[11] || ""; // Lớp
           const tuanHoc = row[12] || ""
+          const diaDiem = row[13] || ''
 
-          return [maMH, tenMH, soTC, soSVDK, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky];
+          return [maMH, tenMH, soTC, soSVDK, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky,diaDiem];
         });
       ListData.shift();
 
@@ -191,6 +196,14 @@ const TeachingAssignmentForm = () => {
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>
         <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">PHÂN CÔNG GIẢNG DẠY</h2>
+      </div>
+
+      <div className="flex gap-2 w-[900px] mb-2">
+        <div className="text-[14px] font-bold">LOẠI:</div>
+        <Select className="w-[200px]" value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
+          <Option value="Chính quy">Chính quy</Option>
+          <Option value="Liên thông vlvh">Liên thông vlvh</Option>
+        </Select>
       </div>
 
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 font-bold">
@@ -283,7 +296,7 @@ const TeachingAssignmentForm = () => {
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Nhóm">
               <Controller
                 name="nhom"
@@ -292,7 +305,7 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Thứ" validateStatus={errors.thu ? 'error' : ''} help={errors.thu?.message}>
               <Controller
                 name="thu"
@@ -312,7 +325,7 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Tiết bắt đầu" validateStatus={errors.tietBD ? 'error' : ''} help={errors.tietBD?.message}>
               <Controller
                 name="tietBD"
@@ -322,7 +335,7 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Số tiết" validateStatus={errors.soTiet ? 'error' : ''} help={errors.soTiet?.message}>
               <Controller
                 name="soTiet"
@@ -332,8 +345,7 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={16}>
+
           <Col span={8}>
             <Form.Item label="Phòng" validateStatus={errors.phong ? 'error' : ''} help={errors.phong?.message}>
               <Controller
@@ -344,6 +356,9 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
+        </Row>
+        <Row gutter={16}>
+
           <Col span={8}>
             <Form.Item label="Lớp" validateStatus={errors.lop ? 'error' : ''} help={errors.lop?.message}>
               <Controller
@@ -360,6 +375,20 @@ const TeachingAssignmentForm = () => {
                 name="tuanHoc"
                 control={control}
                 render={({ field }) => <Input placeholder="Nhập tuần học" {...field} />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Địa điểm" validateStatus={errors.diaDiem ? 'error' : ''} help={errors.diaDiem?.message}>
+              <Controller
+                name="diaDiem"
+                control={control}
+                render={({ field }) => (
+                  <Select allowClear placeholder="Chọn địa điểm" {...field}>
+                    <Option value="DHPY">DHPY</Option>
+                    <Option value="Khác">Khác</Option>
+                  </Select>
+                )}
               />
             </Form.Item>
           </Col>

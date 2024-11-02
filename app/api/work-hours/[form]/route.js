@@ -23,6 +23,7 @@ const models = {
 export const POST = async (req, { params }) => {
   try {
     const { form } = params;
+    console.log("Form parameter:", form);
     if (!models[form]) {
       return new Response("Invalid form name", { status: 400 });
     }
@@ -90,16 +91,26 @@ export const GET = async (req, { params }) => {
     await connectToDB();
     const url = new URL(req.url, `http://${req.headers.host}`);
     const user = url.searchParams.get('user');
-    const type = url.searchParams.get('type'); 
-    const namHoc = url.searchParams.get('namHoc'); 
-    const ky = url.searchParams.get('ky'); 
+    const type1 = url.searchParams.get('type');
+    const namHoc = url.searchParams.get('namHoc');
+    const ky = url.searchParams.get('ky');
+    let type = ''
+
+    if (type1) {
+      if (type1 == 'chinh-quy') {
+        type = 'Chính quy'
+      }
+      else {
+        type = 'Liên thông vlvh'
+      }
+    }
 
     if (!user || !type) {
       return new Response("User and type parameters are required", { status: 400 });
     }
 
-    console.log("Nam hoc:",namHoc)
-    console.log("Ky hoc:",ky)
+    console.log("Nam hoc:", namHoc)
+    console.log("Ky hoc:", ky)
 
     const query = {
       user,
@@ -112,6 +123,10 @@ export const GET = async (req, { params }) => {
 
     if (ky) {
       query.ky = ky;
+    }
+
+    if (type) {
+      query.loai = type;
     }
 
     const records = await models[form].find(query).populate('user', 'username');;

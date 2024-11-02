@@ -19,6 +19,8 @@ const TeachingAssignmentTable = () => {
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [loai, setLoai] = useState("Chính quy");
+
 
   const router = useRouter();
 
@@ -28,7 +30,7 @@ const TeachingAssignmentTable = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/giaovu/pc-giang-day?namHoc=${namHoc}&kiHoc=${kiHoc}`, {
+        const res = await fetch(`/api/giaovu/pc-giang-day?namHoc=${namHoc}&loai=${loai}&kiHoc=${kiHoc}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -47,7 +49,7 @@ const TeachingAssignmentTable = () => {
     };
 
     fetchData();
-  }, [namHoc, kiHoc]);
+  }, [namHoc, kiHoc, loai]);
 
   useEffect(() => {
     const filtered = dataList.filter((item) =>
@@ -158,6 +160,13 @@ const TeachingAssignmentTable = () => {
       width: 145,
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
+    {
+      title: 'Địa điểm',
+      dataIndex: 'diaDiem',
+      key: 'diaDiem',
+      width: 145,
+      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+    },
     // {
     //   title: 'Tuần bắt đầu học',
     //   dataIndex: 'tuanHoc',
@@ -193,6 +202,13 @@ const TeachingAssignmentTable = () => {
   return (
     <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-1 h-[92vh] flex flex-col">
       <div className="flex items-center justify-center mb-3">
+        <div className="flex gap-2">
+          <div className="text-[14px] font-bold">LOẠI:</div>
+          <Select value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
+            <Option value="Chính quy">Chính quy</Option>
+            <Option value="Liên thông vlvh">Liên thông vlvh</Option>
+          </Select>
+        </div>
         <h2 className="font-bold  flex-grow text-center text-[18px] text-green-500">DANH SÁCH PHÂN CÔNG GIẢNG DẠY</h2>
         <Button
           className="button-dang-day text-white font-bold shadow-md mb-0"
@@ -213,18 +229,19 @@ const TeachingAssignmentTable = () => {
             <Option value="2022-2023">2022-2023</Option>
             <Option value="2023-2024">2023-2024</Option>
             <Option value="2024-2025">2024-2025</Option>
+            <Option value="2025-2026">2025-2026</Option>
           </Select>
         </div>
 
         <div className="w-[25%] flex items-center gap-2">
-          <label className="block text-sm font-semibold mb-1">Kỳ học:</label>
+          <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
           <Select size="small"
-            placeholder="Chọn kỳ học"
+            placeholder="Chọn học kỳ"
             onChange={(value) => setKiHoc(value)}
             className="w-[50%]"
           >
-            <Option value="1">Kỳ 1</Option>
-            <Option value="2">Kỳ 2</Option>
+            <Option value="1"> 1</Option>
+            <Option value="2"> 2</Option>
             <Option value="he">Hè</Option>
           </Select>
         </div>
@@ -256,7 +273,7 @@ const TeachingAssignmentTable = () => {
       <div className="mt-2 flex justify-between">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md "
-          //onClick={() => exportToExcelTongHop() }
+        //onClick={() => exportToExcelTongHop() }
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>
@@ -268,7 +285,7 @@ const TeachingAssignmentTable = () => {
             setCurrent(page);
             setPageSize(size);
           }}
-          pageSizeOptions={[ '10', '25', '50', '100', '200']}
+          pageSizeOptions={['10', '25', '50', '100', '200']}
           showSizeChanger
           className="flex justify-end"
         />

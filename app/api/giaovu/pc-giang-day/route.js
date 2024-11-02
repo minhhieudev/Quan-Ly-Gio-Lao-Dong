@@ -13,6 +13,7 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
     const ky = searchParams.get('kiHoc');
+    const loai = searchParams.get('loai');
 
     // Tạo đối tượng điều kiện tìm kiếm
     let filter = {};
@@ -25,6 +26,11 @@ export const GET = async (req) => {
     // Nếu có tham số ky, thêm vào điều kiện tìm kiếm
     if (ky) {
       filter.ky = ky;
+    }
+
+     // Nếu có tham số loai và nó không phải là 'undefined', thêm vào điều kiện tìm kiếm
+     if (loai && loai !== 'undefined') {
+      filter.loai = loai;
     }
 
   
@@ -69,7 +75,8 @@ export const POST = async (req) => {
       thu: data.thu || '',
       tietBD: data.tietBD || 0,
       namHoc: data.namHoc,
-      ky: data.ky
+      ky: data.ky,
+      loai: data.loai
     };
 
     // Tìm kiếm bản ghi dựa trên điều kiện
@@ -83,6 +90,7 @@ export const POST = async (req) => {
       existingRecord.soTiet = data.soTiet || existingRecord.soTiet;
       existingRecord.phong = data.phong || existingRecord.phong;
       existingRecord.lop = data.lop || existingRecord.lop;
+      existingRecord.diaDiem = data.diaDiem || existingRecord.diaDiem;
 
       existingRecord.hinhThucTH = data.hinhThucTH || existingRecord.hinhThucTH;
       existingRecord.boMon = data.boMon || existingRecord.boMon;
@@ -116,6 +124,9 @@ export const POST = async (req) => {
         boMon: data.boMon || "",
         nganh: data.nganh || "",
         khoa: data.khoa || "",
+
+        loai: data.loai || "",
+        diaDiem: data.diaDiem || "",
       });
 
       // Lưu bản ghi mới vào database

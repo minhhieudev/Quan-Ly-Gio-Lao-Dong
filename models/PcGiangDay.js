@@ -42,6 +42,14 @@ const PcGiangDaySchema = new mongoose.Schema({
   ky: {
     type: Number,
   },
+  loai: {
+    type: String,
+    default: 'Chính quy'
+  },
+  diaDiem: {
+    type: String,
+    default: 'DHPY'
+  },
   
 }, {
   timestamps: true,

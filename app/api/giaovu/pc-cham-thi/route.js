@@ -59,11 +59,10 @@ export const POST = async (req) => {
     const data = await req.json();
 
     // Kiểm tra xem dữ liệu có hợp lệ không
-    const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi,soBai,hinhThucThoiGianThi,ky } = data;
+    const { hocPhan, nhomLop, ngayThi, namHoc, loaiKyThi,soBai,hinhThuc,thoiGian,ky } = data;
     if (!hocPhan || !nhomLop || !ngayThi || !namHoc || !loaiKyThi) {
       return new Response(JSON.stringify({ message: "Dữ liệu không hợp lệ, vui lòng điền đầy đủ các trường bắt buộc." }), { status: 400 });
     }
-
     // Tạo một bản ghi mới cho Phân Công Giảng Dạy
     const newAssignment = new PcChamThi({
       hocPhan,
@@ -74,11 +73,13 @@ export const POST = async (req) => {
       diaDiem: data.diaDiem || 0,
       namHoc,
       soBai,
-      hinhThucThoiGianThi,
+      hinhThuc,
+      thoiGian,
       loaiKyThi:data.loaiKyThi,
       loai: data.loai || "",
       ky
     });
+    console.log('hoc phan:', hocPhan)
 
     // Lưu bản ghi mới vào database
     await newAssignment.save();

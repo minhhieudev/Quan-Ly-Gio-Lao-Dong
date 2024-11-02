@@ -16,7 +16,6 @@ const { Title } = Typography;
 const { TabPane } = Tabs;
 
 const formSchema = {
-    ky: "",
     soTietQuyChuan: 0,
     ghiChu: "",
     hocPhan: '',
@@ -46,6 +45,47 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [newHocPhan, setNewHocPhan] = useState("");
 
+    const [currentHocPhan, setCurrentHocPhan] = useState(null);
+
+    const soTietQC = watch("soTietQuyChuan");
+
+    useEffect(() => {
+        if (currentHocPhan) {
+            let timeValue
+            let gioChuan
+            if (currentHocPhan.time && Array.isArray(currentHocPhan.time) && currentHocPhan.time.length > 0) {
+                timeValue = currentHocPhan.time.length > 1
+                    ? Math.max(...currentHocPhan.time) // Nếu có nhiều phần tử, lấy phần tử lớn nhất
+                    : currentHocPhan.time[0];          // Nếu chỉ có một phần tử, lấy phần tử đó
+            }
+
+            if (timeValue == 60) {
+                gioChuan = 1
+            }
+            if (timeValue == 90) {
+                gioChuan = 1.25
+            }
+            if (timeValue == 120) {
+                gioChuan = 1.5
+            }
+            if (timeValue == 150) {
+                gioChuan = 1.75
+            }
+
+            //             Coi thi ngoài giờ hành chính (sau 17 giờ 00,  thứ Bảy, Chủ Nhật) hoặc coi thi ngoài trường: 01 giờ chuẩn được nhân hệ số 1,2.
+            // c) Trưởng ban coi thi, giám sát và thanh tra thi, thư ký trực thi ngoài trường hoặc ngoài giờ hành chính được tính giờ chuẩn theo buổi thi có thời gian nhiều nhất của buổi thi đó.
+
+
+            // if(currentHocPhan.ca){
+
+            // }
+
+            console.log('2:', timeValue)
+            //setValue("soTietQuyChuan", values); // Đặt giá trị vào trường
+        }
+    }, []);
+
+
     const handleAddNewClick = () => {
         setIsAddingNew(!isAddingNew);
     };
@@ -72,12 +112,16 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
     };
 
-    const handleSelectChange = (value) => {
-        const selectedHocPhan = listSelect.find(item => item.hocPhan == value);
+    const handleSelectChange = (setCurrentHocPhan) => {
+        const selectedHocPhan = listSelect.find(item => item.hocPhan.join(', ') == setCurrentHocPhan);
+        console.log('HHHH:', setCurrentHocPhan)
+        console.log('MMMM:', selectedHocPhan)
+
         if (selectedHocPhan) {
             setValue("ngayThi", convertDateFormat(selectedHocPhan.ngayThi)); // Lấy giá trị từ selectedHocPhan
             setValue("ky", selectedHocPhan.ky || '');
             setValue("thoiGianThi", selectedHocPhan.time.join(',') || ''); // Đảm bảo bạn có trường này
+            setValue("ghiChu", selectedHocPhan.ghiChu); // Đảm bảo bạn có trường này
         }
     };
 
@@ -166,7 +210,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacCoiThi", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -224,14 +268,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             title: 'Số tiết quy chuẩn',
             dataIndex: 'soTietQuyChuan',
             key: 'soTietQuyChuan',
-            render: (text) => <span style={{ fontWeight: 'bold', color:'blue' }}>{text}</span>,
+            render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
 
         },
         {
             title: 'Học phần',
             dataIndex: 'hocPhan',
             key: 'hocPhan',
-            render: (text) => <span style={{ fontWeight: 'bold', color:'green' }}>{text}</span>,
+            render: (text) => <span style={{ fontWeight: 'bold', color: 'green' }}>{text}</span>,
         },
         {
             title: 'Thời gian thi',
@@ -321,10 +365,12 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                         allowClear
                                                         placeholder="Nhập hoặc chọn tên học phần..."
                                                         {...field}
-                                                        options={listSelect.map(item => ({
-                                                            value: item.hocPhan[0],
+                                                        options={listSelect.map((item, index) => ({
+                                                            value: item.hocPhan.join(', '),
                                                             label: item.hocPhan.join(', '),
+                                                            key: `${item.hocPhan[0]}-${index}` // key duy nhất
                                                         }))}
+
                                                         filterOption={(input, option) =>
                                                             option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                         }
@@ -369,7 +415,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             </Form.Item>
 
                         </div>
-                        <Form.Item
+                        {/* <Form.Item
                             label={<span className="font-bold text-xl">Học kỳ <span className="text-red-600">*</span></span>}
                             className="w-[40%]"
                             validateStatus={errors.ky ? 'error' : ''}
@@ -386,7 +432,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     </Radio.Group>
                                 )}
                             />
-                        </Form.Item>
+                        </Form.Item> */}
 
                         <div className="flex justify-between">
                             <Form.Item
@@ -395,7 +441,23 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 <Controller
                                     name="thoiGianThi"
                                     control={control}
-                                    render={({ field }) => <InputNumber className="input-text" {...field} />}
+                                    render={({ field }) =>
+                                        <Select
+                                            placeholder="Thời gian thi..."
+                                            allowClear
+                                            className="w-[20%]"
+                                            {...field}
+                                            onChange={(value) => {
+                                                field.onChange(value); // Cập nhật giá trị trong form
+                                            }}
+                                        >
+                                            <Option value="45">45</Option>
+                                            <Option value="60">60</Option>
+                                            <Option value="90">90</Option>
+                                            <Option value="120">120</Option>
+                                            <Option value="180">180</Option>
+                                        </Select>
+                                    }
                                 />
                             </Form.Item>
 
@@ -433,7 +495,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             </Form.Item>
                         </div>
 
-                        <div className="flex justify-between">
+                        <div className="flex  justify-between text-center">
                             <Button type="default" danger onClick={onReset}>Nhập lại</Button>
                             <Button type="primary" htmlType="submit" loading={isSubmitting}>
                                 {editRecord ? "Cập nhật" : "Thêm mới"}

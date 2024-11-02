@@ -17,7 +17,7 @@ const PcCoiThiTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [loai, setLoai] = useState("chinh-quy");
+  const [loai, setLoai] = useState("Chính quy");
   const [ky, setKy] = useState("");
 
   const [current, setCurrent] = useState(1);
@@ -203,8 +203,8 @@ const PcCoiThiTable = () => {
         <div className="flex gap-2">
           <div className="text-[14px] font-bold">LOẠI:</div>
           <Select value={loai}  size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
-            <Option value="chinh-quy">chinh-quy</Option>
-            <Option value="lien-thong-vlvh">lien-thong-vlvh</Option>
+            <Option value="Chính quy">Chính quy</Option>
+            <Option value="Liên thông vlvh">Liên thông vlvh</Option>
           </Select>
         </div>
         <h2 className="font-bold text-heading3-bold text-center text-green-500 text-[18px]">DANH SÁCH PHÂN CÔNG COI THI</h2>

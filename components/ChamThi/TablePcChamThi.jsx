@@ -71,9 +71,17 @@ const TablePcChamThi = ({ namHoc, ky, listSelect }) => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'HT / TG',
-      dataIndex: 'hinhThucThoiGianThi',
-      key: 'hinhThucThoiGianThi',
+      title: 'HT',
+      dataIndex: 'hinhThuc',
+      key: 'hinhThuc',
+      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: 20,
+
+    },
+    {
+      title: 'TG',
+      dataIndex: 'thoiGian',
+      key: 'thoiGian',
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
       width: 20,
 

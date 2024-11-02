@@ -12,8 +12,6 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 
-    console.log('ID33333:',id);
-
     // Tìm kiếm thông tin PcGiangDay theo id
     const pcGiangDay = await PcGiangDay.findById(id);
 

@@ -24,7 +24,8 @@ const formSchema = {
   lop: "",
   namHoc: "",
   ky: "",
-  tuanHoc:""
+  tuanHoc:"",
+  diaDiem:''
 };
 
 const TeachingAssignmentForm = () => {
@@ -246,8 +247,6 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-        </Row>
-        <Row gutter={16}>
 
           <Col span={8}>
             <Form.Item label="Phòng" validateStatus={errors.phong ? 'error' : ''} help={errors.phong?.message}>
@@ -259,6 +258,11 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
+
+        </Row>
+        <Row gutter={16}>
+
+          
           <Col span={8}>
             <Form.Item label="Lớp" validateStatus={errors.lop ? 'error' : ''} help={errors.lop?.message}>
               <Controller
@@ -275,6 +279,22 @@ const TeachingAssignmentForm = () => {
                 name="tuanHoc"
                 control={control}
                 render={({ field }) => <Input placeholder="Nhập tuần học" {...field} />}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={8}>
+            <Form.Item label="Địa điểm" validateStatus={errors.diaDiem ? 'error' : ''} help={errors.diaDiem?.message}>
+              <Controller
+                name="diaDiem"
+                control={control}
+                rules={{ required: "Vui lòng nhập địa điểm" }}
+                render={({ field }) => (
+                  <Select allowClear placeholder="Chọn địa điểm" {...field}>
+                    <Option value="DHPY">DHPY</Option>
+                    <Option value="Khác">Khác</Option>
+                  </Select>
+                )}
               />
             </Form.Item>
           </Col>
