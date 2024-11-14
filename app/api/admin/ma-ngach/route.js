@@ -19,7 +19,7 @@ export const GET = async (req, res) => {
 export const POST = async (req, res) => {
   try {
     await connectToDB();
-    const { tenNgach, maNgach,GCGD,GCNCKH,GCPVCD } = await req.json();
+    const { tenNgach, maNgach, GCGD, GCNCKH, GCPVCD, GCGDNam, GCNCKHNam, GCPVCDNam } = await req.json();
 
     let existing = await MaNgach.findOne({ maNgach });
 
@@ -28,6 +28,9 @@ export const POST = async (req, res) => {
       existing.GCGD = GCGD;
       existing.GCNCKH = GCNCKH;
       existing.GCPVCD = GCPVCD;
+      existing.GCGDNam = GCGDNam;
+      existing.GCNCKHNam = GCNCKHNam;
+      existing.GCPVCDNam = GCPVCDNam;
       await existing.save();
 
       return new Response(JSON.stringify(existing), { status: 200 });
@@ -38,7 +41,10 @@ export const POST = async (req, res) => {
         maNgach,
         GCGD,
         GCNCKH,
-        GCPVCD
+        GCPVCD,
+        GCGDNam,
+        GCNCKHNam,
+        GCPVCDNam
       });
 
       await newNgach.save();
@@ -54,7 +60,7 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { id,tenNgach,maNgach,GCGD,GCNCKH,GCPVCD } = await req.json();
+    const { id, tenNgach, maNgach, GCGD, GCNCKH, GCPVCD, GCGDNam, GCNCKHNam, GCPVCDNam } = await req.json();
 
     const Update = await MaNgach.findById(id);
 
@@ -67,6 +73,9 @@ export const PUT = async (req, res) => {
     Update.GCGD = GCGD;
     Update.GCNCKH = GCNCKH;
     Update.GCPVCD = GCPVCD;
+    Update.GCGDNam = GCGDNam;
+    Update.GCNCKHNam = GCNCKHNam;
+    Update.GCPVCDNam = GCPVCDNam;
 
     await Update.save();
 

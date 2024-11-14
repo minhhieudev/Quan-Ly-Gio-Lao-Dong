@@ -41,6 +41,28 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
 
     const [listOptions, setListOptions] = useState([]);
 
+    const soTietQC = watch("soTietQuyChuan");
+    const hinhThuc = watch("hinhThucThi");
+
+    useEffect(() => {
+        if (hinhThuc) {
+            let gioChuan
+           
+            if (hinhThuc == 'TL' || hinhThuc == 'TL+TN(1)') {
+                gioChuan = 2
+            }
+            if (hinhThuc == 'TN' || hinhThuc == 'TL+TN(2)') {
+                gioChuan = 4
+            }
+            if (hinhThuc == 'VĐ' ) {
+                gioChuan = 4
+            }
+
+            setValue("soTietQuyChuan", gioChuan); 
+        }
+        
+    }, [hinhThuc]);
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -378,7 +400,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                     name="soTietQuyChuan"
                                     control={control}
                                     rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
-                                    render={({ field }) => <InputNumber {...field} className="input-number text-red-700 font-bold" min={1} />}
+                                    render={({ field }) => <InputNumber readOnly {...field} className="input-number text-red-700 font-bold" min={1} />}
                                 />
                             </Form.Item>
 

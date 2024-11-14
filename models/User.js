@@ -33,9 +33,7 @@ const UserSchema = new mongoose.Schema({
   hocHamHocVi: {
     type: String,
   },
-  dinhMucGioChuan: {
-    type: Number,
-  },
+ 
   chucVuChinhQuyen: {
     type: [String],
     default: ["Không"]

@@ -146,7 +146,6 @@ const UserForm = () => {
 
         setValue("maNgach", record.maNgach);
         setValue("hocHamHocVi", record.hocHamHocVi);
-        setValue("dinhMucGioChuan", record.dinhMucGioChuan);
         setValue("chucVuChinhQuyen", record.chucVuChinhQuyen);
         setValue("chucVuKiemNhiem", record.chucVuKiemNhiem);
         setValue("chucVuDoanTheXH", record.chucVuDoanTheXH);
@@ -273,15 +272,15 @@ const UserForm = () => {
             dataIndex: 'hocHamHocVi',
             key: 'hocHamHocVi'
         },
-        {
-            title: 'Định mức GC',
-            dataIndex: 'dinhMucGioChuan',
-            key: 'dinhMucGioChuan',
-            className: 'text-red-700 font-bold',
-            width: 120,
+        // {
+        //     title: 'Định mức GC',
+        //     dataIndex: 'dinhMucGioChuan',
+        //     key: 'dinhMucGioChuan',
+        //     className: 'text-red-700 font-bold',
+        //     width: 120,
 
 
-        },
+        // },
         // {
         //     title: 'Khoa',
         //     dataIndex: 'khoa',

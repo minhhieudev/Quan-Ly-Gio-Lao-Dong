@@ -48,7 +48,7 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { ten,soLuong,soGio} = await req.json();
+    const { ten,soLuong,soGio,id} = await req.json();
 
     const Update = await HinhThucThi.findById(id);
 

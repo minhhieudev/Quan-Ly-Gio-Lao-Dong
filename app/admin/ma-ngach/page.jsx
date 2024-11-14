@@ -15,6 +15,9 @@ const formSchema = {
     GCGD: "",
     GCNCKH: "",
     GCPVCD: "",
+    GCGDNam: "",
+    GCNCKHNam: "",
+    GCPVCDNam: "",
 };
 
 const MaNgachForm = () => {
@@ -100,6 +103,9 @@ const MaNgachForm = () => {
         setEditRecord(record);
         setValue("maNgach", record.maNgach);
         setValue("tenNgach", record.tenNgach);
+        setValue("GCGDNam", record.GCGDNam);
+        setValue("GCNCKHNam", record.GCNCKHNam);
+        setValue("GCPVCDNam", record.GCPVCDNam);
         setValue("GCGD", record.GCGD);
         setValue("GCNCKH", record.GCNCKH);
         setValue("GCPVCD", record.GCPVCD);
@@ -167,6 +173,36 @@ const MaNgachForm = () => {
 
         },
         {
+            title: 'Tổng GCDG',
+            dataIndex: 'GCGDNam',
+            key: 'GCGDNam',
+            className: 'text-red-700 font-bold ',
+
+        },
+        {
+            title: 'Tổng GCNCKH',
+            dataIndex: 'GCNCKHNam',
+            key: 'GCNCKHNam',
+            className: 'text-red-700 font-bold ',
+
+        },
+        {
+            title: 'Tổng GCPVCD',
+            dataIndex: 'GCPVCDNam',
+            key: 'GCPVCDNam',
+            className: 'text-red-700 font-bold ',
+
+        },
+        {
+            title: 'Định mức GC',
+            key: 'tongCong',
+            render: (record) => {
+                const tongCong = (record.GCGDNam || 0) + (record.GCNCKHNam || 0) + (record.GCPVCDNam || 0);
+                return <span className="text-blue-600 font-bold">{tongCong}</span>;
+            },
+            className: 'text-blue-600 font-bold',
+        },
+        {
             title: 'Hành động',
             key: 'action',
             render: (_, record) => (
@@ -190,7 +226,7 @@ const MaNgachForm = () => {
         <Loader />
     ) : (
         <div className="flex gap-2 max-sm:flex-col mt-2 h-[83vh]">
-            <div className="p-4 shadow-xl bg-white rounded-xl flex-[30%]">
+            <div className="p-4 shadow-xl bg-white rounded-xl flex-[15%]">
                 <Title className="text-center" level={3}>QUẢN LÝ MÃ NGẠCH</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
@@ -222,7 +258,7 @@ const MaNgachForm = () => {
 
                     <div className="flex gap-1 justify-center">
                         <Form.Item
-                            label={<span className="font-bold text-xl">Giờ chuẩn GD <span className="text-red-600">*</span></span>}
+                            label={<span className="font-bold text-xl">GCGD <span className="text-red-600">*</span></span>}
                             validateStatus={errors.GCGD ? 'error' : ''}
                             help={errors.GCGD?.message}
                         >
@@ -235,7 +271,7 @@ const MaNgachForm = () => {
                         </Form.Item>
 
                         <Form.Item
-                            label={<span className="font-bold text-xl">Giờ chuẩn NCKH <span className="text-red-600">*</span></span>}
+                            label={<span className="font-bold text-xl">GCNCKH <span className="text-red-600">*</span></span>}
                             validateStatus={errors.GCNCKH ? 'error' : ''}
                             help={errors.GCNCKH?.message}
                         >
@@ -248,7 +284,7 @@ const MaNgachForm = () => {
                         </Form.Item>
 
                         <Form.Item
-                            label={<span className="font-bold text-xl">Giờ chuẩn PVCD <span className="text-red-600">*</span></span>}
+                            label={<span className="font-bold text-xl">GCPVCD <span className="text-red-600">*</span></span>}
                             validateStatus={errors.GCPVCD ? 'error' : ''}
                             help={errors.GCPVCD?.message}
                         >
@@ -257,6 +293,46 @@ const MaNgachForm = () => {
                                 control={control}
                                 rules={{ required: "Giờ chuẩn PVCD là bắt buộc" }}
                                 render={({ field }) => <InputNumber className="input-text" placeholder="Nhập giờ chuẩn PVCD ..." {...field} />}
+                            />
+                        </Form.Item>
+                    </div>
+                    <div className="flex gap-1 justify-center">
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Tổng GCGD <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.GCGDNam ? 'error' : ''}
+                            help={errors.GCGDNam?.message}
+                        >
+                            <Controller
+                                name="GCGDNam"
+                                control={control}
+                                rules={{ required: "Tổng giờ là bắt buộc" }}
+                                render={({ field }) => <InputNumber className="input-text" placeholder="Nhập Tổng giờ chuẩn GD ..." {...field} />}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Tổng GCNCKH <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.GCNCKHNam ? 'error' : ''}
+                            help={errors.GCNCKHNam?.message}
+                        >
+                            <Controller
+                                name="GCNCKHNam"
+                                control={control}
+                                rules={{ required: "Tổng giờ chuẩn NCKH là bắt buộc" }}
+                                render={({ field }) => <InputNumber className="input-text" placeholder="Nhập Tổng giờ chuẩn NCKH chuẩn NCKH ..." {...field} />}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Tổng GCPVCD <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.GCPVCDNam ? 'error' : ''}
+                            help={errors.GCPVCDNam?.message}
+                        >
+                            <Controller
+                                name="GCPVCDNam"
+                                control={control}
+                                rules={{ required: "Tổng giờ chuẩn PVCD là bắt buộc" }}
+                                render={({ field }) => <InputNumber className="input-text" placeholder="Nhập tổng giờ chuẩn PVCD ..." {...field} />}
                             />
                         </Form.Item>
                     </div>
@@ -274,7 +350,7 @@ const MaNgachForm = () => {
                 </Form>
             </div>
 
-            <div className="p-3 shadow-xl bg-white rounded-xl flex-[70%]">
+            <div className="p-3 shadow-xl bg-white rounded-xl flex-[85%]">
                 <div className="flex flex-col gap-2 justify-between items-center mb-4">
                     <Title level={3} className="text-center">DANH SÁCH NGẠCH</Title>
                     <Input

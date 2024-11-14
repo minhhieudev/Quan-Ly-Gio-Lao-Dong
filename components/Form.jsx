@@ -9,7 +9,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { signIn } from "next-auth/react"
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import CircularProgress from "@mui/material/CircularProgress"; // Import CircularProgress
 
 const Form = ({ type }) => {
   const {
@@ -20,48 +22,52 @@ const Form = ({ type }) => {
   } = useForm();
 
   const router = useRouter();
+  const [loading, setLoading] = useState(false); // Thêm state loading
 
   const onSubmit = async (data) => {
-    if (type === "register") {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+    setLoading(true); // Bật hiệu ứng spin khi bắt đầu gửi dữ liệu
+    try {
+      if (type === "register") {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
 
-      if (res.ok) {
-        router.push("/");
+        if (res.ok) {
+          router.push("/");
+        } else {
+          toast.error("Something went wrong");
+        }
       }
 
-      if (res.error) {
-        toast.error("Something went wrong");
-      }
-    }
+      if (type === "login") {
+        const res = await signIn("credentials", {
+          ...data,
+          redirect: false,
+        });
 
-    if (type === "login") {
-      const res = await signIn("credentials", {
-        ...data,
-        redirect: false,
-      })
-
-      if (res.ok) {
-        router.push("/work-hours");
+        if (res.ok) {
+          router.push("/work-hours");
+        } else {
+          toast.error("Invalid email or password");
+        }
       }
-
-      if (res.error) {
-        toast.error("Invalid email or password");
-      }
+    } finally {
+      setLoading(false); // Tắt hiệu ứng spin khi hoàn thành
     }
   };
-
-
 
   return (
     <div className="auth">
       <div className="content">
-        <img src="https://upload.wikimedia.org/wikipedia/vi/2/2e/Dai_hoc_phu_yen_logo.png" alt="logo" className="logo" />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/vi/2/2e/Dai_hoc_phu_yen_logo.png"
+          alt="logo"
+          className="logo"
+        />
 
         <form className="form" onSubmit={handleSubmit(onSubmit)}>
           {type === "register" && (
@@ -131,8 +137,8 @@ const Form = ({ type }) => {
             )}
           </div>
 
-          <button className="button" type="submit">
-            {type === "register" ? "Đăng ký" : "Đăng nhập"}
+          <button className="button" type="submit" disabled={loading}>
+            {loading ? <CircularProgress size={24} color="inherit" /> : type === "register" ? "Đăng ký" : "Đăng nhập"}
           </button>
         </form>
 

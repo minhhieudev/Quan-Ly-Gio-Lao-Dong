@@ -48,42 +48,41 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [currentHocPhan, setCurrentHocPhan] = useState(null);
 
     const soTietQC = watch("soTietQuyChuan");
+    const ngayThi = watch("ngayThi");
+    const thoiGian = watch("thoiGianThi");
 
     useEffect(() => {
-        if (currentHocPhan) {
-            let timeValue
-            let gioChuan
-            if (currentHocPhan.time && Array.isArray(currentHocPhan.time) && currentHocPhan.time.length > 0) {
-                timeValue = currentHocPhan.time.length > 1
-                    ? Math.max(...currentHocPhan.time) // Nếu có nhiều phần tử, lấy phần tử lớn nhất
-                    : currentHocPhan.time[0];          // Nếu chỉ có một phần tử, lấy phần tử đó
-            }
-
-            if (timeValue == 60) {
-                gioChuan = 1
-            }
-            if (timeValue == 90) {
-                gioChuan = 1.25
-            }
-            if (timeValue == 120) {
-                gioChuan = 1.5
-            }
-            if (timeValue == 150) {
-                gioChuan = 1.75
-            }
-
-            //             Coi thi ngoài giờ hành chính (sau 17 giờ 00,  thứ Bảy, Chủ Nhật) hoặc coi thi ngoài trường: 01 giờ chuẩn được nhân hệ số 1,2.
-            // c) Trưởng ban coi thi, giám sát và thanh tra thi, thư ký trực thi ngoài trường hoặc ngoài giờ hành chính được tính giờ chuẩn theo buổi thi có thời gian nhiều nhất của buổi thi đó.
-
-
-            // if(currentHocPhan.ca){
-
-            // }
-
-            console.log('2:', timeValue)
-            //setValue("soTietQuyChuan", values); // Đặt giá trị vào trường
+        let timeValue = thoiGian
+        let gioChuan;
+        if (currentHocPhan?.time && Array.isArray(currentHocPhan?.time) && currentHocPhan?.time.length > 0) {
+            timeValue = currentHocPhan?.time.length > 1
+                ? Math.max(...currentHocPhan?.time)
+                : currentHocPhan?.time[0];
         }
-    }, []);
+        // ) Coi thi ngoài giờ hành chính (sau 17 giờ 00,  thứ Bảy, Chủ Nhật) hoặc coi thi ngoài trường: 01 giờ chuẩn được nhân hệ số 1,2.
+
+        if (timeValue == 60) {
+            gioChuan = 1;
+        } else if (timeValue == 90) {
+            gioChuan = 1.25;
+        } else if (timeValue == 120) {
+            gioChuan = 1.5;
+        } else if (timeValue == 150) {
+            gioChuan = 1.75;
+        }
+
+        // Kiểm tra nếu ngày thi rơi vào Thứ Bảy hoặc Chủ Nhật
+        const ngayThiMoment = moment(ngayThi, "YYYY-MM-DD"); // Đảm bảo `ngayThi` đang ở định dạng YYYY-MM-DD
+        const dayOfWeek = ngayThiMoment.day();
+
+        if (dayOfWeek === 6 || dayOfWeek === 0) { // 6 là Thứ Bảy, 0 là Chủ Nhật
+            gioChuan *= 1.2; // Nhân hệ số 1,2 nếu rơi vào ngoài giờ hành chính
+        }
+
+        console.log("2:", timeValue);
+        setValue("soTietQuyChuan", gioChuan); // Cập nhật giá trị số tiết quy chuẩn vào form
+    }, [ngayThi, currentHocPhan, thoiGian]);
+
 
 
     const handleAddNewClick = () => {
@@ -114,8 +113,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     const handleSelectChange = (setCurrentHocPhan) => {
         const selectedHocPhan = listSelect.find(item => item.hocPhan.join(', ') == setCurrentHocPhan);
-        console.log('HHHH:', setCurrentHocPhan)
-        console.log('MMMM:', selectedHocPhan)
 
         if (selectedHocPhan) {
             setValue("ngayThi", convertDateFormat(selectedHocPhan.ngayThi)); // Lấy giá trị từ selectedHocPhan

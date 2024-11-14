@@ -16,6 +16,16 @@ const MaNgachSchema = new mongoose.Schema({
   GCPVCD: {
     type: Number,
   },
+
+  GCGDNam: {
+    type: Number,
+  },
+  GCNCKHNam: {
+    type: Number,
+  },
+  GCPVCDNam: {
+    type: Number,
+  },
 });
 
 const MaNgach = mongoose.models.MaNgach || mongoose.model("MaNgach", MaNgachSchema);

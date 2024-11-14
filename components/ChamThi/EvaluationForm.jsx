@@ -349,7 +349,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
     };
 
     useEffect(() => {
-        console.log('11111111',currentHocPhan?.hinhThuc)
         handleSelectChange2(hinhThucs);
     }, [soBai,hinhThucs]);
 
