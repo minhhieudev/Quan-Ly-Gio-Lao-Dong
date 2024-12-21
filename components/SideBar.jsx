@@ -47,6 +47,11 @@ const SideBar = () => {
         <FormOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
         <span style={getIconStyle(["/admin/ma-ngach"])}>Mã ngạch</span>
       </Link>
+
+      <Link href="/admin/hoc-phan" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
+        <span style={getIconStyle(["/admin/ma-ngach"])}>Học phần</span>
+      </Link>
       <Link href="/admin/chuc-vu" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
         <span style={getIconStyle(["/admin/chuc-vu"])}>Chức vụ</span>

@@ -58,11 +58,12 @@ const PcCoiThiTable = () => {
   
 
   useEffect(() => {
+
+    const lowerSearchTerm = searchTerm?.toLowerCase() || '';
     const filtered = dataList.filter((item) =>
-      item?.cbo1?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.cbo2?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.hocPhan?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      (item?.hocPhan && Array.isArray(item.hocPhan) && item.hocPhan.some(hocPhan => hocPhan.toLowerCase().includes(lowerSearchTerm))) ||
+      (item?.cbo1 && Array.isArray(item.cbo1) && item.cbo1.some(cbo => cbo.toLowerCase().includes(lowerSearchTerm))) ||
+      (item?.cbo2 && Array.isArray(item.cbo2) && item.cbo2.some(cbo => cbo.toLowerCase().includes(lowerSearchTerm))))
     setFilteredData(filtered);
   }, [searchTerm, dataList]);
 

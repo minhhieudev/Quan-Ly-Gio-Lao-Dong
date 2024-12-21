@@ -15,6 +15,7 @@ const { TabPane } = Tabs;
 const { Title } = Typography;
 
 const formSchema = {
+  maMH: '',
   hocPhan: "",
   soTinChi: 0,
   lopHocPhan: "",
@@ -58,6 +59,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const [newHocPhan, setNewHocPhan] = useState("");
 
   const soTietLT = watch("soTietLT");
+  const soTietTH = watch("soTietTH");
 
   const [currentHocPhan, setCurrentHocPhan] = useState(null);
 
@@ -88,14 +90,86 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
         if (currentHocPhan.diaDiem && currentHocPhan.diaDiem.toLowerCase() !== 'dhpy') {
           hsf = 0.2;
-      }
+        }
 
         const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst);
         setValue("soTietQCLT", calculatedSoTietQCLT);
       }
     }
+    else {
+      setValue("soTietQCLT", 0);
+    }
   }, [soTietLT, setValue]);
 
+  useEffect(() => {
+    if (soTietTH > 0) {
+
+      if (currentHocPhan) {
+        let result;
+
+        // Tách giá trị từ currentHocPhan.soLuong
+        let soLuongValues = [];
+        // Tách giá trị từ currentHocPhan.heSo
+        let heSoValues = [];
+        if (typeof currentHocPhan.record?.heSo === "string" && currentHocPhan.record?.heSo.includes("-")) {
+          console.log("Raw heSo string:", currentHocPhan.record?.heSo);
+          console.log("Split values:", currentHocPhan.record?.heSo.split("-"));
+
+          const cleanedHeSo = currentHocPhan.record.heSo.replace(/[–—]/g, "-").trim();
+
+          ///////////////////////
+          heSoValues = cleanedHeSo
+            .split("-")
+            .map(value => parseFloat(value.trim()))
+            .filter(value => !isNaN(value));
+
+          if (typeof currentHocPhan.record?.soLuong === "string" && currentHocPhan.record?.soLuong.includes("-")) {
+
+            const cleanedSoLuong = currentHocPhan.record.soLuong.replace(/[–—]/g, "-").trim();
+
+            soLuongValues = cleanedSoLuong
+              .split("-")
+              .map(value => parseFloat(value.trim()))
+              .filter(value => !isNaN(value));
+          } else {
+            soLuongValues = [parseFloat(currentHocPhan.record?.soLuong)];
+          }
+          /////////////////
+
+          // Gán giá trị vào các biến
+          const heSoMin = soLuongValues[0] || 1;
+          const heSoMax = soLuongValues[1] || heSoMin;
+
+          // Xác định hệ số dựa vào khoảng
+          let heSo = 0;
+          if (currentHocPhan.soSVDK <= heSoMin) {
+            heSo = heSoValues[0];
+          } else if (currentHocPhan.soSVDK > heSoMin && currentHocPhan.soSVDK <= heSoMax) {
+            heSo = heSoValues[1];
+          }
+          else {
+            heSo = heSoValues[heSoValues.length - 1]
+          }
+
+          // Tính toán kết quả
+          if (currentHocPhan.tenMH && soTietTH != 0) {
+            result = soTietTH * heSo;
+          }
+
+          // Cập nhật giá trị
+          setValue("soTietQCTH", result);
+
+        } else {
+          heSoValues = [parseFloat(currentHocPhan.record?.heSo)];
+          result = soTietTH * heSoValues[0];
+        }
+
+      }
+    }
+    else {
+      setValue("soTietQCTH", 0);
+    }
+  }, [setValue, currentHocPhan, soTietTH]);
 
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
@@ -103,8 +177,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const handleSaveNewHocPhan = () => {
     const newHocPhanObj = {
-      _id: Math.random().toString(36).substr(2, 9), // Tạo ID ngẫu nhiên
-      tenMH: newHocPhan, // Sử dụng tên học phần mà người dùng nhập
+      _id: Math.random().toString(36).substr(2, 9), 
+      tenMH: newHocPhan, 
       soTC: 0,
       lop: "",
       soSVDK: 0,
@@ -282,7 +356,20 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       setCurrentHocPhan(selectedHocPhan)
       setValue("soTinChi", selectedHocPhan.soTC);
       setValue("lopHocPhan", selectedHocPhan.lop);
-      setValue("soSV", selectedHocPhan.soSVDK);
+      setValue("maMH", selectedHocPhan?.maMH);
+      setValue("soSV", selectedHocPhan?.soSVDK);
+      if (selectedHocPhan.record?.soTietLT) {
+        setValue("soTietLT", selectedHocPhan.record?.soTietLT);
+      }
+      else {
+        setValue("soTietLT", 0);
+      }
+      if (selectedHocPhan.record?.soTietTH) {
+        setValue("soTietTH", selectedHocPhan.record?.soTietTH);
+      }
+      else {
+        setValue("soTietTH", 0);
+      }
     }
   };
 
@@ -376,9 +463,37 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     },
   ];
 
-  const totalHours = useMemo(() => {
-    return dataList.reduce((total, item) => total + (item.tongCong || 0), 0);
-  }, [dataList]);
+  const handleBlur = async (value) => {
+    if (value.trim() === "") {
+      alert('1111111111')
+    } else {
+      alert('44444444444')
+      setLoading(true)
+      try {
+
+        const res = await fetch(`/api/admin/hoc-phan/get-one/?maMH=${encodeURIComponent(maMH)}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setValue("soTinChi", data.soTC);
+          if (data.soTietLT) {
+            setValue("soTietLT", data.soTietLT);
+          }
+          if (data.soTietTH) {
+            setValue("soTietTH", data.soTietTH);
+          }
+          setLoading(false)
+        } else {
+          toast.error("Không có thong tin hoc phan");
+        }
+      } catch (err) {
+        toast.error("An error occurred while fetching data");
+      }
+    }
+  };
+
 
   return loading ? (
     <Loader />
@@ -389,6 +504,31 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
         <Form onFinish={handleSubmit(onSubmit)} layout="Inline" className="">
           <Space direction="vertical " size="0" >
+            <Form.Item
+              label={
+                <span className="font-bold text-xl">
+                  Mã học phần <span className="text-red-600">*</span>
+                </span>
+              }
+              className="w-[40%] p-0"
+              validateStatus={errors.maMH ? 'error' : ''}
+              help={errors.maMH?.message}
+            >
+              <Space className="flex">
+                <div className="w-[120px]">
+                  <Controller
+                    name="maMH"
+                    control={control}
+                    rules={{ required: "Mã học phần là bắt buộc" }}
+                    render={({ field }) => <Input className="input-text w-[90%]" onBlur={(e) => {
+                      field.onBlur(); // Gọi hàm mặc định của react-hook-form
+                      handleBlur(e.target.value); // Thêm xử lý của bạn khi rời khỏi input
+                    }} placeholder="Nhập mã HP ..." {...field} />}
+                  />
+                </div>
+
+              </Space>
+            </Form.Item>
             <Form.Item
               label={
                 <span className="font-bold text-xl">
@@ -615,3 +755,5 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 };
 
 export default TeachingForm;
+
+
