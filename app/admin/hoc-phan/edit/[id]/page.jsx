@@ -92,7 +92,7 @@ const TeachingAssignmentForm = () => {
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>
-        <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">PHÂN CÔNG GIẢNG DẠY</h2>
+        <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">SỬA THÔNG TIN HỌC PHẦN</h2>
       </div>
 
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 font-bold">
@@ -197,7 +197,7 @@ const TeachingAssignmentForm = () => {
 
         <div className="flex justify-between mt-4">
           <Button type="primary" htmlType="submit" loading={isSubmitting}>
-            {editRecord ? "Cập nhật" : "Thêm mới"}
+            {editRecord ? "Lưu" : "Thêm mới"}
           </Button>
           <div className="text-center">
             <Spin spinning={isUploading}>

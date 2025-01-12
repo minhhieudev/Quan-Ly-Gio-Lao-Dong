@@ -2,12 +2,17 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber, Table, Popconfirm } from "antd";
+import { Button, Input, Form, Space, Typography, Select, InputNumber,Tabs, Table, Popconfirm, Spin } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import Loader from "./Loader";
+import Loader from "../Loader";
+import { set } from "mongoose";
+import TableHuongDan from "./TableHuongDan";
+
+const { TabPane } = Tabs;
+
 
 const { Title } = Typography;
 
@@ -24,11 +29,16 @@ const formSchema = {
 
 const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
+const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc }) => {
     const [dataList, setDataList] = useState([]);
+    const [dataListSelect, setDataListSelect] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
     const [pageSize] = useState(6);
+
+    const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
+    const [loadings, setLoadings] = useState(true);
+
     const router = useRouter();
     const { control, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
@@ -65,6 +75,24 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
                     const data = await res.json();
                     setDataList(data);
                     setLoading(false)
+                    setLoadings(false)
+
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+            } catch (err) {
+                toast.error("An error occurred while fetching data");
+            }
+        };
+        const fetchData2 = async () => {
+            try {
+                const res = await fetch(`/api/work-hours/select/huong-dan`, { /////////////////////////////////////
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setDataListSelect(data);
                 } else {
                     toast.error("Failed to fetch data");
                 }
@@ -74,6 +102,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
         };
 
         fetchData();
+        fetchData2();
     }, [currentUser]);
 
     const calculateTotals = () => {
@@ -85,7 +114,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
     }, [dataList]);
 
     const onSubmit = async (data) => {
-        if (namHoc == ''){
+        if (namHoc == '') {
             toast.error('Vui lòng nhập năm học!')
             return
         }
@@ -93,7 +122,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacHuongDan", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id ,namHoc}),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -210,13 +239,25 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
         setCurrent(pagination.current);
     };
 
+    const handleSelectChange = (value) => {
+        setValue("soTietQuyChuan", value.soGio);
+    };
+
+    const handleTabChange = (key) => {
+        setLoadings(true);
+        setSelectedTab(key);
+        setTimeout(() => {
+          setLoadings(false);
+        }, 500);
+      };
+
     const totalSoTietQuyChuan = useMemo(() => {
         return dataList.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
     }, [dataList]);
 
     return loading ? (
         <Loader />
-      ) : (
+    ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
             <div className="p-5 shadow-xl bg-white rounded-xl flex-[10%]">
                 <Title className="text-center" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
@@ -234,9 +275,22 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
                                     name="noiDungCongViec"
                                     control={control}
                                     rules={{ required: "Nội dung công việc là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập nội dung công việc ..." {...field} />}
+                                    render={({ field }) => (
+                                        <Select
+                                            className="input-select"
+                                            placeholder="Chọn công việc ..."
+                                            {...field}
+                                            options={dataListSelect.map(item => ({ label: item.tenCV, value: item.tenCV }))}
+                                            onChange={(value) => {
+                                                field.onChange(value); // Cập nhật giá trị cho Controller
+                                                const selectedItem = dataListSelect.find(item => item.tenCV === value); // Lấy item đầy đủ
+                                                handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
+                                            }}
+                                        />
+                                    )}
                                 />
                             </Form.Item>
+
 
                             <Form.Item
                                 label={<span className="font-bold text-xl">Số SV/Số nhóm <span className="text-red-600">*</span></span>}
@@ -334,22 +388,32 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan,namHoc }) => {
                 </Form>
             </div>
 
-            <div className="py-3 px-4 shadow-xl bg-white rounded-xl flex-[60%]">
-                <Title className="text-center" level={3}>DANH SÁCH CÔNG VIỆC</Title>
+            <div className="p-2 shadow-xl bg-white rounded-xl flex-[70%] text-center">
 
-                <Table
-                    columns={columns}
-                    dataSource={dataList}
-                    rowKey="id"
-                    pagination={{ current, pageSize, total: dataList.length }}
-                    onChange={handleTableChange}
-                />
+                <Tabs activeKey={selectedTab} onChange={handleTabChange}>
+                    <TabPane tab="DANH SÁCH CÔNG VIỆC" key="Danh sách công việc" className="text-center">
+                        {loadings ? <Spin size="large" /> :
+                            <Table
+                                columns={columns}
+                                dataSource={dataList}
+                                rowKey="id"
+                                pagination={{ current, pageSize, total: dataList.length }}
+                                onChange={handleTableChange}
+                            />
 
-                <div className="text-center font-bold text-xl mt-4">
-                    <span>Tổng số tiết quy chuẩn: </span>
-                    <span className="text-red-600">{totalSoTietQuyChuan}</span>
-                </div>
+                        }
+                        <div className="text-center font-bold text-xl mt-4">
+                            <span>Tổng số tiết quy chuẩn: </span>
+                            <span className="text-red-600">{totalSoTietQuyChuan}</span>
+                        </div>
+                    </TabPane>
+                    <TabPane tab="PHỤ LỤC CÔNG VIỆC" key="Phụ lục công việc" className="text-center">
+                        {loadings ? <Spin size="large" /> : <TableHuongDan data = {dataListSelect} />}
+                    </TabPane>
+                </Tabs>
+
             </div>
+
         </div>
     );
 };

@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber, Table, Popconfirm } from "antd";
+import { Button, Input, Form, Space, Typography, InputNumber,Spin,Select, Tabs, Table, Popconfirm } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import Loader from "./Loader";
+import Loader from "../Loader";
+import TableKiemNhiem from "./TableKiemNhiem";
 
 const { Title } = Typography;
+const { TabPane } = Tabs;
 
 const formSchema = {
     chucVuCongViec: "",
@@ -27,7 +29,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
     const [current, setCurrent] = useState(1);
     const [pageSize] = useState(6);
     const router = useRouter();
-    const { control, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
+    const [loadings, setLoadings] = useState(true);
+    const [dataListSelect, setDataListSelect] = useState([]);
+    const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
+
+
+    const { control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
 
@@ -68,6 +75,24 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
                 toast.error("An error occurred while fetching data");
             }
         };
+        const fetchData2 = async () => {
+            try {
+                const res = await fetch(`/api/work-hours/select/kiem-nhiem`, { /////////////////////////////////////
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setDataListSelect(data);
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+            } catch (err) {
+                toast.error("An error occurred while fetching data");
+            }
+        };
+
+        fetchData2();
 
         fetchData();
     }, [currentUser]);
@@ -89,7 +114,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacKiemNhiem", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
+                body: JSON.stringify({ ...data, type: type == 'chinh-quy' ? 'Chính quy': "Liên thông vlvh", user: currentUser._id, id: editRecord?._id, namHoc }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -193,6 +218,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
         setCurrent(pagination.current);
     };
 
+    const handleTabChange = (key) => {
+        setLoadings(true);
+        setSelectedTab(key);
+        setTimeout(() => {
+            setLoadings(false);
+        }, 500);
+    };
+
+    
+    const handleSelectChange = (value) => {
+        setValue("tyLeMienGiam", value.soMien);
+    };
+
     return loading ? (
         <Loader />
     ) : (
@@ -213,7 +251,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
                                     name="chucVuCongViec"
                                     control={control}
                                     rules={{ required: "Chức vụ, công việc là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập chức vụ, công việc ..." {...field} />}
+                                    render={({ field }) => (
+                                        <Select
+                                            className="input-select"
+                                            placeholder="Chọn công việc, chức vụ ..."
+                                            {...field}
+                                            options={dataListSelect.map(item => ({ label: item.tenCV, value: item.maCV }))}
+                                            onChange={(value) => {
+                                                field.onChange(value); // Cập nhật giá trị cho Controller
+                                                const selectedItem = dataListSelect.find(item => item.maCV === value); // Lấy item đầy đủ
+                                                handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
+                                            }}
+                                        />
+                                    )}
                                 />
                             </Form.Item>
 
@@ -281,28 +331,42 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
                 </Form>
             </div>
 
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[60%]">
-                <Table
-                    columns={columns}
-                    dataSource={dataList}
-                    rowKey="id"
-                    pagination={{
-                        current,
-                        pageSize,
-                        total: dataList.length,
-                        onChange: (page) => setCurrent(page),
-                    }}
-                    onChange={handleTableChange}
-                    summary={() => (
-                        <Table.Summary.Row>
-                            <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
-                                Tổng số tiết quy chuẩn:
-                            </Table.Summary.Cell>
-                            <Table.Summary.Cell className="font-bold text-lg text-red-600">{totalHours}</Table.Summary.Cell>
-                        </Table.Summary.Row>
-                    )}
-                />
+            <div className="p-2 shadow-xl bg-white rounded-xl flex-[70%] text-center">
+
+                <Tabs activeKey={selectedTab} onChange={handleTabChange}>
+                    <TabPane tab="DANH SÁCH CÔNG VIỆC" key="Danh sách công việc" className="text-center">
+                        {loading ? <Spin size="large" /> :
+                            <Table
+                                columns={columns}
+                                dataSource={dataList}
+                                rowKey="id"
+                                pagination={{
+                                    current,
+                                    pageSize,
+                                    total: dataList.length,
+                                    onChange: (page) => setCurrent(page),
+                                }}
+                                onChange={handleTableChange}
+                                summary={() => (
+                                    <Table.Summary.Row>
+                                        <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
+                                            Tổng số tiết quy chuẩn:
+                                        </Table.Summary.Cell>
+                                        <Table.Summary.Cell className="font-bold text-lg text-red-600">{totalHours}</Table.Summary.Cell>
+                                    </Table.Summary.Row>
+                                )}
+                            />
+
+                        }
+                     
+                    </TabPane>
+                    <TabPane tab="PHỤ LỤC CÔNG VIỆC" key="Phụ lục công việc" className="text-center">
+                        {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect} />}
+                    </TabPane>
+                </Tabs>
+
             </div>
+
         </div>
     );
 };

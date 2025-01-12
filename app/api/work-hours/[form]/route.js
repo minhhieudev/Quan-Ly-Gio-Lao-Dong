@@ -124,9 +124,10 @@ export const GET = async (req, { params }) => {
     }
 
     if (type) {
-      query.loai = type;
+      query.type = type;
     }
 
+    console.log("Query:", query);
     const records = await models[form].find(query).populate('user', 'username');
 
 
