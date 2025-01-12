@@ -96,18 +96,13 @@ export const GET = async (req, { params }) => {
     const ky = url.searchParams.get('ky');
     let type = ''
 
-    if (type1) {
-      if (type1 == 'chinh-quy') {
-        type = 'Chính quy'
-      }
-      else {
-        type = 'Liên thông vlvh'
-      }
-    }
 
-    if (!user || !type) {
+    console.log("User:", user);
+
+    if (!user ) {
       return new Response("User and type parameters are required", { status: 400 });
     }
+
 
   
     const query = {
@@ -123,11 +118,11 @@ export const GET = async (req, { params }) => {
       query.ky = ky;
     }
 
-    if (type) {
-      query.type = type;
+    if (type1) {
+      query.type = type1;
     }
 
-    console.log("Query:", query);
+    console.log("Query:111111111111111", query);
     const records = await models[form].find(query).populate('user', 'username');
 
 

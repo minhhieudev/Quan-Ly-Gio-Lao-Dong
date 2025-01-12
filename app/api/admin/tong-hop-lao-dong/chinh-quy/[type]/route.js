@@ -48,7 +48,6 @@ export const GET = async (req, { params }) => {
 
     await connectToDB();
 
-    await connectToDB();
     const url = new URL(req.url, `http://${req.headers.host}`);
     const namHoc = url.searchParams.get('namHoc'); 
     const ky = url.searchParams.get('ky'); 

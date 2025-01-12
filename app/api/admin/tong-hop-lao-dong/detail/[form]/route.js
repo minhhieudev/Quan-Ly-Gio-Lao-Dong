@@ -29,6 +29,7 @@ export const GET = async (req, { params }) => {
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     const type = url.searchParams.get('type');
+    console.log(type);
 
     const currentYear = new Date().getFullYear();
     const startOfYear = new Date(currentYear, 0, 1);

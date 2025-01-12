@@ -1,8 +1,8 @@
 'use client'
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams } from "next/navigation";
-import { Table, Input, Button, Space, Popconfirm, Modal } from 'antd';
-import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined  } from '@ant-design/icons';
+import { Table, Input, Button, Space, Popconfirm, Modal, Select } from 'antd';
+import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
@@ -27,6 +27,10 @@ const Pages = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+
+  const [namHoc, setNamHoc] = useState("2024-2025");
+  const [kiHoc, setKiHoc] = useState("1");
+
 
   const { data: session } = useSession();
   const currentUser = session?.user;
@@ -596,14 +600,15 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -732,7 +737,7 @@ const Pages = () => {
       <div className="flex items-center justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
-          onClick={() => router.push(`/admin/work-hours/${type}/detail`)} 
+          onClick={() => router.push(`/admin/work-hours/${type}/detail`)}
         >
           <ArrowLeftOutlined
             style={{
@@ -745,6 +750,38 @@ const Pages = () => {
           {/* {getType()} */}
           {`BẢNG TỔNG HỢP CÔNG TÁC ${getTitle2()} – HỆ ${getTitle1()}`}
         </div>
+      </div>
+      <div className="flex justify-around items-center mb-3">
+        <div className="w-[25%] flex items-center gap-2">
+          <label className="block text-sm font-semibold mb-1">Năm học:</label>
+          <Select
+            size='small'
+            placeholder="Chọn năm học"
+            onChange={(value) => setNamHoc(value)}
+            className="w-[50%]"
+            value={namHoc}
+          >
+            <Option value="2021-2022">2021-2022</Option>
+            <Option value="2022-2023">2022-2023</Option>
+            <Option value="2023-2024">2023-2024</Option>
+            <Option value="2024-2025">2024-2025</Option>
+          </Select>
+        </div>
+
+        <div className="w-[25%] flex items-center gap-2">
+          <label className="block text-sm font-semibold mb-1">Kỳ học:</label>
+          <Select
+            size='small'
+            placeholder="Chọn kỳ học"
+            onChange={(value) => setKiHoc(value)}
+            className="w-[50%]"
+            value={kiHoc}
+          >
+            <Option value="1">1</Option>
+            <Option value="2">2</Option>
+          </Select>
+        </div>
+
       </div>
 
       <Table

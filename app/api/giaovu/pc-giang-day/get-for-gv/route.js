@@ -52,8 +52,6 @@ export const GET = async (req) => {
       })
     );
 
-    console.error("enrichedData:", enrichedData);
-
 
     // Trả về phản hồi thành công
     return new Response(JSON.stringify(enrichedData), { status: 200 });

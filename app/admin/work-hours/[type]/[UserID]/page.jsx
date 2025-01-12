@@ -55,9 +55,10 @@ const Pages = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          setDataList(data);
-          setTenGV(data[0].user.username)
-          console.log("Name:",data[0])
+          if (data.length > 0) {
+            setDataList(data);
+            setTenGV(data[0].user.username)
+          }
           setLoading(false);
         } else {
           toast.error("Failed to fetch data");
@@ -788,7 +789,7 @@ const Pages = () => {
               }}
             /> QUAY LẠI
           </Button>
-          <div className='text-heading3-bold text-green-500 flex-grow'>{`BẢNG KÊ KHAI LAO ĐỘNG GIẢNG VIÊN - ${tenGV.toUpperCase() }`} </div>
+          <div className='text-heading3-bold text-green-500 flex-grow'>{`BẢNG KÊ KHAI LAO ĐỘNG GIẢNG VIÊN - ${tenGV.toUpperCase()}`} </div>
         </div>
         <div className="flex space-x-4 justify-around items-center max-sm:flex-col max-sm:gap-4 mt-2 mb-2">
           {getButtonList().map((buttonText) => (
