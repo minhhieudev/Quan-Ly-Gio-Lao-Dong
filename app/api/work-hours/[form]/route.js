@@ -21,16 +21,16 @@ const models = {
 };
 
 export const POST = async (req, { params }) => {
+  console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
+
   try {
     const { form } = params;
-    console.log("Form parameter:", form);
     if (!models[form]) {
       return new Response("Invalid form name", { status: 400 });
     }
 
     await connectToDB();
     const body = await req.json();
-    console.log(body)
 
     const model = models[form];
     const newRecord = await model.create(body);
@@ -99,12 +99,10 @@ export const GET = async (req, { params }) => {
 
     console.log("User:", user);
 
-    if (!user ) {
+    if (!user) {
       return new Response("User and type parameters are required", { status: 400 });
     }
 
-
-  
     const query = {
       user,
       type
@@ -123,8 +121,11 @@ export const GET = async (req, { params }) => {
     }
 
     console.log("Query:111111111111111", query);
+    console.log('formformformform', form)
+
     const records = await models[form].find(query).populate('user', 'username');
 
+    console.log('recordsrecordsrecords', records)
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {

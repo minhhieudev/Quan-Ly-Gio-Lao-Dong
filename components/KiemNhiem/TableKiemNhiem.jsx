@@ -32,7 +32,7 @@ const TableKiemNhiem = ({ data}) => {
       title: 'Tên chức vụ',
       dataIndex: 'tenCV',
       key: 'tenCV',
-      render: (text) => <span style={{ color: 'green', fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
       title: 'Loại chức vụ',
@@ -69,7 +69,7 @@ const TableKiemNhiem = ({ data}) => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto cus-table" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto cus-table" style={{ maxHeight: 'calc(85vh - 290px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}

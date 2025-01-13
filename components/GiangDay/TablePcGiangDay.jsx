@@ -121,7 +121,7 @@ const TablePcGiangDay = ({ namHoc, ky ,listSelect}) => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto cus-table" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+        <div className="flex-grow overflow-auto cus-table" style={{ maxHeight: 'calc(85vh - 290px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}

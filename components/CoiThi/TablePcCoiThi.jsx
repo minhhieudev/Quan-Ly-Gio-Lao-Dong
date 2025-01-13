@@ -31,17 +31,17 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
       key: 'hocPhan',
       render: (text) => (
         <span style={{ color: 'green', fontWeight: 'bold' }}>
-          {Array.isArray(text) ? text.join(', ') : text}
+          {Array.isArray(text) ? text.join(' | ') : text}
         </span>
       ),
     },
     {
       title: 'Nhóm/Lớp',
-      dataIndex: 'nhomLop',
-      key: 'nhomLop',
+      dataIndex: 'lop',
+      key: 'lop',
       render: (text) => (
         <span style={{ color: 'red', fontWeight: 'bold' }}>
-          {Array.isArray(text) ? text.join(', ') : text}
+          {Array.isArray(text) ? text.join(' | ') : text}
         </span>
       ),
     },
@@ -60,33 +60,31 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
     },
     {
       title: 'Phòng thi',
-      dataIndex: 'phongThi',
-      key: 'phongThi',
+      dataIndex: 'phong',
+      key: 'phong',
       width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold' }}>{text.join(' - ')}</span>,
     },
     {
       title: 'Cán bộ 1',
-      dataIndex: 'cb1',
-      key: 'cb1',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      dataIndex: 'cbo1',
+      key: 'cbo1',
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
     },
     {
       title: 'Cán bộ 2',
-      dataIndex: 'cb2',
-      key: 'cb2',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      dataIndex: 'cbo2',
+      key: 'cbo2',
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
     },
     {
       title: 'Thời gian',
-      dataIndex: 'time',
-      key: 'time',
+      dataIndex: 'thoiGian',
+      key: 'thoiGian',
       width: 20,
       render: (text) => (
         <span style={{ fontWeight: 'bold' }}>
-          {Array.isArray(text) ? text.join(', ') : text}
+          {Array.isArray(text) ? text.join(' - ') : text}
         </span>
       ),
     },

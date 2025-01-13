@@ -23,14 +23,7 @@ const SideBar = () => {
         <ClockCircleOutlined style={{ fontSize: "20px" }} className="text-yellow-500"/>
         <span style={getIconStyle(["/admin/work-hours"])}>Thống kê lao động</span>
       </Link>
-      <Link href="/admin/user" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
-        <UserOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
-        <span style={getIconStyle(["/admin/user"])}>User</span>
-      </Link>
-      <Link href="/admin/khoa" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
-        <BookOutlined style={{ fontSize: "20px" }} className="text-green-500"/>
-        <span style={getIconStyle(["/admin/khoa"])}>Khoa</span>
-      </Link>
+    
       <Link href="/giaovu/pc-giang-day" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
         <span style={getIconStyle(["/giaovu/pc-giang-day"])}>Phân công giảng dạy</span>
@@ -42,6 +35,14 @@ const SideBar = () => {
       <Link href="/giaovu/pc-cham-thi" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <FormOutlined style={{ fontSize: "20px" }} className="text-pink-500"/>
         <span style={getIconStyle(["/giaovu/pc-cham-thi"])}>Phân công chấm thi</span>
+      </Link>
+      <Link href="/admin/user" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <UserOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
+        <span style={getIconStyle(["/admin/user"])}>Tài khoản</span>
+      </Link>
+      <Link href="/admin/khoa" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <BookOutlined style={{ fontSize: "20px" }} className="text-green-500"/>
+        <span style={getIconStyle(["/admin/khoa"])}>Khoa</span>
       </Link>
       <Link href="/admin/ma-ngach" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <FormOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>

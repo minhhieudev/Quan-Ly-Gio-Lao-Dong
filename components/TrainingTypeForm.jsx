@@ -24,7 +24,7 @@ const formSchema = {
 
 const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-const TrainingTypeForm = (namHoc) => {
+const TrainingTypeForm = ({ namHoc, ky }) => {
   const [dataList, setDataList] = useState([]);
   const [editRecord, setEditRecord] = useState(null);
   const [current, setCurrent] = useState(1);
@@ -48,6 +48,7 @@ const TrainingTypeForm = (namHoc) => {
   }, [soTietLT, soTietTH, setValue]);
 
   useEffect(() => {
+    alert(namHoc)
     if (!currentUser?._id) return;
 
     const fetchData = async () => {
@@ -72,7 +73,7 @@ const TrainingTypeForm = (namHoc) => {
   }, [currentUser]);
 
   const onSubmit = async (data) => {
-    if (namHoc == ''){
+    if (namHoc == '') {
       toast.error('Vui lòng nhập năm học!')
       return
     }
@@ -80,7 +81,7 @@ const TrainingTypeForm = (namHoc) => {
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch("/api/work-hours/BoiDuong", {
         method,
-        body: JSON.stringify({ ...data, user: currentUser._id, id: editRecord?._id,namHoc }),
+        body: JSON.stringify({ ...data, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -91,10 +92,10 @@ const TrainingTypeForm = (namHoc) => {
         } else {
           setDataList(prevData => [...prevData, newData]);
         }
-        toast.success("Record saved successfully!");
+        toast.success("Lưu thành công");
         onReset();
       } else {
-        toast.error("Failed to save record");
+        toast.error("Lưu thất bại !");
       }
     } catch (err) {
       toast.error("An error occurred while saving data");
@@ -134,22 +135,26 @@ const TrainingTypeForm = (namHoc) => {
       title: 'Chuyên đề giảng dạy',
       dataIndex: 'chuyenDe',
       key: 'chuyenDe',
+      align: 'center',
       className: 'text-blue-500 font-bold'
     },
     {
       title: 'Loại hình bồi dưỡng',
       dataIndex: 'loaiHinh',
       key: 'loaiHinh',
+      align: 'center',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Thời gian',
       dataIndex: 'thoiGian',
+      align: 'center',
       key: 'thoiGian'
     },
     {
       title: 'Số HV',
       dataIndex: 'soHV',
+      align: 'center',
       key: 'soHV'
     },
     {
@@ -159,11 +164,15 @@ const TrainingTypeForm = (namHoc) => {
           title: 'LT',
           dataIndex: 'soTietLT',
           key: 'soTietLT',
+          align: 'center',
+
         },
         {
           title: 'TH',
           dataIndex: 'soTietTH',
           key: 'soTietTH',
+          align: 'center',
+
         },
       ],
     },
@@ -171,17 +180,23 @@ const TrainingTypeForm = (namHoc) => {
       title: 'Số tiết quy chuẩn',
       dataIndex: 'soTietQuyChuan',
       key: 'soTietQuyChuan',
+      align: 'center',
+
       className: 'text-red-500 font-bold text-center'
     },
     {
       title: 'Lớp giảng dạy',
       dataIndex: 'lopGiangDay',
       key: 'lopGiangDay',
+      align: 'center',
+
       className: 'text-purple-500 font-bold'
     },
     {
       title: 'Ghi chú',
       dataIndex: 'ghiChu',
+      align: 'center',
+
       key: 'ghiChu'
     },
     {
@@ -189,18 +204,20 @@ const TrainingTypeForm = (namHoc) => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size= 'small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
-      width: 20
+      width: 5,
+      align: 'center',
+
 
     },
   ];
@@ -216,8 +233,8 @@ const TrainingTypeForm = (namHoc) => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="flex gap-5 max-sm:flex-col">
-      <div className="p-5 shadow-xl bg-white rounded-xl flex-[40%]">
+    <div className="flex gap-3 max-sm:flex-col">
+      <div className="p-5 shadow-xl bg-white rounded-xl flex-[30%]">
         <Title className="text-center" level={3}>CÔNG TÁC LOẠI HÌNH BỒI DƯỠNG</Title>
 
         <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">
@@ -353,8 +370,8 @@ const TrainingTypeForm = (namHoc) => {
         </Form>
       </div>
 
-      <div className="p-5 shadow-xl bg-white rounded-xl flex-[60%]">
-        <Title className="text-center" level={3}>DANH SÁCH LOẠI HÌNH BỒI DƯỠNG</Title>
+      <div className="p-5 shadow-xl bg-white rounded-xl flex-[70%]">
+        <Title className="text-center" level={3}>DANH SÁCH</Title>
         {dataList.length === 0 ? (
           <div className="flex items-center justify-center h-[300px]">Chưa có dữ liệu</div>
         ) : (

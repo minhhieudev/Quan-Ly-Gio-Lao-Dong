@@ -40,6 +40,9 @@ const CongTacHuongDanSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  ky: {
+    type: String,
+  },
 },{
   timestamps: true,
 });

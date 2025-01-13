@@ -12,7 +12,7 @@ const { Option } = Select;
 const PcChamThiTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("2023-2024");
+  const [namHoc, setNamHoc] = useState("2024-2025");
   const [loaiKyThi, setLoaiKyThi] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -242,7 +242,7 @@ const PcChamThiTable = () => {
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>
-          <Select size="small"
+          <Select allowClear size="small"
             placeholder="Chọn loại kỳ thi"
             onChange={(value) => setLoaiKyThi(value)}
             className="w-[50%]"

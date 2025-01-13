@@ -1,10 +1,12 @@
 'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import { Table, Input, Button, Space, Popconfirm, Spin , Modal, Select} from 'antd';
-import { SearchOutlined, EyeFilled, DeleteOutlined ,FileExcelOutlined } from '@ant-design/icons';
+import { Table, Input, Button, Space, Popconfirm, Spin, Modal, Select } from 'antd';
+import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
 import * as XLSX from 'xlsx';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { ArrowRightOutlined } from '@ant-design/icons';
@@ -39,8 +41,8 @@ const App = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(type !== "boi-duong" ? 
-        `/api/admin/tong-hop-lao-dong/chinh-quy/${type}/?namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kiHoc)}` : 
+      const res = await fetch(type !== "boi-duong" ?
+        `/api/admin/tong-hop-lao-dong/chinh-quy/${type}/?namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kiHoc)}` :
         `/api/admin/tong-hop-lao-dong/boi-duong/?namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kiHoc)}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -114,7 +116,7 @@ const App = () => {
 
   useEffect(() => {
     fetchData();
-  }, [namHoc,kiHoc]);
+  }, [namHoc, kiHoc]);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -228,6 +230,195 @@ const App = () => {
       dataIndex: 'index',
       width: '1%',
       render: (text, record, index) => index + 1,
+      align: 'center',
+
+    },
+    {
+      title: 'Họ và tên giảng viên',
+      dataIndex: 'username',
+      ...getColumnSearchProps('user.username'),
+      render: (text, record) => (
+        <Button
+          type="link"
+          className="text-blue-500 font-bold"
+          onClick={() => router.push(`/admin/work-hours/${type}/${currentUser._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
+        >
+          {record?.user?.username}
+        </Button>
+      ),
+      className: 'text-blue-500 font-bold text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Công tác giảng dạy chính quy',
+      children: [
+        {
+          title: 'Số tiết',
+          children: [
+            {
+              title: 'LT',
+              dataIndex: 'congTacGiangDay',
+              key: 'congTacGiangDay.soTietLT',
+              render: (text, record) => record.congTacGiangDay.soTietLT,
+              align: 'center',
+
+            },
+            {
+              title: 'TH',
+              dataIndex: 'congTacGiangDay',
+              key: 'congTacGiangDay.soTietTH',
+              render: (text, record) => record.congTacGiangDay.soTietTH,
+              align: 'center',
+
+            },
+          ],
+        },
+        {
+          title: 'Số tiết QC',
+          children: [
+            {
+              title: 'LT',
+              dataIndex: 'congTacGiangDay',
+              key: 'congTacGiangDay.soTietQCLT',
+              render: (text, record) => record.congTacGiangDay.soTietQCLT,
+              align: 'center',
+
+            },
+            {
+              title: 'TH',
+              dataIndex: 'congTacGiangDay',
+              key: 'congTacGiangDay.soTietQCTH',
+              render: (text, record) => record.congTacGiangDay.soTietQCTH,
+              align: 'center',
+
+            },
+          ],
+        },
+      ],
+      className: 'text-center'
+    },
+    {
+      title: 'Tổng giảng dạy',
+      dataIndex: 'congTacGiangDay',
+      key: 'congTacGiangDay.tong',
+      render: (text, record) => record.congTacGiangDay.tong,
+      className: 'text-green-500 font-bold text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Giờ chuẩn',
+      dataIndex: 'gioChuan',
+      className: 'text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Kiêm nhiệm',
+      dataIndex: 'kiemNhiem',
+      className: 'text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Chuẩn năm học',
+      dataIndex: 'chuanNamHoc',
+      className: 'text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Công tác khác',
+      children: [
+        {
+          title: 'Chấm thi',
+          dataIndex: 'congTacKhac',
+          key: 'congTacKhac.chamThi',
+          render: (text, record) => record.congTacKhac.chamThi,
+          align: 'center',
+
+        },
+        {
+          title: 'Ngoại khóa',
+          dataIndex: 'congTacKhac',
+          key: 'congTacKhac.ngoaiKhoa',
+          render: (text, record) => record.congTacKhac.ngoaiKhoa,
+          align: 'center',
+
+        },
+        {
+          title: 'Coi thi',
+          dataIndex: 'congTacKhac',
+          key: 'congTacKhac.coiThi',
+          render: (text, record) => record.congTacKhac.coiThi,
+          align: 'center',
+
+        },
+        {
+          title: 'Đề thi',
+          dataIndex: 'congTacKhac',
+          key: 'congTacKhac.deThi',
+          render: (text, record) => record.congTacKhac.deThi,
+          align: 'center',
+
+        },
+        {
+          title: 'Tổng',
+          dataIndex: 'congTacKhac',
+          key: 'congTacKhac.tong',
+          render: (text, record) => record.congTacKhac.tong,
+          className: 'text-yellow-500 font-bold',
+          align: 'center',
+
+
+        },
+      ],
+      className: 'text-center'
+    },
+    {
+      title: 'Tổng giờ chính quy',
+      dataIndex: 'tongGioChinhQuy',
+      className: 'text-red-500 font-bold text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Thừa/Thiếu giờ lao động',
+      dataIndex: 'thuaThieuGioLaoDong',
+      className: 'text-center',
+      align: 'center',
+
+    },
+    {
+      title: 'Thao tác',
+      key: 'action',
+      render: (_, record) => (
+        <Space size="middle">
+          {/* <Button onClick={() => handleDetail(record._id)} type="primary" icon={<EyeFilled />} /> */}
+          <Popconfirm
+            title="Bạn có chắc chắn muốn xoá?"
+            onConfirm={() => handleDelete(record._id)}
+            okText="Có"
+            cancelText="Không"
+          >
+            <Button size='small' type="primary" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      ),
+      className: 'text-center',
+      width: 5
+
+    },
+
+  ];
+  const columnChinhQuyKhac = [
+    {
+      title: 'TT',
+      dataIndex: 'index',
+      width: '1%',
+      render: (text, record, index) => index + 1,
+      align: 'center',
     },
     {
       title: 'Họ và tên giảng viên',
@@ -243,172 +434,8 @@ const App = () => {
         </Button>
       ),
       className: 'text-blue-500 font-bold text-center',
-    },
-    {
-      title: 'Công tác giảng dạy chính quy',
-      children: [
-        {
-          title: 'Số tiết',
-          children: [
-            {
-              title: 'LT',
-              dataIndex: 'congTacGiangDay',
-              key: 'congTacGiangDay.soTietLT',
-              render: (text, record) => record.congTacGiangDay.soTietLT,
-              width:50
-            },
-            {
-              title: 'TH',
-              dataIndex: 'congTacGiangDay',
-              key: 'congTacGiangDay.soTietTH',
-              render: (text, record) => record.congTacGiangDay.soTietTH,
-              width:50
-            },
-          ],
-        },
-        {
-          title: 'Số tiết QC',
-          children: [
-            {
-              title: 'LT',
-              dataIndex: 'congTacGiangDay',
-              key: 'congTacGiangDay.soTietQCLT',
-              render: (text, record) => record.congTacGiangDay.soTietQCLT,
-              width:50
-            },
-            {
-              title: 'TH',
-              dataIndex: 'congTacGiangDay',
-              key: 'congTacGiangDay.soTietQCTH',
-              render: (text, record) => record.congTacGiangDay.soTietQCTH,
-              width:50
-            },
-          ],
-        },
-      ],
-      className: 'text-center'
-    },
-    {
-      title: 'Tổng giảng dạy',
-      dataIndex: 'congTacGiangDay',
-      key: 'congTacGiangDay.tong',
-      render: (text, record) => record.congTacGiangDay.tong,
-      className: 'text-green-500 font-bold text-center',
-      width:50
-    },
-    {
-      title: 'Giờ chuẩn',
-      dataIndex: 'gioChuan',
-      className: 'text-center',
-      width:50
-    },
-    {
-      title: 'Kiêm nhiệm',
-      dataIndex: 'kiemNhiem',
-      className: 'text-center',
-      width:50
-    },
-    {
-      title: 'Chuẩn năm học',
-      dataIndex: 'chuanNamHoc',
-      className: 'text-center',
-      width:50
-    },
-    {
-      title: 'Công tác khác',
-      children: [
-        {
-          title: 'Chấm thi',
-          dataIndex: 'congTacKhac',
-          key: 'congTacKhac.chamThi',
-          render: (text, record) => record.congTacKhac.chamThi,
-          width:50
-        },
-        {
-          title: 'Ngoại khóa',
-          dataIndex: 'congTacKhac',
-          key: 'congTacKhac.ngoaiKhoa',
-          render: (text, record) => record.congTacKhac.ngoaiKhoa,
-          width:50
-        },
-        {
-          title: 'Coi thi',
-          dataIndex: 'congTacKhac',
-          key: 'congTacKhac.coiThi',
-          render: (text, record) => record.congTacKhac.coiThi,
-          width:50
-        },
-        {
-          title: 'Đề thi',
-          dataIndex: 'congTacKhac',
-          key: 'congTacKhac.deThi',
-          render: (text, record) => record.congTacKhac.deThi,
-          width:50
-        },
-        {
-          title: 'Tổng',
-          dataIndex: 'congTacKhac',
-          key: 'congTacKhac.tong',
-          render: (text, record) => record.congTacKhac.tong,
-          className: 'text-yellow-500 font-bold',
-          width:50
+      align: 'center',
 
-        },
-      ],
-      className: 'text-center'
-    },
-    {
-      title: 'Tổng giờ chính quy',
-      dataIndex: 'tongGioChinhQuy',
-      className: 'text-red-500 font-bold text-center',
-      width:60
-    },
-    {
-      title: 'Thừa/Thiếu giờ lao động',
-      dataIndex: 'thuaThieuGioLaoDong',
-      className: 'text-center',
-      width:60
-    },
-    {
-      title: 'Thao tác',
-      key: 'action',
-      render: (_, record) => (
-        <Space size="middle">
-          {/* <Button onClick={() => handleDetail(record._id)} type="primary" icon={<EyeFilled />} /> */}
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
-            onConfirm={() => handleDelete(record._id)}
-            okText="Có"
-            cancelText="Không"
-          >
-            <Button type="primary" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
-      className: 'text-center',
-    },
-  ];
-  const columnChinhQuyKhac = [
-    {
-      title: 'TT',
-      dataIndex: 'index',
-      width: '1%',
-      render: (text, record, index) => index + 1,
-    },
-    {
-      title: 'Họ và tên giảng viên',
-      dataIndex: 'username',
-      ...getColumnSearchProps('user.username'),
-      render: (text, record) => (
-        <Button
-          type="link"
-          className="text-blue-500 font-bold"
-          onClick={() => router.push(`/admin/work-hours/${type}/${currentUser._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
-        >
-          {record.user.username}
-        </Button>
-      ),
-      className: 'text-blue-500 font-bold text-center'
     },
     {
       title: 'Công tác giảng dạy chính quy',
@@ -421,12 +448,15 @@ const App = () => {
               dataIndex: 'congTacGiangDay',
               key: 'congTacGiangDay.soTietLT',
               render: (text, record) => record.congTacGiangDay.soTietLT,
+              className: 'text-center',
+              align: 'center',
             },
             {
               title: 'TH',
               dataIndex: 'congTacGiangDay',
               key: 'congTacGiangDay.soTietTH',
               render: (text, record) => record.congTacGiangDay.soTietTH,
+              align: 'center',
             },
           ],
         },
@@ -438,17 +468,19 @@ const App = () => {
               dataIndex: 'congTacGiangDay',
               key: 'congTacGiangDay.soTietQCLT',
               render: (text, record) => record.congTacGiangDay.soTietQCLT,
+              className: 'text-center'
             },
             {
               title: 'TH',
               dataIndex: 'congTacGiangDay',
               key: 'congTacGiangDay.soTietQCTH',
               render: (text, record) => record.congTacGiangDay.soTietQCTH,
+              align: 'center',
             },
           ],
         },
       ],
-      className: 'text-center'
+      className: 'text-center',
     },
     {
       title: 'Tổng giảng dạy',
@@ -456,46 +488,47 @@ const App = () => {
       key: 'congTacGiangDay.tong',
       render: (text, record) => record.congTacGiangDay.tong,
       className: 'text-green-500 font-bold text-center',
-      width:70
+      align: 'center',
     },
     {
       title: 'Công tác khác',
+
       children: [
         {
           title: 'Chấm thi',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.chamThi',
           render: (text, record) => record.congTacKhac.chamThi,
-          width:50
+          align: 'center',
         },
         {
           title: 'Ngoại khóa',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.ngoaiKhoa',
           render: (text, record) => record.congTacKhac.ngoaiKhoa,
-          width:50
+          align: 'center',
         },
         {
           title: 'Coi thi',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.coiThi',
           render: (text, record) => record.congTacKhac.coiThi,
-          width:50
+          align: 'center',
         },
         {
           title: 'Đề thi',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.deThi',
           render: (text, record) => record.congTacKhac.deThi,
-          width:50
+          align: 'center',
         },
         {
           title: 'Tổng',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.tong',
           render: (text, record) => record.congTacKhac.tong,
-          className: 'text-yellow-500 font-bold',
-          width:50
+          className: 'text-yellow-500 font-bold text-center',
+          align: 'center',
         },
       ],
       className: 'text-center'
@@ -504,7 +537,8 @@ const App = () => {
       title: 'Tổng giờ chính quy',
       dataIndex: 'tongGioChinhQuy',
       className: 'text-red-500 font-bold text-center',
-      width:60
+      align: 'center',
+
     },
     {
       title: 'Thao tác',
@@ -518,12 +552,13 @@ const App = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger icon={<DeleteOutlined />} />
+            <Button size='small' type="primary" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
       className: 'text-center',
-      width:50
+      align: 'center',
+      width: 5
     },
   ];
   const columnBoiDuong = [
@@ -532,27 +567,33 @@ const App = () => {
       dataIndex: 'index',
       width: '1%',
       render: (text, record, index) => index + 1,
+      align: 'center',
     },
     {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
-      className: 'text-blue-500 font-bold text-center'
+      className: 'text-blue-500 font-bold text-center',
+      align: 'center',
+
     },
     {
       title: 'Chuyên đề giảng dạy',
       dataIndex: 'chuyenDe',
+      align: 'center',
       className: 'text-green-500 font-bold text-center'
     },
     {
       title: 'Lớp giảng dạy',
       dataIndex: 'lopGiangDay',
+      align: 'center',
       className: 'text-center'
     },
     {
       title: 'Số HV',
       dataIndex: 'SoHV',
+      align: 'center',
       className: 'text-center'
     },
     {
@@ -561,21 +602,25 @@ const App = () => {
         {
           title: 'LT',
           dataIndex: 'soTietLT',
+          align: 'center',
         },
         {
           title: 'TH',
           dataIndex: 'soTietTH',
+          align: 'center',
         },
       ],
     },
     {
       title: 'Số tiết quy chuẩn ',
       dataIndex: 'soTietQuyChuan',
+      align: 'center',
       className: 'text-center'
     },
     {
       title: 'Tổng cộng',
       dataIndex: 'soTietQuyChuan',
+      align: 'center',
       className: 'text-center'
     },
     {
@@ -590,11 +635,13 @@ const App = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger icon={<DeleteOutlined />} />
+            <Button size='small' type="primary" danger icon={<DeleteOutlined />} />
           </Popconfirm>
         </Space>
       ),
       className: 'text-center',
+      align: 'center',
+
     },
   ];
 
@@ -681,7 +728,7 @@ const App = () => {
             }}
           /> QUAY LẠI
         </Button>
-        <div className="font-bold text-heading3-bold flex-grow ">
+        <div className="font-bold text-base-bold flex-grow ">
           {getType()}
         </div>
         {type !== 'boi-duong' && (
@@ -699,37 +746,38 @@ const App = () => {
         )}
       </div>
       <div className="flex justify-around items-center mb-3">
-          <div className="w-[25%] flex items-center gap-2">
-            <label className="block text-sm font-semibold mb-1">Năm học:</label>
-            <Select
-              placeholder="Chọn năm học"
-              onChange={(value) => setNamHoc(value)}
-              className="w-[50%]"
-              value={namHoc}
-            >
-              <Option value="2021-2022">2021-2022</Option>
-              <Option value="2022-2023">2022-2023</Option>
-              <Option value="2023-2024">2023-2024</Option>
-              <Option value="2024-2025">2024-2025</Option>
-            </Select>
-          </div>
-
-          <div className="w-[25%] flex items-center gap-2">
-            <label className="block text-sm font-semibold mb-1">Kỳ học:</label>
-            <Select
-              placeholder="Chọn kỳ học"
-              onChange={(value) => setKiHoc(value)}
-              className="w-[50%]"
-              value={kiHoc}
-            >
-              <Option value="1">Kỳ 1</Option>
-              <Option value="2">Kỳ 2</Option>
-            </Select>
-          </div>
-
+        <div className="w-[25%] flex items-center gap-2 font-bold">
+          <label className="block text-sm font-semibold mb-1">Năm học:</label>
+          <Select size='small'
+            placeholder="Chọn năm học"
+            onChange={(value) => setNamHoc(value)}
+            className="w-[50%]"
+            value={namHoc}
+          >
+            <Option value="2021-2022">2021-2022</Option>
+            <Option value="2022-2023">2022-2023</Option>
+            <Option value="2023-2024">2023-2024</Option>
+            <Option value="2024-2025">2024-2025</Option>
+          </Select>
         </div>
 
+        <div className="w-[25%] flex items-center gap-2 font-bold">
+          <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
+          <Select size='small'
+            placeholder="Chọn học kỳ:"
+            onChange={(value) => setKiHoc(value)}
+            className="w-[50%]"
+            value={kiHoc}
+          >
+            <Option value="1">1</Option>
+            <Option value="2">2</Option>
+          </Select>
+        </div>
+
+      </div>
+
       <Table
+        bordered
         columns={getColumns()}
         rowKey={(record) => record._id}
         dataSource={dataList}

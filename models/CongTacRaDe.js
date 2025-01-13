@@ -18,9 +18,8 @@ const CongTacRaDeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  hocKy: {
+  ky: {
     type: String,
-    required: true,
   },
   hinhThucThi: {
     type: String,

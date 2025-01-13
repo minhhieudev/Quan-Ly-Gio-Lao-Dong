@@ -32,6 +32,9 @@ const CongTacKiemNhiemSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  ky: {
+    type: String,
+  },
 },{
   timestamps: true,
 });

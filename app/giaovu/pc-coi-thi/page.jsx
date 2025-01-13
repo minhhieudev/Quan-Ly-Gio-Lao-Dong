@@ -165,13 +165,13 @@ const PcCoiThiTable = () => {
       title: 'Cán bộ 1',
       dataIndex: 'cbo1',
       key: 'cbo1',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
     },
     {
       title: 'Cán bộ 2',
       dataIndex: 'cbo2',
       key: 'cbo2',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
     },
     {
       title: 'HT',

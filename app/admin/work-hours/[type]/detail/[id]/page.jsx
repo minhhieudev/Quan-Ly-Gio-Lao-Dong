@@ -174,6 +174,7 @@ const Pages = () => {
     {
       title: 'TT',
       dataIndex: 'index',
+      align: 'center',
       width: '1%',
       render: (text, record, index) => index + 1,
     },
@@ -181,59 +182,68 @@ const Pages = () => {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
+      align: 'center',
       render: (text, record) => record.user.username,
       className: 'text-blue-500 font-bold text-center'
     },
     {
       title: 'Học phần chấm thi',
       dataIndex: 'hocPhan',
+      align: 'center',
       key: 'hocPhan',
-      className: 'text-blue-500 font-bold'
+      className: ' font-bold'
     },
     {
       title: 'Lớp học phần',
+      align: 'center',
       dataIndex: 'lopHocPhan',
       key: 'lopHocPhan'
     },
     {
       title: 'Học kỳ',
+      align: 'center',
       dataIndex: 'ky',
       key: 'ky'
     },
     {
       title: 'Cán bộ chấm thi',
+      align: 'center',
       dataIndex: 'canBoChamThi',
       key: 'canBoChamThi'
     },
     {
       title: 'Số bài chấm',
+      align: 'center',
       dataIndex: 'soBaiCham',
       key: 'soBaiCham'
     },
     {
       title: 'Số tiết quy chuẩn',
+      align: 'center',
       dataIndex: 'soTietQuyChuan',
       key: 'soTietQuyChuan',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Ghi chú',
+      align: 'center',
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
+      align: 'center',
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+        <Space size="small">
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -244,11 +254,13 @@ const Pages = () => {
     {
       title: 'TT',
       dataIndex: 'index',
+      align: 'center',
       width: '1%',
       render: (text, record, index) => index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
+      align: 'center',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
@@ -256,44 +268,50 @@ const Pages = () => {
     },
     {
       title: 'Chức vụ, công việc',
+      align: 'center',
       dataIndex: 'chucVuCongViec',
       key: 'chucVuCongViec',
-      className: 'text-blue-500 font-bold'
+      className: ' font-bold'
     },
     {
       title: 'Thời gian tính',
+      align: 'center',
       dataIndex: 'thoiGianTinh',
       key: 'thoiGianTinh'
     },
     {
       title: 'Tỷ lệ % miễn giảm',
+      align: 'center',
       dataIndex: 'tyLeMienGiam',
       key: 'tyLeMienGiam'
     },
     {
       title: 'Số tiết quy chuẩn',
+      align: 'center',
       dataIndex: 'soTietQC',
       key: 'soTietQC',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Ghi chú',
+      align: 'center',
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
+      align: 'center',
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+        <Space size="small">
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -303,6 +321,7 @@ const Pages = () => {
     {
       title: 'TT',
       dataIndex: 'index',
+      align: 'center',
       width: '1%',
       render: (text, record, index) => index + 1,
     },
@@ -311,52 +330,61 @@ const Pages = () => {
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
-      className: 'text-blue-500 font-bold text-center'
+      className: 'text-blue-500 font-bold text-center',
+      align: 'center',
+
     },
     {
       title: 'Học kỳ',
+      align: 'center',
       dataIndex: 'ky',
       key: 'ky'
     },
     {
       title: 'Số tiết quy chuẩn',
+      align: 'center',
       dataIndex: 'soTietQuyChuan',
       key: 'soTietQuyChuan'
     },
     {
       title: 'Ghi chú',
+      align: 'center',
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
       title: 'Học phần',
+      align: 'center',
       dataIndex: 'hocPhan',
       key: 'hocPhan'
     },
     {
       title: 'Thời gian thi',
+      align: 'center',
       dataIndex: 'thoiGianThi',
       key: 'thoiGianThi'
     },
     {
       title: 'Ngày thi',
+      align: 'center',
       dataIndex: 'ngayThi',
       key: 'ngayThi',
       render: (text) => moment(text).format('DD-MM-YYYY'),
     },
     {
+      align: 'center',
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+        <Space size="small">
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -367,11 +395,15 @@ const Pages = () => {
       title: 'TT',
       dataIndex: 'index',
       width: '1%',
+      align: 'center',
+
       render: (text, record, index) => index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
+      align: 'center',
+
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
       className: 'text-blue-500 font-bold text-center'
@@ -379,59 +411,77 @@ const Pages = () => {
     {
       title: 'Học phần',
       dataIndex: 'hocPhan',
+      align: 'center',
+
       key: 'hocPhan',
-      className: 'text-blue-500 font-bold'
+      className: ' font-bold'
     },
     {
       title: 'Số TC',
+      align: 'center',
+
       dataIndex: 'soTC',
       key: 'soTC'
     },
     {
       title: 'Lớp học phần',
+      align: 'center',
+
       dataIndex: 'lopHocPhan',
       key: 'lopHocPhan',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Học kỳ',
+      align: 'center',
+
       dataIndex: 'hocKy',
       key: 'hocKy'
     },
     {
       title: 'Hình thức thi',
+      align: 'center',
+
       dataIndex: 'hinhThucThi',
       key: 'hinhThucThi'
     },
     {
       title: 'Thời gian thi',
+      align: 'center',
+
       dataIndex: 'thoiGianThi',
       key: 'thoiGianThi'
     },
     {
       title: 'Số tiết quy chuẩn',
+      align: 'center',
+
       dataIndex: 'soTietQuyChuan',
       key: 'soTietQuyChuan',
       className: 'text-red-500 font-bold'
     },
     {
       title: 'Ghi chú',
+      align: 'center',
+
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
       title: 'Hành động',
+      align: 'center',
+
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+        <Space size="small">
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -442,11 +492,15 @@ const Pages = () => {
       title: 'TT',
       dataIndex: 'index',
       width: '1%',
+      align: 'center',
+
       render: (text, record, index) => index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
+      align: 'center',
+
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
       className: 'text-blue-500 font-bold text-center'
@@ -454,33 +508,39 @@ const Pages = () => {
     {
       title: 'Nội dung công việc',
       dataIndex: 'noiDungCongViec',
+      align: 'center',
       key: 'noiDungCongViec',
-      className: 'text-blue-500 font-bold'
+      className: ' font-bold'
     },
     {
       title: 'Số SV/Số nhóm',
+      align: 'center',
       dataIndex: 'soSVSoNhom',
       key: 'soSVSoNhom'
     },
     {
       title: 'Lớp học phần',
       dataIndex: 'lopHocPhan',
+      align: 'center',
       key: 'lopHocPhan',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Thời gian',
+      align: 'center',
       dataIndex: 'thoiGian',
       key: 'thoiGian'
     },
     {
       title: 'Số buổi',
+      align: 'center',
       dataIndex: 'soBuoi',
       key: 'soBuoi'
     },
     {
       title: 'Số tiết quy chuẩn',
       dataIndex: 'soTietQuyChuan',
+      align: 'center',
       key: 'soTietQuyChuan',
       className: 'text-red-500 font-bold'
     },
@@ -492,22 +552,24 @@ const Pages = () => {
     // },
     {
       title: 'Ghi chú',
+      align: 'center',
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
+      align: 'center',
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
-          <Button onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+        <Space size="small">
+          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button type="primary" danger>Xoá</Button>
+            <Button size='small' type="primary" danger>Xoá</Button>
           </Popconfirm>
         </Space>
       ),
@@ -517,11 +579,13 @@ const Pages = () => {
     {
       title: 'TT',
       dataIndex: 'index',
+      align: 'center',
       width: '1%',
       render: (text, record, index) => index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
+      align: 'center',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       render: (text, record) => record.user.username,
@@ -530,27 +594,32 @@ const Pages = () => {
     {
       title: 'Học phần',
       dataIndex: 'hocPhan',
+      align: 'center',
       key: 'hocPhan',
-      className: 'text-blue-500 font-bold'
+      className: 'text-red-500 font-bold'
     },
     {
       title: 'Học kỳ',
+      align: 'center',
       dataIndex: 'ky',
       key: 'ky'
     },
     {
       title: 'Số TC',
+      align: 'center',
       dataIndex: 'soTinChi',
       key: 'soTinChi'
     },
     {
       title: 'Lớp học phần',
+      align: 'center',
       dataIndex: 'lopHocPhan',
       key: 'lopHocPhan',
       className: 'text-green-500 font-bold'
     },
     {
       title: 'Số SV',
+      align: 'center',
       dataIndex: 'soSV',
       key: 'soSV'
     },
@@ -559,11 +628,13 @@ const Pages = () => {
       children: [
         {
           title: 'LT',
+          align: 'center',
           dataIndex: 'soTietLT',
           key: 'soTietLT',
         },
         {
           title: 'TH',
+          align: 'center',
           dataIndex: 'soTietTH',
           key: 'soTietTH',
         },
@@ -574,11 +645,13 @@ const Pages = () => {
       children: [
         {
           title: 'LT',
+          align: 'center',
           dataIndex: 'soTietQCLT',
           key: 'soTietQCLT'
         },
         {
           title: 'TH',
+          align: 'center',
           dataIndex: 'soTietQCTH',
           key: 'soTietQCTH'
         },
@@ -587,19 +660,22 @@ const Pages = () => {
     {
       title: 'Tổng cộng',
       dataIndex: 'tongCong',
+      align: 'center',
       key: 'tongCong',
       className: 'text-red-500 font-bold text-center',
     },
     {
       title: 'Ghi chú',
+      align: 'center',
       dataIndex: 'ghiChu',
       key: 'ghiChu'
     },
     {
+      align: 'center',
       title: 'Hành động',
       key: 'action',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size="small">
 
           <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
           <Popconfirm
@@ -769,10 +845,10 @@ const Pages = () => {
         </div>
 
         <div className="w-[25%] flex items-center gap-2">
-          <label className="block text-sm font-semibold mb-1">Kỳ học:</label>
+          <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
           <Select
             size='small'
-            placeholder="Chọn kỳ học"
+            placeholder="Chọn học kỳ:"
             onChange={(value) => setKiHoc(value)}
             className="w-[50%]"
             value={kiHoc}

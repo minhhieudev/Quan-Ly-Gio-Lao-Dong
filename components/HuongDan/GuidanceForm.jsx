@@ -29,7 +29,7 @@ const formSchema = {
 
 const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc }) => {
+const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [dataListSelect, setDataListSelect] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
@@ -122,7 +122,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacHuongDan", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc }),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc ,ky}),
                 headers: { "Content-Type": "application/json" },
             });
 

@@ -134,7 +134,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacRaDe", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc, hocKy:ky }),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
                 headers: { "Content-Type": "application/json" },
             });
 

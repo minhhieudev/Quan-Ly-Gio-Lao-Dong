@@ -23,7 +23,7 @@ const formSchema = {
 
 const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
-const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
+const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
@@ -114,7 +114,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacKiemNhiem", {
                 method,
-                body: JSON.stringify({ ...data, type: type == 'chinh-quy' ? 'Chính quy': "Liên thông vlvh", user: currentUser._id, id: editRecord?._id, namHoc }),
+                body: JSON.stringify({ ...data, type, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
                 headers: { "Content-Type": "application/json" },
             });
 

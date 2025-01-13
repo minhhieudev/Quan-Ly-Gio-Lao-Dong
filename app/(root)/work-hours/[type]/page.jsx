@@ -145,15 +145,15 @@ const Pages = () => {
       case 'Công tác chấm thi':
         return <EvaluationForm onUpdateCongTacChamThi={updateCongTacChamThi} namHoc={namHoc || ''} ky={kyHoc||''}/>;
       case 'Công tác hướng dẫn':
-        return <GuidanceForm onUpdateCongTacHuongDan={updateCongTacHuongDan} namHoc={namHoc || ''} />;
+        return <GuidanceForm onUpdateCongTacHuongDan={updateCongTacHuongDan} namHoc={namHoc || ''} ky={kyHoc||''}/>;
       case 'Công tác coi thi':
         return <ExamMonitoringForm onUpdateCongTacCoiThi={updateCongTacCoiThi} namHoc={namHoc || ''} ky={kyHoc||''}/>;
       case 'Công tác ra đề thi':
         return <ExamPreparationForm onUpdateCongTacRaDe={updateCongTacRaDe} namHoc={namHoc || ''} ky={kyHoc||''}/>;
       case 'Công tác kiêm nhiệm':
-        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} />;
+        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} ky={kyHoc||''}/>;
       case 'Công tác giảng dạy bồi dưỡng':
-        return <TrainingTypeForm namHoc={namHoc || ''} />;
+        return <TrainingTypeForm namHoc={namHoc || ''} ky={kyHoc||''}/>;
       default:
         return null;
     }
@@ -253,13 +253,13 @@ const Pages = () => {
           />
         </div>
         <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
-          <div className='text-base-bold'>Kỳ học:</div>
+          <div className='text-base-bold'>Học kỳ:</div>
           <Select allowClear
             className="w-[60%]"
             value={kyHoc}
             onChange={handleKyHocChange}
             options={kyHocOptions}
-            placeholder="Chọn kỳ học"
+            placeholder="Chọn học kỳ"
           />
         </div>
       </div>

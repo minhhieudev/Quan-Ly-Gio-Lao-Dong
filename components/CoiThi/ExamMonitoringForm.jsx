@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
 import { PlusOutlined } from "@ant-design/icons";
+import { User } from "../models/User";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -43,7 +44,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [selectedTab, setSelectedTab] = useState('Kết quả coi thi');
     const [loadings, setLoadings] = useState(true);
     const [isAddingNew, setIsAddingNew] = useState(false);
-    const [newHocPhan, setNewHocPhan] = useState("");
+    const [newHocPhan, setNewHocPhan] = useState([]);
 
     const [currentHocPhan, setCurrentHocPhan] = useState(null);
 
@@ -90,6 +91,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     };
 
     const handleSaveNewHocPhan = () => {
+        console.log('newHocPhannewHocPhan',newHocPhan)
         const newHocPhanObj = {
             _id: Math.random().toString(36).substr(2, 9),
             hocPhan: newHocPhan,
@@ -106,18 +108,25 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         setNewHocPhan("");
     };
 
-    const convertDateFormat = (dateString) => {
-        const parts = dateString.split('/');
-        return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-    };
 
     const handleSelectChange = (setCurrentHocPhan) => {
-        const selectedHocPhan = listSelect.find(item => item.hocPhan.join(', ') == setCurrentHocPhan);
+        const selectedHocPhan = listSelect.find(item => item.hocPhan.join(', ') === setCurrentHocPhan);
+        console.log(selectedHocPhan);
 
         if (selectedHocPhan) {
-            setValue("ngayThi", convertDateFormat(selectedHocPhan.ngayThi)); // Lấy giá trị từ selectedHocPhan
-            setValue("ky", selectedHocPhan.ky || '');
-            setValue("thoiGianThi", selectedHocPhan.time.join(',') || ''); // Đảm bảo bạn có trường này
+            // Chuyển đổi định dạng ngày từ "DD-MM-YYYY" sang "YYYY-MM-DD"
+            const [day, month, year] = selectedHocPhan.ngayThi.split('-');
+            const formattedDate = `${year}-${month}-${day}`; // Định dạng lại thành "YYYY-MM-DD"
+
+            setValue("ngayThi", formattedDate); // Lấy giá trị từ selectedHocPhan
+
+            // Kiểm tra xem thoiGian có phải là mảng không trước khi sử dụng Math.max
+            if (Array.isArray(selectedHocPhan.thoiGian) && selectedHocPhan.thoiGian.length > 0) {
+                setValue("thoiGianThi", Math.max(...selectedHocPhan.thoiGian) || ''); // Lấy giá trị lớn nhất của mảng selectedHocPhan.thoiGian
+            } else {
+                setValue("thoiGianThi", ''); // Hoặc thiết lập giá trị mặc định nếu không phải là mảng
+            }
+
             setValue("ghiChu", selectedHocPhan.ghiChu); // Đảm bảo bạn có trường này
         }
     };
@@ -162,29 +171,28 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                setLoading(true);
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/pc-coi-thi?namHoc=${namHoc}&hocKy=${ky}&gvGiangDay=${currentUser.username}`,
+                    {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                    }
+                );
 
-                const res = await fetch(`/api/giaovu/pc-coi-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                });
-
-
-                if (res.ok) {
-                    const data = await res.json();
-                    setListSelect(data);
-                    console.log('Data:', data)
-                    //setFilteredData(data);
-                } else {
-                    toast.error("Không thể tải dữ liệu");
+                if (!res.ok) {
+                    throw new Error(`HTTP error! Status: ${res.status}`);
                 }
-                setLoading(false);
+                const data = await res.json();
+                setListSelect(data);
+                console.log('Data:', data)
+
+
             } catch (err) {
-                console.log('Error:', err);
-                toast.error("Lỗi khi tải dữ liệu");
-                setLoading(false);
+                console.log('error:', err);
+                toast.error("An error occurred while fetching data");
             }
         };
+
 
         fetchData();
     }, [namHoc, ky]);
@@ -218,7 +226,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
-                toast.success("Record saved successfully!");
+                toast.success("Thêm mới thành công!");
                 onReset(); // Reset form after success
             } else {
                 toast.error("Failed to save record");
@@ -252,6 +260,23 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             }
         } catch (err) {
             toast.error("An error occurred while deleting data");
+        }
+    };
+
+    const handleDeleteAccount = async (email) => {
+        try {
+            // Kiểm tra xem tài khoản có tồn tại
+            const existingUser = await User.findOne({ email: email }); // Thay đổi theo cách bạn truy vấn người dùng
+
+            if (existingUser) {
+                // Nếu tài khoản tồn tại, thực hiện xóa
+                await User.deleteOne({ email: email }); // Thay đổi theo cách bạn xóa người dùng
+                console.log('Tài khoản đã được xóa thành công');
+            } else {
+                console.log('Tài khoản không tồn tại');
+            }
+        } catch (error) {
+            console.error("Lỗi khi xóa tài khoản:", error);
         }
     };
 
@@ -363,8 +388,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                         placeholder="Nhập hoặc chọn tên học phần..."
                                                         {...field}
                                                         options={listSelect.map((item, index) => ({
-                                                            value: item.hocPhan.join(', '),
-                                                            label: item.hocPhan.join(', '),
+                                                            value: Array.isArray(item.hocPhan) ? item.hocPhan.join(', ') : item.hocPhan, // Kiểm tra nếu hocPhan là mảng
+                                                            label: Array.isArray(item.hocPhan) ? item.hocPhan.join(', ') : item.hocPhan, // Kiểm tra nếu hocPhan là mảng
                                                             key: `${item.hocPhan[0]}-${index}` // key duy nhất
                                                         }))}
 
@@ -391,7 +416,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     <Space className="w-full">
                                         <Input
                                             value={newHocPhan}
-                                            onChange={(e) => setNewHocPhan(e.target.value)}
+                                            onChange={(e) => setNewHocPhan(e.target.value.split(','))}
                                             placeholder="Nhập tên học phần mới..."
                                             className="w-[90%]"
                                         />

@@ -35,8 +35,10 @@ export const GET = async (req) => {
     // if (!namHoc ) {
     //   return new Response("Thiếu tham số namHoc .", { status: 400 });
     // }
+    console.log('filter',filter)
 
     const pcGiangDays = await PcCoiThi.find(filter);
+    console.log('pcGiangDays',pcGiangDays)
 
     return new Response(JSON.stringify(pcGiangDays), { status: 200 });
   } catch (err) {
