@@ -241,7 +241,7 @@ const App = () => {
         <Button
           type="link"
           className="text-blue-500 font-bold"
-          onClick={() => router.push(`/admin/work-hours/${type}/${currentUser._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
+          onClick={() => router.push(`/admin/work-hours/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
         >
           {record?.user?.username}
         </Button>
@@ -428,7 +428,7 @@ const App = () => {
         <Button
           type="link"
           className="text-blue-500 font-bold"
-          onClick={() => router.push(`/admin/work-hours/${type}/${currentUser._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
+          onClick={() => router.push(`/admin/work-hours/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
         >
           {record.user.username}
         </Button>

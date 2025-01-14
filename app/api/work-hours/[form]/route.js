@@ -21,7 +21,6 @@ const models = {
 };
 
 export const POST = async (req, { params }) => {
-  console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh')
 
   try {
     const { form } = params;
@@ -95,9 +94,6 @@ export const GET = async (req, { params }) => {
     const namHoc = url.searchParams.get('namHoc');
     const ky = url.searchParams.get('ky');
     let type = ''
-
-
-    console.log("User:", user);
 
     if (!user) {
       return new Response("User and type parameters are required", { status: 400 });
