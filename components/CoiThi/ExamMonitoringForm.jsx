@@ -11,7 +11,6 @@ import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
 import { PlusOutlined } from "@ant-design/icons";
-import { User } from "../models/User";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;

@@ -1,5 +1,7 @@
 import User from "@models/User";
 import { connectToDB } from "@mongodb";
+import { hash } from 'bcryptjs';
+
 
 // GET all users
 export const GET = async (req, res) => {
@@ -20,6 +22,7 @@ export const POST = async (req, res) => {
   try {
     await connectToDB();
     const { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV } = await req.json();
+    const hashedPassword = await hash("123456@", 10);
 
     // Kiểm tra email đã tồn tại
     let newUser = await User.findOne({ email });
@@ -34,6 +37,7 @@ export const POST = async (req, res) => {
       // Nếu chưa tồn tại, tạo mới user
       const newUser = new User({
         username,
+        password: hashedPassword,
         email,
         khoa,
         role,

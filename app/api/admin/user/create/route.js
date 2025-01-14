@@ -2,14 +2,14 @@ import User from "@models/User";
 import ChucVu from "@models/ChucVu";
 import MaNgach from "@models/MaNgach";
 import { connectToDB } from "@mongodb";
+import { hash } from 'bcryptjs';
 
 export const POST = async (req) => {
   try {
     await connectToDB();
 
     const { users } = await req.json();
-
-    console.log("Dữ liệu nhận được:", users);
+    const hashedPassword = await hash("123456@", 10);
 
     if (!users || !Array.isArray(users)) {
       return new Response(JSON.stringify({ message: "Invalid data format" }), { status: 400 });
@@ -18,9 +18,13 @@ export const POST = async (req) => {
     // Duyệt qua danh sách users và xử lý từng user
     const processedUsers = await Promise.all(
       users.map(async (user) => {
-        const maGV = user[1];
-        const maNgach = user[6];
+        const maGV = user[0];
+        const maNgach = user[3];
+        //const maCV = user[3];
         const maCV = user[3];
+
+        // Tạo email mặc định
+        const email = `${maGV}@gmail.com`;
 
         // Lấy thông tin từ bảng MaNgach dựa trên maNgach
         const maNgachData = await MaNgach.findOne({ maNgach });
@@ -52,6 +56,8 @@ export const POST = async (req) => {
           { maGV },
           {
             username: user[1], // Cập nhật các trường thông tin
+            email,
+            password: hashedPassword,
             maNgach, // để lấy giờ chuẩn giảng dạy và 2 cái nữa
             maCV, // để lấy miễn giảm GD  và nhân với gcgd để lấy số giờ miễn giảm   ví dụ 0.15 * 270
             dinhMucGioChuan, // Gán giá trị dinhMucGioChuan đã tính toán
