@@ -21,7 +21,6 @@ const models = {
 };
 
 export const POST = async (req, { params }) => {
-
   try {
     const { form } = params;
     if (!models[form]) {
@@ -30,13 +29,26 @@ export const POST = async (req, { params }) => {
 
     await connectToDB();
     const body = await req.json();
+    console.log('bodybody:', body);
 
     const model = models[form];
-    const newRecord = await model.create(body);
-    return new Response(JSON.stringify(newRecord), { status: 200 });
+
+    // Kiểm tra xem bản ghi đã tồn tại chưa
+    const { maMH, namHoc, user, ky } = body;
+    const existingRecord = await model.findOne({ maMH, namHoc, user, ky });
+
+    if (existingRecord) {
+      // Nếu bản ghi đã tồn tại, cập nhật bản ghi
+      const updatedRecord = await model.findByIdAndUpdate(existingRecord._id, body, { new: true });
+      return new Response(JSON.stringify(updatedRecord), { status: 200 });
+    } else {
+      // Nếu không tồn tại, tạo bản ghi mới
+      const newRecord = await model.create(body);
+      return new Response(JSON.stringify(newRecord), { status: 200 });
+    }
   } catch (err) {
     console.log(err);
-    return new Response(`Failed to create new ${form} record`, { status: 500 });
+    return new Response(`Failed to create or update ${form} record`, { status: 500 });
   }
 };
 
@@ -50,6 +62,8 @@ export const PUT = async (req, { params }) => {
 
     await connectToDB();
     const body = await req.json();
+
+
     const { id, ...updateData } = body;
     const model = models[form];
     const updatedRecord = await model.findByIdAndUpdate(id, updateData, { new: true });

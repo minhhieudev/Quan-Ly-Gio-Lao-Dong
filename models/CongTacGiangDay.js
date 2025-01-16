@@ -8,6 +8,9 @@ const CongTacGiangDaySchema = new mongoose.Schema({
   hocPhan: {
     type: String,
   },
+  maMH: {
+    type: String,
+  },
   ky: {
     type: String,
   },
@@ -24,7 +27,7 @@ const CongTacGiangDaySchema = new mongoose.Schema({
     type: Number,
   },
   soTietTH: {
-    type: Number,
+    type: String,
   },
   soTietQCLT: {
     type: Number,

@@ -102,7 +102,26 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   }, [soTietLT, setValue]);
 
   useEffect(() => {
-    if (soTietTH > 0) {
+
+    if (soTietTH && /^\d+\s*giờ$/.test(soTietTH)) {
+      const match = soTietTH.match(/(\d+)/); // Tìm số trong chuỗi
+      if (match) {
+        const numericValue = parseInt(match[0], 10); 
+
+        if (currentHocPhan?.diaDiem?.toLowerCase() === "dhpy") {
+          const result = (numericValue / 45) * 10
+          setValue("soTietQCTH", result);
+        }
+        else {
+          const result = (numericValue / 45) * 15
+          setValue("soTietQCTH", result);
+        }
+      } else {
+        console.log("Không tìm thấy giá trị số trong soTietTH");
+      }
+    }
+
+    else {
 
       if (currentHocPhan) {
         let result;
@@ -166,7 +185,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
       }
     }
-    else {
+    if (!currentHocPhan) {
       setValue("soTietQCTH", 0);
     }
   }, [setValue, currentHocPhan, soTietTH]);
@@ -177,8 +196,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const handleSaveNewHocPhan = () => {
     const newHocPhanObj = {
-      _id: Math.random().toString(36).substr(2, 9), 
-      tenMH: newHocPhan, 
+      _id: Math.random().toString(36).substr(2, 9),
+      tenMH: newHocPhan,
       soTC: 0,
       lop: "",
       soSVDK: 0,
@@ -299,7 +318,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
       if (res.ok) {
         const newData = await res.json();
-        if (editRecord && newData) {
+        const existingIndex = dataList.findIndex(item => item._id === newData._id);
+        if ((editRecord && newData ) || (existingIndex !== -1)) {
           setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
         } else {
           setDataList(prevData => [...prevData, newData]);
@@ -351,6 +371,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   };
 
   const handleSelectChange = (value) => {
+    setEditRecord(null);
     const selectedHocPhan = listSelect.find(item => item.tenMH == value);
     if (selectedHocPhan) {
       setCurrentHocPhan(selectedHocPhan)
@@ -661,7 +682,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         name="soTietTH"
                         control={control}
                         rules={{ required: "Số tiết TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
-                        render={({ field }) => <InputNumber className="input-number w-14" {...field} />}
+                        render={({ field }) => <Input className="input-number w-14" {...field} />}
                       />
                     </Form.Item>
                   </div>

@@ -145,7 +145,7 @@ const TeachingAssignmentForm = () => {
                 name="soTietTH"
                 control={control}
                 rules={{ required: "Số tiết TH là bắt buộc" }}
-                render={({ field }) => <InputNumber min={0} placeholder="Nhập số tiết TH..." style={{ width: '100%' }} {...field} />}
+                render={({ field }) => <Input placeholder="Nhập số tiết TH..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
           </Col>
