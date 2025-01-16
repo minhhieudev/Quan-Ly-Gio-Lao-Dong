@@ -161,7 +161,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
 
             if (res.ok) {
                 setDataList(prevData => prevData.filter(item => item._id !== id));
-                toast.success("Record deleted successfully!");
+                toast.success("Xóa thành công");
             } else {
                 toast.error("Failed to delete record");
             }
@@ -259,7 +259,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[10%]">
+            <div className="p-5 shadow-xl bg-white rounded-xl flex-[30%]">
                 <Title className="text-center" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">

@@ -236,7 +236,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
             if (res.ok) {
                 setDataList(prevData => prevData.filter(item => item._id !== id));
-                toast.success("Record deleted successfully!");
+                toast.success("Xóa thành công");
             } else {
                 toast.error("Failed to delete record");
             }
