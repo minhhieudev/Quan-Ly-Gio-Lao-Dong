@@ -33,13 +33,6 @@ const UserSchema = new mongoose.Schema({
   hocHamHocVi: {
     type: String,
   },
- 
-  phanCongKiemNhiem: {
-    type: [mongoose.Schema.Types.ObjectId], // Thay đổi kiểu dữ liệu thành mảng ObjectId
-    ref: "PhanCongKiemNhiem", // Tham chiếu đến mô hình PhanCongKiemNhiem
-    default: [] // Đặt mặc định là mảng rỗng
-  },
- 
 
   maGV: {
     type: String,

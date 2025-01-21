@@ -21,7 +21,7 @@ export const GET = async (req, res) => {
 export const POST = async (req, res) => {
   try {
     await connectToDB();
-    const { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV } = await req.json();
+    const { username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
     const hashedPassword = await hash("123456@", 10);
 
     // Kiểm tra email đã tồn tại
@@ -29,7 +29,7 @@ export const POST = async (req, res) => {
 
     if (newUser) {
       // Nếu tồn tại, cập nhật thông tin
-      newUser = { username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV }
+      newUser = { username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV }
       await newUser.save();
 
       return new Response(JSON.stringify(newUser), { status: 200 });
@@ -41,7 +41,7 @@ export const POST = async (req, res) => {
         email,
         khoa,
         role,
-        maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy,  maGV
+        maNgach, hocHamHocVi, donViQuanLy,  maGV
       });
 
       await newUser.save();
@@ -58,7 +58,7 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { id, username, email, khoa, role, maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV } = await req.json();
+    const { id, username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
 
     let userToUpdate = await User.findById(id);
 
@@ -66,19 +66,18 @@ export const PUT = async (req, res) => {
       return new Response("User not found", { status: 404 });
     }
 
-    await User.findByIdAndDelete(id);
+    userToUpdate.username = username;
+    userToUpdate.email = email;
+    userToUpdate.khoa = khoa;
+    userToUpdate.role = role;
+    userToUpdate.maNgach = maNgach;
+    userToUpdate.hocHamHocVi = hocHamHocVi;
+    userToUpdate.donViQuanLy = donViQuanLy;
+    userToUpdate.maGV = maGV;
 
-    const newUser = new User({
-      username,
-      email,
-      khoa,
-      role,
-      maNgach, hocHamHocVi, dinhMucGioChuan, chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH, donViQuanLy, maGV
-    });
+    await userToUpdate.save();
 
-    await newUser.save();
-
-    return new Response(JSON.stringify(newUser), { status: 200 });
+    return new Response(JSON.stringify(userToUpdate), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response("Failed to update user", { status: 500 });

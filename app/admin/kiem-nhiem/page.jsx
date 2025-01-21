@@ -91,7 +91,7 @@ const KiemNhiemForm = () => {
 
     const fetchData2 = async () => {
         try {
-            const res = await fetch(`/api/work-hours/select/kiem-nhiem`, {
+            const res = await fetch(`/api/admin/select/kiem-nhiem`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -176,8 +176,8 @@ const KiemNhiemForm = () => {
     };
     const handleEdit = (record) => {
         setEditRecord(record);
-        setValue("chucVu", record.chucVu._id); // Thiết lập ID của chucVu
-        setValue("user", record.user._id);
+        setValue("chucVu", record?.chucVu?._id); // Thiết lập ID của chucVu
+        setValue("user", record?.user?._id);
 
         // Chuyển đổi startTime và endTime thành đối tượng dayjs
         setValue("startTime", dayjs(record.startTime)); // Chuyển đổi thành dayjs
@@ -215,7 +215,7 @@ const KiemNhiemForm = () => {
             title: 'Chức vụ / Công việc',
             dataIndex: 'chucVu',
             key: 'chucVu',
-            render: (text) => text.tenCV,
+            render: (text) => text?.tenCV,
             className: 'text-red-700 font-bold ',
 
         },
@@ -223,7 +223,7 @@ const KiemNhiemForm = () => {
             title: 'Người nhận nhiệm vụ',
             dataIndex: 'user',
             key: 'user',
-            render: (text) => text.username,
+            render: (text) => text?.username,
             className: 'text-blue-700 font-bold ',
 
         },

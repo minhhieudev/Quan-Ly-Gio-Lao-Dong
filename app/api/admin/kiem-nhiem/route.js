@@ -12,6 +12,7 @@ export const GET = async (req) => {
     const page = parseInt(searchParams.get('page')) || 1; // Tham số trang, mặc định là 1
     const pageSize = parseInt(searchParams.get('pageSize')) || 10; // Kích thước trang, mặc định là 10
     console.log('Khoa:', khoa)
+
     if (search !== '' && khoa !== ''&& khoa !== 'undefined') {
       // Lấy dữ liệu mà không có điều kiện tìm kiếm
       const dataAll = await PhanCongKiemNhiem.find()
@@ -102,6 +103,7 @@ export const POST = async (req, res) => {
     if (existing) {
       existing.startTime = startTime;
       existing.endTime = endTime;
+      existing.ghiChu = ghiChu;
       await existing.save();
 
       return new Response(JSON.stringify(existing), { status: 200 });

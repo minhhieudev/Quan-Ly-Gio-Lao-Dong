@@ -9,7 +9,6 @@ export const GET = async (req) => {
     await connectToDB();
 
     const data = await ChucVu.find()
-    console.log('3333',data)
 
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
