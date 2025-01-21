@@ -2,12 +2,13 @@
 "use client";
 
 import { useState } from "react";
-import {  Table, Spin, Pagination } from "antd";
+import { Table, Spin, Pagination, Space } from "antd";
 import { useSession } from "next-auth/react";
 
+import dayjs from 'dayjs';
 
 
-const TableKiemNhiem = ({ data}) => {
+const TableKiemNhiem = ({ data }) => {
   const [loading, setLoading] = useState(false);
 
   const [current, setCurrent] = useState(1);
@@ -18,44 +19,50 @@ const TableKiemNhiem = ({ data}) => {
   const columns = [
     {
       title: 'STT',
-      dataIndex: 'index',
-      width: 10,
-      render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
+      dataIndex: 'stt',
+      key: 'stt',
+      render: (_, __, index) => index + 1,
     },
     {
-      title: 'Mã chức vụ',
-      dataIndex: 'maCV',
-      key: 'maCV',
-      render: (text) => <span style={{ color: 'blue', fontWeight: 'bold' }}>{text}</span>,
+      title: 'Chức vụ / Công việc',
+      dataIndex: 'chucVu',
+      key: 'chucVu',
+      render: (text) => text.tenCV,
+      className: 'text-red-700 font-bold ',
+
     },
     {
-      title: 'Tên chức vụ',
-      dataIndex: 'tenCV',
-      key: 'tenCV',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      title: 'Người nhận nhiệm vụ',
+      dataIndex: 'user',
+      key: 'user',
+      render: (text) => text.username,
+      className: 'text-blue-700 font-bold ',
+
     },
     {
-      title: 'Loại chức vụ',
-      dataIndex: 'loaiCV',
-      key: 'loaiCV',
-      render: (text) => <span style={{ color: 'green', fontWeight: 'bold' }}>{text}</span>,
+      title: 'Ngày bắt đầu',
+      dataIndex: 'startTime',
+      key: 'startTime',
+      render: (text) => dayjs(text).format('DD/MM/YYYY'),
+      className: 'text-green-700 font-bold ',
     },
     {
-      title: 'Tỷ lệ % miễn giảm',
-      dataIndex: 'soMien',
-      key: 'soMien',
-      render: (text) => <span style={{ color: 'red', fontWeight: 'bold' }}>{text}</span>,
+      title: 'Ngày kết thúc',
+      dataIndex: 'endTime',
+      key: 'endTime',
+      render: (text) => dayjs(text).format('DD/MM/YYYY'),
+      className: 'text-blue-700 font-bold ',
     },
-    // {
-    //   title: 'Số SV',
-    //   dataIndex: 'soSVDK',
-    //   key: 'soSVDK',
-    //   width: '1%',
-    //   render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-    // },
+    {
+      title: 'Ghi chú',
+      dataIndex: 'ghiChu',
+      key: 'ghiChu',
+      className: 'text-black font-bold',
+
+    },
+
    
   ];
-
   // Phân trang dữ liệu
   const paginatedData = data.slice(
     (current - 1) * pageSize,

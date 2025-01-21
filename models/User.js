@@ -34,18 +34,12 @@ const UserSchema = new mongoose.Schema({
     type: String,
   },
  
-  chucVuChinhQuyen: {
-    type: [String],
-    default: ["Không"]
+  phanCongKiemNhiem: {
+    type: [mongoose.Schema.Types.ObjectId], // Thay đổi kiểu dữ liệu thành mảng ObjectId
+    ref: "PhanCongKiemNhiem", // Tham chiếu đến mô hình PhanCongKiemNhiem
+    default: [] // Đặt mặc định là mảng rỗng
   },
-  chucVuKiemNhiem: {
-    type: [String],
-    default: ["Không"]
-  },
-  chucVuDoanTheXH: {
-    type: [String],
-    default: ["Không"]
-  },
+ 
 
   maGV: {
     type: String,

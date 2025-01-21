@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber,Spin,Select, Tabs, Table, Popconfirm } from "antd";
+import { Button, Input, Form, Space, Typography, InputNumber, Spin, Select, Tabs, Table, Popconfirm } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -31,6 +31,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const router = useRouter();
     const [loadings, setLoadings] = useState(true);
     const [dataListSelect, setDataListSelect] = useState([]);
+    const [listChucVu, setListChucVu] = useState([]);
     const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
 
 
@@ -38,7 +39,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         defaultValues: formSchema,
     });
 
-    const soTietQC = watch("soTietQC");
 
     const { data: session } = useSession();
     const currentUser = session?.user;
@@ -54,6 +54,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             reset(formSchema);
         }
     }, [editRecord, reset]);
+
+    useEffect(() => {
+        const result = currentUser.maNgachInfo.GCGD * watch("tyLeMienGiam")
+        setValue("soTietQC", result);
+
+    }, [watch("tyLeMienGiam"), setValue]);
 
     useEffect(() => {
         if (!currentUser?._id) return;
@@ -77,7 +83,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         };
         const fetchData2 = async () => {
             try {
-                const res = await fetch(`/api/work-hours/select/kiem-nhiem`, { /////////////////////////////////////
+                const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -91,8 +97,25 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 toast.error("An error occurred while fetching data");
             }
         };
+        const fetchData3 = async () => {
+            try {
+                const res = await fetch(`/api/work-hours/select/chuc-vu`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setListChucVu(data);
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+            } catch (err) {
+                toast.error("An error occurred while fetching data");
+            }
+        };
 
         fetchData2();
+        fetchData3();
 
         fetchData();
     }, [currentUser]);
@@ -226,7 +249,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         }, 500);
     };
 
-    
+
     const handleSelectChange = (value) => {
         setValue("tyLeMienGiam", value.soMien);
     };
@@ -256,10 +279,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                             className="input-select"
                                             placeholder="Chọn công việc, chức vụ ..."
                                             {...field}
-                                            options={dataListSelect.map(item => ({ label: item.tenCV, value: item.maCV }))}
+                                            options={dataListSelect.map(item => ({ label: item.chucVu.tenCV, value: item.chucVu.tenCV }))}
                                             onChange={(value) => {
                                                 field.onChange(value); // Cập nhật giá trị cho Controller
-                                                const selectedItem = dataListSelect.find(item => item.maCV === value); // Lấy item đầy đủ
+                                                const selectedItem = listChucVu.find(item => item.tenCV === value); // Lấy item đầy đủ
                                                 handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
                                             }}
                                         />
@@ -358,7 +381,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                             />
 
                         }
-                     
+
                     </TabPane>
                     <TabPane tab="PHỤ LỤC CÔNG VIỆC" key="Phụ lục công việc" className="text-center">
                         {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect} />}

@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { connectToDB } from "@mongodb";
 import User from "@models/User";
+import MaNgach from "@models/MaNgach";
 
 const handler = NextAuth({
   providers: [
@@ -43,10 +44,17 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      const mongodbUser = await User.findOne({ email: session.user.email })
-      session.user._id = mongodbUser._id.toString()
+      const mongodbUser = await User.findOne({ email: session.user.email });
 
-      session.user = { ...session.user, ...mongodbUser._doc }
+      if (mongodbUser) {
+        session.user._id = mongodbUser._id.toString();
+        session.user = { ...session.user, ...mongodbUser._doc };
+
+        // Lấy thông tin ngạch cho người dùng
+        const maNgachInfo = await MaNgach.findOne({ maNgach: mongodbUser.maNgach }, 'GCGD');
+        session.user.maNgachInfo = maNgachInfo; // Thêm thông tin ngạch vào session
+      }
+
       return session;
     },
   },
