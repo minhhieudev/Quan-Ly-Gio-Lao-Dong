@@ -12,7 +12,7 @@ export const GET = async (req) => {
     const user = url.searchParams.get('user');
 
     const data = await PhanCongKiemNhiem.find({ user })
-      .populate('chucVu', 'tenCV')
+      .populate('chucVu')
       .populate('user', 'username khoa');
 
 

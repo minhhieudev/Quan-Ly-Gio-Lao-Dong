@@ -28,10 +28,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
     const [pageSize] = useState(6);
-    const router = useRouter();
     const [loadings, setLoadings] = useState(true);
     const [dataListSelect, setDataListSelect] = useState([]);
-    const [listChucVu, setListChucVu] = useState([]);
     const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
 
 
@@ -56,7 +54,13 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     }, [editRecord, reset]);
 
     useEffect(() => {
-        const result = currentUser.maNgachInfo.GCGD * watch("tyLeMienGiam")
+        const value = watch("tyLeMienGiam")
+        let result;
+        if (value < 1) {
+            result = currentUser.maNgachInfo.GCGD * watch("tyLeMienGiam")
+        } else {
+            result = value;
+        }
         setValue("soTietQC", result);
 
     }, [watch("tyLeMienGiam"), setValue]);
@@ -66,6 +70,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
+                setLoading(true);
+
                 const res = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
@@ -90,32 +96,16 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 if (res.ok) {
                     const data = await res.json();
                     setDataListSelect(data);
-                } else {
-                    toast.error("Failed to fetch data");
-                }
-            } catch (err) {
-                toast.error("An error occurred while fetching data");
-            }
-        };
-        const fetchData3 = async () => {
-            try {
-                const res = await fetch(`/api/work-hours/select/chuc-vu`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setListChucVu(data);
-                } else {
-                    toast.error("Failed to fetch data");
-                }
-            } catch (err) {
-                toast.error("An error occurred while fetching data");
-            }
-        };
+                    console.log('Data:', data)
 
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+            } catch (err) {
+                toast.error("An error occurred while fetching data");
+            }
+        };
         fetchData2();
-        fetchData3();
 
         fetchData();
     }, [currentUser]);
@@ -123,6 +113,83 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const calculateTotals = () => {
         onUpdateCongTacKiemNhiem(totalHours);
     };
+
+    useEffect(() => {
+      
+            handelKiemNhiem();
+    }, [dataListSelect]);
+
+    const handelKiemNhiem = () => {
+        const events = [];
+    
+        // Chuẩn bị danh sách sự kiện từ dataListSelect
+        dataListSelect.forEach(item => {
+            if (item.startTime && item.endTime && item.chucVu?.soMien !== undefined) {
+                events.push(
+                    { time: item.startTime, type: "start", value: item.chucVu.soMien },
+                    { time: item.endTime, type: "end", value: item.chucVu.soMien }
+                );
+            } else {
+                console.warn("Dữ liệu không hợp lệ:", item);
+            }
+        });
+    
+        // Sắp xếp sự kiện theo thời gian và loại sự kiện
+        events.sort((a, b) => new Date(a.time) - new Date(b.time) || (a.type === "end" ? -1 : 1));
+    
+        let currentMax = 0;
+        let activeValues = [];
+        let results = [];
+        let previousTime = null;
+    
+        // Duyệt qua các sự kiện
+        for (const event of events) {
+            const { time, type, value } = event;
+    
+            // Ghi nhận kết quả nếu có khoảng thời gian trước đó
+            if (previousTime !== null && new Date(time) > new Date(previousTime)) {
+                results.push({
+                    from: previousTime,
+                    to: time,
+                    max: currentMax || 0,
+                });
+            }
+    
+            // Cập nhật thời gian hiện tại
+            previousTime = time;
+    
+            // Xử lý sự kiện
+            if (type === "start") {
+                activeValues.push(value);
+            } else if (type === "end") {
+                const index = activeValues.indexOf(value);
+                if (index > -1) {
+                    activeValues.splice(index, 1);
+                }
+            }
+    
+            // Cập nhật giá trị lớn nhất hiện tại
+            currentMax = activeValues.length > 0 ? Math.max(...activeValues) : 0;
+        }
+    
+        console.log(
+            "Danh sách kết quả:",
+            results.map(r => ({
+                from: new Date(r.from).toLocaleDateString("vi-VN"),
+                to: new Date(r.to).toLocaleDateString("vi-VN"),
+                max: r.max,
+            }))
+        );
+        
+    
+        // Cập nhật danh sách kết quả vào state nếu cần
+        // setDataList(results.map(r => ({
+        //     chucVuCongViec: `Từ ${new Date(r.from).toLocaleDateString("vi-VN")} đến ${new Date(r.to).toLocaleDateString("vi-VN")}`,
+        //     thoiGianTinh: `${new Date(r.from).toLocaleDateString("vi-VN")} - ${new Date(r.to).toLocaleDateString("vi-VN")}`,
+        //     soTietQC: r.max,
+        // })));
+    };
+    
 
     useEffect(() => {
         calculateTotals();
@@ -251,7 +318,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
 
     const handleSelectChange = (value) => {
-        setValue("tyLeMienGiam", value.soMien);
+        setValue("tyLeMienGiam", value?.chucVu?.soMien);
     };
 
     return loading ? (
@@ -279,11 +346,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                             className="input-select"
                                             placeholder="Chọn công việc, chức vụ ..."
                                             {...field}
-                                            options={dataListSelect.map(item => ({ label: item.chucVu.tenCV, value: item.chucVu.tenCV }))}
+                                            options={dataListSelect.map(item => ({ label: item.chucVu.tenCV, value: item.chucVu._id }))}
                                             onChange={(value) => {
                                                 field.onChange(value); // Cập nhật giá trị cho Controller
-                                                const selectedItem = listChucVu.find(item => item.tenCV === value); // Lấy item đầy đủ
-                                                handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
+                                                handleSelectChange(dataListSelect.find(item => item.chucVu._id === value)); // Gọi hàm với item đầy đủ
                                             }}
                                         />
                                     )}

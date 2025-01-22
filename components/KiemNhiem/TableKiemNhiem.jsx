@@ -31,14 +31,14 @@ const TableKiemNhiem = ({ data }) => {
       className: 'text-red-700 font-bold ',
 
     },
-    {
-      title: 'Người nhận nhiệm vụ',
-      dataIndex: 'user',
-      key: 'user',
-      render: (text) => text.username,
-      className: 'text-blue-700 font-bold ',
+    // {
+    //   title: 'Người nhận nhiệm vụ',
+    //   dataIndex: 'user',
+    //   key: 'user',
+    //   render: (text) => text.username,
+    //   className: 'text-blue-700 font-bold ',
 
-    },
+    // },
     {
       title: 'Ngày bắt đầu',
       dataIndex: 'startTime',
@@ -52,6 +52,13 @@ const TableKiemNhiem = ({ data }) => {
       key: 'endTime',
       render: (text) => dayjs(text).format('DD/MM/YYYY'),
       className: 'text-blue-700 font-bold ',
+    },
+    {
+      title: '% miễn giảm',
+      dataIndex: 'chucVu',
+      key: 'chucVu',
+      render: (text) => text?.soMien,
+      className: ' font-bold ',
     },
     {
       title: 'Ghi chú',
@@ -99,6 +106,10 @@ const TableKiemNhiem = ({ data }) => {
           showSizeChanger
           className="flex justify-end"
         />
+      </div>
+
+      <div className="">
+
       </div>
     </div>
   );
