@@ -30,6 +30,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const [pageSize] = useState(6);
     const [loadings, setLoadings] = useState(true);
     const [dataListSelect, setDataListSelect] = useState([]);
+    const [dataTong, setDataTong] = useState([]);
     const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
 
 
@@ -115,81 +116,101 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
     useEffect(() => {
-      
-            handelKiemNhiem();
+
+        handelKiemNhiem();
     }, [dataListSelect]);
 
     const handelKiemNhiem = () => {
+        const dau_nam = new Date('2025-10'); // Tháng bắt đầu (tháng 10 năm 2024)
+        const cuoi_nam = new Date('2026-5'); // Tháng kết thúc (tháng 5 năm 2025)
+
         const events = [];
-    
-        // Chuẩn bị danh sách sự kiện từ dataListSelect
-        dataListSelect.forEach(item => {
+
+        // Tạo danh sách sự kiện từ dataListSelect
+        dataListSelect.forEach((item) => {
             if (item.startTime && item.endTime && item.chucVu?.soMien !== undefined) {
-                events.push(
-                    { time: item.startTime, type: "start", value: item.chucVu.soMien },
-                    { time: item.endTime, type: "end", value: item.chucVu.soMien }
-                );
-            } else {
-                console.warn("Dữ liệu không hợp lệ:", item);
+
+                const dateStart = new Date(item.startTime);
+                const dateEnd = new Date(item.endTime);
+
+                const yearMonthStart = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}`;
+                const yearMonthEnd = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}`;
+
+                const gValue = item.chucVu.soMien < 1
+                    ? item.chucVu.soMien * currentUser.maNgachInfo.GCGD
+                    : item.chucVu.soMien;
+
+                if (dateStart.getMonth() < dau_nam.getMonth() && dateStart.getFullYear() == dau_nam.getFullYear()) {
+                    const yearMonthStart = `${dateStart.getFullYear()}-${(dau_nam.getMonth() + 1).toString().padStart(2, '0')}`;
+                    events.push({ time: yearMonthStart, type: "start", gValue });
+                }
+                else {
+                    events.push({ time: yearMonthStart, type: "start", gValue });
+                }
+
+                if (dateEnd.getMonth() > cuoi_nam.getMonth() && dateEnd.getFullYear() === cuoi_nam.getFullYear()) {
+                    const yearMonthEnd = `${dateStart.getFullYear()}-${(cuoi_nam.getMonth() + 1).toString().padStart(2, '0')}`;
+                    events.push({ time: yearMonthEnd, type: "end", gValue });
+                }
+                else {
+                    events.push({ time: yearMonthEnd, type: "end", gValue });
+                }
+
+
             }
         });
-    
-        // Sắp xếp sự kiện theo thời gian và loại sự kiện
-        events.sort((a, b) => new Date(a.time) - new Date(b.time) || (a.type === "end" ? -1 : 1));
-    
-        let currentMax = 0;
-        let activeValues = [];
-        let results = [];
+        // Sắp xếp dựa trên giá trị thời gian
+        events.sort((a, b) => {
+            const dateA = new Date(a.time);
+            const dateB = new Date(b.time);
+            return dateA - dateB;
+        });
+
+        console.log(events);
+
         let previousTime = null;
-    
+        let currentMax = 0;
+        const activeValues = [];
+        const results = [];
+
         // Duyệt qua các sự kiện
-        for (const event of events) {
-            const { time, type, value } = event;
-    
-            // Ghi nhận kết quả nếu có khoảng thời gian trước đó
-            if (previousTime !== null && new Date(time) > new Date(previousTime)) {
-                results.push({
-                    from: previousTime,
-                    to: time,
-                    max: currentMax || 0,
-                });
+        events.forEach((event) => {
+            const { time, type, gValue } = event;
+
+            // Lưu kết quả nếu có khoảng thời gian trước đó
+            if (previousTime !== null && time > previousTime) {
+                results.push({ from: previousTime, to: time, max: currentMax });
             }
-    
-            // Cập nhật thời gian hiện tại
+
+            // Cập nhật thời gian trước đó
             previousTime = time;
-    
+
             // Xử lý sự kiện
             if (type === "start") {
-                activeValues.push(value);
+                activeValues.push(gValue);
             } else if (type === "end") {
-                const index = activeValues.indexOf(value);
-                if (index > -1) {
-                    activeValues.splice(index, 1);
-                }
+                const index = activeValues.indexOf(gValue);
+                if (index > -1) activeValues.splice(index, 1);
             }
-    
-            // Cập nhật giá trị lớn nhất hiện tại
-            currentMax = activeValues.length > 0 ? Math.max(...activeValues) : 0;
-        }
-    
+
+            // Cập nhật giá trị gmax
+            currentMax = activeValues.length ? Math.max(...activeValues) : 0;
+        });
+
         console.log(
             "Danh sách kết quả:",
-            results.map(r => ({
+            results.map((r) => ({
                 from: new Date(r.from).toLocaleDateString("vi-VN"),
                 to: new Date(r.to).toLocaleDateString("vi-VN"),
                 max: r.max,
             }))
         );
-        
-    
-        // Cập nhật danh sách kết quả vào state nếu cần
-        // setDataList(results.map(r => ({
-        //     chucVuCongViec: `Từ ${new Date(r.from).toLocaleDateString("vi-VN")} đến ${new Date(r.to).toLocaleDateString("vi-VN")}`,
-        //     thoiGianTinh: `${new Date(r.from).toLocaleDateString("vi-VN")} - ${new Date(r.to).toLocaleDateString("vi-VN")}`,
-        //     soTietQC: r.max,
-        // })));
+        setDataTong(results)
+        return results;
     };
-    
+
+
+
 
     useEffect(() => {
         calculateTotals();
@@ -301,7 +322,9 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     ];
 
     const totalHours = useMemo(() => {
-        return dataList.reduce((total, item) => total + (item.soTietQC || 0), 0);
+        //return dataList.reduce((total, item) => total + (item.soTietQC || 0), 0);
+
+        return dataTong.reduce((acc, item) => acc + item.max, 0);
     }, [dataList]);
 
     const handleTableChange = (pagination) => {
@@ -319,6 +342,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
     const handleSelectChange = (value) => {
         setValue("tyLeMienGiam", value?.chucVu?.soMien);
+        setValue("ghiChu", value?.ghiChu);
     };
 
     return loading ? (

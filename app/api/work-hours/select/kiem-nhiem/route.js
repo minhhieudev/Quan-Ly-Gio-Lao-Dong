@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { connectToDB } from '@mongodb';
 import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
-
+import ChucVu from "@models/ChucVu";
 
 export const GET = async (req) => {
   try {
@@ -12,8 +12,8 @@ export const GET = async (req) => {
     const user = url.searchParams.get('user');
 
     const data = await PhanCongKiemNhiem.find({ user })
-      .populate('chucVu')
-      .populate('user', 'username khoa');
+      .populate('user', 'username khoa')
+      .populate('chucVu');
 
 
     return new Response(JSON.stringify(data), { status: 200 });

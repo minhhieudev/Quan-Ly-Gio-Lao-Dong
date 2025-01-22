@@ -54,7 +54,7 @@ const TableKiemNhiem = ({ data }) => {
       className: 'text-blue-700 font-bold ',
     },
     {
-      title: '% miễn giảm',
+      title: 'Miễn giảm',
       dataIndex: 'chucVu',
       key: 'chucVu',
       render: (text) => text?.soMien,
