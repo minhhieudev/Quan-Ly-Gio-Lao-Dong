@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TableKiemNhiem from "./TableKiemNhiem";
+import TextArea from "antd/es/input/TextArea";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -68,18 +69,18 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
     useEffect(() => {
         if (!currentUser?._id) return;
-
         const fetchData = async () => {
             try {
                 setLoading(true);
 
-                const res = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
+                const res = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
                 if (res.ok) {
                     const data = await res.json();
                     setDataList(data);
+                  
                     setLoading(false)
                 } else {
                     toast.error("Failed to fetch data");
@@ -88,6 +89,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 toast.error("An error occurred while fetching data");
             }
         };
+
+        //DỮ LIỆU PHỤ LỤC
         const fetchData2 = async () => {
             try {
                 const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}`, {
@@ -97,7 +100,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 if (res.ok) {
                     const data = await res.json();
                     setDataListSelect(data);
-                    console.log('Data:', data)
 
                 } else {
                     toast.error("Failed to fetch data");
@@ -107,9 +109,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             }
         };
         fetchData2();
-
         fetchData();
-    }, [currentUser]);
+
+
+    }, []);
 
     const calculateTotals = () => {
         onUpdateCongTacKiemNhiem(totalHours);
@@ -225,7 +228,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacKiemNhiem", {
                 method,
-                body: JSON.stringify({ ...data, type, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
+                body: JSON.stringify({ ...data, type, user: currentUser._id, id: editRecord?._id, namHoc }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -341,22 +344,25 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
 
     const handleSelectChange = (value) => {
-        setValue("tyLeMienGiam", value?.chucVu?.soMien);
+        setValue("tyLeMienGiam", value?.tyLeMienGiam);
         setValue("ghiChu", value?.ghiChu);
+        setValue("chucVuCongViec", value?.chucVuCongViec);
+        setValue("thoiGianTinh", value?.thoiGianTinh);
+        setValue("soTietQC", value?.soTietQC);
     };
 
     return loading ? (
         <Loader />
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[20%]">
+            <div className="p-5 shadow-xl bg-white rounded-xl flex-[25%]">
                 <Title className="text-center" level={3}>CÔNG TÁC KIÊM NHIỆM</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">
                     <Space direction="vertical" className="w-full">
                         <div className="flex justify-between max-sm:flex-col">
                             <Form.Item
-                                label={<span className="font-bold text-xl">Chức vụ, công việc được miễn giảm hoặc tính giờ <span className="text-red-600">*</span></span>}
+                                label={<span className="font-bold text-xl">Chức vụ, công việc  <span className="text-red-600">*</span></span>}
                                 className="w-[50%]"
                                 validateStatus={errors.chucVuCongViec ? 'error' : ''}
                                 help={errors.chucVuCongViec?.message}
@@ -366,14 +372,14 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Chức vụ, công việc là bắt buộc" }}
                                     render={({ field }) => (
-                                        <Select
+                                        <Select allowClear
                                             className="input-select"
                                             placeholder="Chọn công việc, chức vụ ..."
                                             {...field}
-                                            options={dataListSelect.map(item => ({ label: item.chucVu.tenCV, value: item.chucVu._id }))}
+                                            options={dataList.map(item => ({ label: item.chucVuCongViec, value: item._id }))}
                                             onChange={(value) => {
                                                 field.onChange(value); // Cập nhật giá trị cho Controller
-                                                handleSelectChange(dataListSelect.find(item => item.chucVu._id === value)); // Gọi hàm với item đầy đủ
+                                                handleSelectChange(dataList.find(item => item._id === value)); // Gọi hàm với item đầy đủ
                                             }}
                                         />
                                     )}
@@ -426,7 +432,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                             <Controller
                                 name="ghiChu"
                                 control={control}
-                                render={({ field }) => <Input className="input-text" {...field} />}
+                                render={({ field }) => <TextArea className="input-text" {...field} />}
                             />
                         </Form.Item>
                     </Space>
@@ -444,7 +450,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 </Form>
             </div>
 
-            <div className="p-2 shadow-xl bg-white rounded-xl flex-[70%] text-center">
+            <div className="p-2 shadow-xl bg-white rounded-xl flex-[65%] text-center">
 
                 <Tabs activeKey={selectedTab} onChange={handleTabChange}>
                     <TabPane tab="DANH SÁCH CÔNG VIỆC" key="Danh sách công việc" className="text-center">

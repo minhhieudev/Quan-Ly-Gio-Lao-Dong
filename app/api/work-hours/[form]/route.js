@@ -9,6 +9,11 @@ import CongTacCoiThi from "@models/CongTacCoiThi";
 import CongTacHuongDan from "@models/CongTacHuongDan";
 import CongTacKiemNhiem from "@models/CongTacKiemNhiem";
 import CongTacRaDe from "@models/CongTacRaDe";
+import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
+import MaNgach from "@models/MaNgach";
+
+import User from "@models/User";
+
 
 const models = {
   CongTacGiangDay,
@@ -122,6 +127,9 @@ export const GET = async (req, { params }) => {
       query.namHoc = namHoc;
     }
 
+    console.log('NAM namHocnamHocnamHocnamHocnamHoc:',namHoc)
+
+
     if (ky) {
       query.ky = ky;
     }
@@ -129,13 +137,109 @@ export const GET = async (req, { params }) => {
     if (type1) {
       query.type = type1;
     }
-
-    console.log("Query:111111111111111", query);
-    console.log('formformformform', form)
-
     const records = await models[form].find(query).populate('user', 'username');
 
-    console.log('recordsrecordsrecords', records)
+    if (form == 'CongTacKiemNhiem' && records.length < 1) {
+      let kiemNhiem = []
+      let maNgachInfo
+      const currentUser = await User.find({ _id: user })
+
+      if (currentUser) {
+        maNgachInfo = await MaNgach.findOne({ maNgach: currentUser[0].maNgach }, 'GCGD');
+      }
+ 
+      const data = await PhanCongKiemNhiem.find({ user })
+        .populate('user', 'username khoa')
+        .populate('chucVu');
+
+      if (data) {
+        data.map(item => {
+          kiemNhiem.push({
+            chucVuCongViec: item.chucVu.tenCV,
+            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+            tyLeMienGiam: item.chucVu.soMien,
+            soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
+            ghiChu: item.ghiChu,
+            namHoc: namHoc,
+            user: item.user
+          });
+        });
+      }
+      if (kiemNhiem) {
+        for (const item of kiemNhiem) {
+          const existingRecord = await CongTacKiemNhiem.findOne({
+            chucVuCongViec: item.chucVuCongViec,
+            namHoc: item.namHoc,
+            user: item.user
+          });
+
+          if (existingRecord) {
+            // Update existing record
+            await CongTacKiemNhiem.findByIdAndUpdate(existingRecord._id, {
+              thoiGianTinh: item.thoiGianTinh,
+              tyLeMienGiam: item.tyLeMienGiam,
+              soTietQC: item.soTietQC,
+              ghiChu: item.ghiChu
+            });
+          } else {
+            // Create new record
+            await CongTacKiemNhiem.create({
+              ...item,
+              user: item.user,
+              type: type1
+            });
+          }
+        }
+      }
+    }
+    else {
+      console.log('NAM HOCCCCC:',namHoc)
+      let kiemNhiem = []
+      let maNgachInfo
+      const currentUser = await User.find({ _id: user })
+
+      if (currentUser) {
+        maNgachInfo = await MaNgach.findOne({ maNgach: currentUser[0].maNgach }, 'GCGD');
+      }
+
+      const data = await PhanCongKiemNhiem.find({ user })
+        .populate('user', 'username khoa')
+        .populate('chucVu');
+
+      if (data) {
+        data.map(item => {
+          kiemNhiem.push({
+            chucVuCongViec: item.chucVu.tenCV,
+            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+            tyLeMienGiam: item.chucVu.soMien,
+            soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
+            ghiChu: item.ghiChu,
+            namHoc: namHoc,
+            user: item.user
+          });
+        });
+      }
+
+      if (kiemNhiem) {
+        for (const item of kiemNhiem) {
+          const existingRecord = await CongTacKiemNhiem.findOne({
+            chucVuCongViec: item.chucVuCongViec,
+            namHoc: item.namHoc,
+            user: item.user
+          });
+
+          if (!existingRecord) {
+            // Only create new record if it doesn't exist
+            await CongTacKiemNhiem.create({
+              ...item,
+              user: item.user,
+              type: type1
+            });
+          }
+        }
+      }
+    }
+
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {

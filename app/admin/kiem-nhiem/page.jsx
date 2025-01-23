@@ -44,8 +44,20 @@ const KiemNhiemForm = () => {
     const [khoaOptions, setKhoaOptions] = useState([]);
     const [selectedKhoa, setSelectedKhoa] = useState("");
 
-    // Phân trang dữ liệu
-    const paginatedData = dataList?.slice(
+    // Thêm hàm xử lý filter data
+    const getFilteredData = () => {
+        return dataList.filter(item => {
+            const matchName = item.user?.username?.toLowerCase().includes(searchName.toLowerCase());
+            const matchKhoa = !selectedKhoa || item.user?.khoa === selectedKhoa;
+            const matchChucVu = !selectedLoai || item.chucVu?.tenCV === selectedLoai;
+
+            return matchName && matchKhoa && matchChucVu;
+        });
+    };
+
+    // Cập nhật cách tính paginatedData
+    const filteredData = getFilteredData();
+    const paginatedData = filteredData.slice(
         (current - 1) * pageSize,
         current * pageSize
     );
@@ -56,19 +68,10 @@ const KiemNhiemForm = () => {
         getListKhoa();
     }, []);
 
-    useEffect(() => {
-        const handler = setTimeout(() => {
-            fetchData(); // Gọi API sau 1 giây
-        }, 1000); // 1000 ms = 1 giây
-
-        return () => {
-            clearTimeout(handler); // Hủy bỏ timeout nếu người dùng gõ thêm
-        };
-    }, [searchName]); // Theo dõi searchName
 
     useEffect(() => {
         fetchData();
-    }, [current, pageSize, selectedKhoa]);
+    }, []);
 
 
     const fetchData3 = async () => {
@@ -108,7 +111,7 @@ const KiemNhiemForm = () => {
 
     const fetchData = async () => {
         try {
-            const res = await fetch(`/api/admin/kiem-nhiem?search=${searchName}&page=${current}&pageSize=${pageSize}&khoa=${selectedKhoa}`, {
+            const res = await fetch(`/api/admin/kiem-nhiem`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });
@@ -119,8 +122,7 @@ const KiemNhiemForm = () => {
 
             const data = await res.json(); // Đảm bảo gọi json() trên đối tượng res
             console.log(data)
-            setDataList(data.data); // Cập nhật danh sách dữ liệu
-            setTotal(data.totalCount)
+            setDataList(data); // Cập nhật danh sách dữ liệu
             setLoading(false); // Đặt loading thành false
         } catch (err) {
             console.error("Error fetching data:", err);
@@ -463,8 +465,8 @@ const KiemNhiemForm = () => {
             <div className="p-3 shadow-xl bg-white rounded-xl flex-[73%] ">
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
                     <Title level={3} className="text-center">DANH SÁCH PHÂN CÔNG</Title>
-
                 </div>
+
                 <div className="flex gap-3 justify-around w-full mb-1">
                     <div className="flex-1">
                         <Input
@@ -475,20 +477,26 @@ const KiemNhiemForm = () => {
                             style={{
                                 width: 250,
                             }}
-                            onChange={(e) => setSearchName(e.target.value)}
+                            onChange={(e) => {
+                                setSearchName(e.target.value);
+                                setCurrent(1); // Reset về trang 1 khi tìm kiếm
+                            }}
                             prefix={<SearchOutlined />}
-
                         />
                     </div>
 
-                    <div className="flex w-[45%] gap-1">
+                    <div className="flex w-[72%] gap-1">
                         <div className="text-base-bold">Khoa:</div>
-                        <Select size="small"
+                        <Select
+                            size="small"
                             className="w-[40%]"
                             placeholder="Lọc theo khoa"
                             allowClear
                             value={selectedKhoa}
-                            onChange={value => setSelectedKhoa(value)}
+                            onChange={value => {
+                                setSelectedKhoa(value);
+                                setCurrent(1); // Reset về trang 1 khi thay đổi filter
+                            }}
                         >
                             {khoaOptions.map(khoa => (
                                 <Option key={khoa} value={khoa}>
@@ -496,12 +504,31 @@ const KiemNhiemForm = () => {
                                 </Option>
                             ))}
                         </Select>
-                    </div>
 
+                        <div className="text-base-bold ml-2">Chức vụ:</div>
+                        <Select
+                            size="small"
+                            className="w-[40%]"
+                            placeholder="Lọc theo chức vụ"
+                            allowClear
+                            value={selectedLoai}
+                            onChange={value => {
+                                setSelectedLoai(value);
+                                setCurrent(1); // Reset về trang 1 khi thay đổi filter
+                            }}
+                        >
+                            {listChucVu.map(cv => (
+                                <Option key={cv._id} value={cv.tenCV}>
+                                    {cv.tenCV}
+                                </Option>
+                            ))}
+                        </Select>
+                    </div>
                 </div>
+
                 <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
                     <Table
-                        dataSource={dataList}
+                        dataSource={paginatedData}
                         columns={columns}
                         rowKey="_id"
                         pagination={false}
@@ -511,13 +538,12 @@ const KiemNhiemForm = () => {
                 <Pagination
                     current={current}
                     pageSize={pageSize}
-                    total={total}
-
+                    total={filteredData.length} 
                     onChange={(page, size) => {
                         setCurrent(page);
                         setPageSize(size);
                     }}
-                    pageSizeOptions={['5','10', '25', '50', '100', '200']}
+                    pageSizeOptions={['10', '25', '50', '100', '200']}
                     showSizeChanger
                     className="flex justify-end"
                 />
