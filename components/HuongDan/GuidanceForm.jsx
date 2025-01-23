@@ -10,6 +10,7 @@ import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import { set } from "mongoose";
 import TableHuongDan from "./TableHuongDan";
+import TextArea from "antd/es/input/TextArea";
 
 const { TabPane } = Tabs;
 
@@ -278,13 +279,26 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     render={({ field }) => (
                                         <Select
                                             className="input-select"
-                                            placeholder="Chọn công việc ..."
+                                            placeholder="Chọn hoặc nhập công việc mới..."
                                             {...field}
                                             options={dataListSelect.map(item => ({ label: item.tenCV, value: item.tenCV }))}
                                             onChange={(value) => {
-                                                field.onChange(value); // Cập nhật giá trị cho Controller
-                                                const selectedItem = dataListSelect.find(item => item.tenCV === value); // Lấy item đầy đủ
-                                                handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
+                                                const finalValue = Array.isArray(value) ? value[value.length - 1] : value;
+                                                field.onChange(finalValue);
+                                                const selectedItem = dataListSelect.find(item => item.tenCV === finalValue);
+                                                if (selectedItem) {
+                                                    handleSelectChange(selectedItem);
+                                                } else {
+                                                    setValue("soTietQuyChuan", 0);
+                                                }
+                                            }}
+                                            showSearch
+                                            allowClear
+                                            mode="tags"
+                                            maxTagCount={1}
+                                            tokenSeparators={[]}
+                                            onSelect={(value) => {
+                                                field.onChange(value);
                                             }}
                                         />
                                     )}
@@ -370,7 +384,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                             <Controller
                                 name="ghiChu"
                                 control={control}
-                                render={({ field }) => <Input className="input-text" {...field} />}
+                                render={({ field }) => <TextArea className="input-text" {...field} />}
                             />
                         </Form.Item>
 

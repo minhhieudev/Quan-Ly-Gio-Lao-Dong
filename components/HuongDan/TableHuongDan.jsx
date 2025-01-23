@@ -23,7 +23,7 @@ const TableHuongDan = ({ data}) => {
       render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
     },
     {
-      title: 'tenCV',
+      title: 'Tên công việc',
       dataIndex: 'tenCV',
       key: 'tenCV',
       render: (text) => <span style={{ color: 'blue', fontWeight: 'bold' }}>{text}</span>,
