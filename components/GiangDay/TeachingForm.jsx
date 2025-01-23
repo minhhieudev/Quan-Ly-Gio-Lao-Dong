@@ -31,6 +31,7 @@ const formSchema = {
 const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const [dataList, setDataList] = useState([]);
   const [listSelect, setListSelect] = useState([]);
+  const [dataHPTH, setDataHPTH] = useState('');
   const [editRecord, setEditRecord] = useState(null);
   const { control, handleSubmit, setValue, reset, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: formSchema,
@@ -60,6 +61,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const soTietLT = watch("soTietLT");
   const soTietTH = watch("soTietTH");
+  const soSVDK = watch("soSV");
 
   const [currentHocPhan, setCurrentHocPhan] = useState(null);
 
@@ -102,11 +104,10 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   }, [soTietLT, setValue]);
 
   useEffect(() => {
-
     if (soTietTH && /^\d+\s*giờ$/.test(soTietTH)) {
       const match = soTietTH.match(/(\d+)/); // Tìm số trong chuỗi
       if (match) {
-        const numericValue = parseInt(match[0], 10); 
+        const numericValue = parseInt(match[0], 10);
 
         if (currentHocPhan?.diaDiem?.toLowerCase() === "dhpy") {
           const result = (numericValue / 45) * 10
@@ -131,6 +132,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         // Tách giá trị từ currentHocPhan.heSo
         let heSoValues = [];
         if (typeof currentHocPhan.record?.heSo === "string" && currentHocPhan.record?.heSo.includes("-")) {
+
           console.log("Raw heSo string:", currentHocPhan.record?.heSo);
           console.log("Split values:", currentHocPhan.record?.heSo.split("-"));
 
@@ -181,6 +183,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         } else {
           heSoValues = [parseFloat(currentHocPhan.record?.heSo)];
           result = soTietTH * heSoValues[0];
+          setValue("soTietQCTH", result);
+
         }
 
       }
@@ -188,27 +192,49 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     if (!currentHocPhan) {
       setValue("soTietQCTH", 0);
     }
-  }, [setValue, currentHocPhan, soTietTH]);
+  }, [setValue, currentHocPhan, soTietTH, soSVDK],);
 
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
   };
 
-  const handleSaveNewHocPhan = () => {
-    const newHocPhanObj = {
-      _id: Math.random().toString(36).substr(2, 9),
-      tenMH: newHocPhan,
-      soTC: 0,
-      lop: "",
-      soSVDK: 0,
-    };
+  const handleSaveNewHocPhan = async () => {
 
-    // Cập nhật listSelect với học phần mới
-    setListSelect([...listSelect, newHocPhanObj]);
+    try {
+      const res = await fetch(`/api/work-hours/get-hocphan-th/?name=${newHocPhan}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
 
-    // Reset trạng thái thêm mới và input học phần
-    setIsAddingNew(false);
-    setNewHocPhan("");
+        const newHocPhanObj = {
+          _id: Math.random().toString(36).substr(2, 9),
+          tenMH: newHocPhan,
+          soTC: 0,
+          lop: "",
+          soSVDK: 0,
+          record: data[0]
+        };
+
+        if (data.length < 1) {
+          toast.warning("Không có dữ liệu thực hành cho học phần này !");
+        }
+
+        // Cập nhật listSelect với học phần mới
+        setListSelect([...listSelect, newHocPhanObj]);
+
+        // Reset trạng thái thêm mới và input học phần
+        setIsAddingNew(false);
+        setNewHocPhan("");
+
+      } else {
+        toast.error("Có lỗi khi lấy dữ liệu HPTH !");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data HPTH");
+    }
+
   };
 
 
@@ -251,7 +277,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [currentUser, namHoc, ky]);
+  }, [namHoc, ky]);
 
   useEffect(() => {
     if (!namHoc && !ky) return;
@@ -319,7 +345,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       if (res.ok) {
         const newData = await res.json();
         const existingIndex = dataList.findIndex(item => item._id === newData._id);
-        if ((editRecord && newData ) || (existingIndex !== -1)) {
+        if ((editRecord && newData) || (existingIndex !== -1)) {
           setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
         } else {
           setDataList(prevData => [...prevData, newData]);
@@ -486,9 +512,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const handleBlur = async (value) => {
     if (value.trim() === "") {
-      alert('1111111111')
     } else {
-      alert('44444444444')
       setLoading(true)
       try {
 

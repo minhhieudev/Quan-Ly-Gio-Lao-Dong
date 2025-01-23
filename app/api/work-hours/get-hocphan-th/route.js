@@ -1,0 +1,25 @@
+export const dynamic = 'force-dynamic';
+
+import { connectToDB } from '@mongodb';
+import HocPhan from "@models/HocPhan";
+
+export const GET = async (req) => {
+  try {
+    await connectToDB();
+
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const name = url.searchParams.get('name');
+
+    const data = await HocPhan.find({ 
+      tenMH: { $regex: new RegExp(name, 'i') }
+    });
+     
+    console.log('ffffffffff',data)
+    console.log('namenamename',name)
+
+    return new Response(JSON.stringify(data), { status: 200 });
+  } catch (err) {
+    console.error("Error fetching PhanCongKiemNhiem:", err);
+    return new Response(`Lỗi: ${err.message}`, { status: 500 });
+  }
+};
