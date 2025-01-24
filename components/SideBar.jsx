@@ -71,6 +71,11 @@ const SideBar = () => {
         <span style={getIconStyle(["/admin/kiem-nhiem"])}>Kiêm nhiệm</span>
       </Link>
 
+      <Link href="/admin/bieu-mau" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+        <FormOutlined style={{ fontSize: "20px" }} className="text-purple-500"/>
+        <span style={getIconStyle(["/admin/bieu-mau"])}>Biểu mẫu</span>
+      </Link>
+
       <Link href="/admin/send-email" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <MailFilled style={{ fontSize: "20px" }} className="text-teal-500"/>
         <span style={getIconStyle(["/giaovu/pc-ra-de"])}>Gửi Email</span>

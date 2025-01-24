@@ -63,10 +63,10 @@ const UserForm = () => {
         if (searchName) {
             filteredData = filteredData.filter(user => user.username.toLowerCase().includes(searchName.toLowerCase()));
         }
-        if (selectedKhoa) {
+        if (selectedKhoa && selectedKhoa != null ) {
             filteredData = filteredData.filter(user => user.khoa === selectedKhoa);
         }
-        if (selectedRole) {
+        if (selectedRole && selectedRole != null ) {
             filteredData = filteredData.filter(user => user.role === selectedRole);
         }
         setFilteredList(filteredData);
@@ -257,6 +257,11 @@ const UserForm = () => {
             width: 20,
         },
         {
+            title: 'Mã GV',
+            dataIndex: 'maGV',
+            key: 'maGV'
+        },
+        {
             title: 'Họ tên giảng viên',
             dataIndex: 'username',
             key: 'username',
@@ -267,17 +272,12 @@ const UserForm = () => {
         //     dataIndex: 'GCGD',
         //     key: 'GCGD'
         // },
-        {
-            title: 'Mã GV',
-            dataIndex: 'maGV',
-            key: 'maGV'
-        },
+       
         {
             title: 'Mã ngạch',
             dataIndex: 'maNgach',
             key: 'maNgach',
             className: 'text-green-500 font-bold ',
-            width: 120,
 
         },
         // {
@@ -301,11 +301,11 @@ const UserForm = () => {
 
 
         // },
-        // {
-        //     title: 'Khoa',
-        //     dataIndex: 'khoa',
-        //     key: 'khoa'
-        // },
+        {
+            title: 'Khoa',
+            dataIndex: 'khoa',
+            key: 'khoa'
+        },
 
         {
             title: 'Hành động',
