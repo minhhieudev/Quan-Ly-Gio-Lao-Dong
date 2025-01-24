@@ -169,6 +169,7 @@ const UserForm = () => {
         setValue("hocHamHocVi", record.hocHamHocVi);
 
         setValue("donViQuanLy", record.donViQuanLy);
+        setValue("maGV", record.maGV);
 
     };
 
