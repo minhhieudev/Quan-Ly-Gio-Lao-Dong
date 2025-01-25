@@ -5,6 +5,7 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } fro
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
+import { exportHocPhan } from "@lib/fileExport";
 
 const { Option } = Select;
 
@@ -148,7 +149,7 @@ const TeachingAssignmentTable = () => {
           </Popconfirm>
         </Space>
       ),
-      width:20
+      width: 20
     },
   ];
 
@@ -191,7 +192,7 @@ const TeachingAssignmentTable = () => {
       <div className="mt-2 flex justify-between">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md "
-        //onClick={() => exportToExcelTongHop() }
+          onClick={() => exportHocPhan(dataList)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

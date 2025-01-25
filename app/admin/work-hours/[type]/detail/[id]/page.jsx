@@ -6,7 +6,7 @@ import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@a
 import moment from 'moment';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
-import { exportToExcelChiTiet } from '../../../../../../components/fileExport'
+import { exportToExcelChiTiet, exportTongHopLaoDongDetail } from '../../../../../../lib/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
 
@@ -30,6 +30,8 @@ const Pages = () => {
 
   const [namHoc, setNamHoc] = useState("2024-2025");
   const [kiHoc, setKiHoc] = useState("1");
+  const [khoaOptions, setKhoaOptions] = useState([]);
+  const [selectedKhoa, setSelectedKhoa] = useState("");
 
 
   const { data: session } = useSession();
@@ -55,7 +57,28 @@ const Pages = () => {
       }
     };
 
+
+    const getListKhoa = async () => {
+      try {
+        const res = await fetch(`/api/admin/khoa`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
+          const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+          setKhoaOptions(tenKhoaList);
+        } else {
+          toast.error("Failed to get khoa");
+        }
+      } catch (err) {
+        toast.error("An error occurred while fetching data khoa");
+      }
+    };
+
     fetchData();
+    getListKhoa();
   }, []);
   const getColumns = () => {
     switch (id) {
@@ -183,7 +206,7 @@ const Pages = () => {
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       align: 'center',
-      render: (text, record) => record.user.username,
+      render: (text, record) => record?.user?.username,
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -329,7 +352,7 @@ const Pages = () => {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record.user.username,
+      render: (text, record) => record?.user?.username,
       className: 'text-blue-500 font-bold text-center',
       align: 'center',
 
@@ -405,7 +428,7 @@ const Pages = () => {
       align: 'center',
 
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record.user.username,
+      render: (text, record) => record?.user?.username,
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -431,13 +454,13 @@ const Pages = () => {
       key: 'lopHocPhan',
       className: 'text-green-500 font-bold'
     },
-    {
-      title: 'Học kỳ',
-      align: 'center',
+    // {
+    //   title: 'Học kỳ',
+    //   align: 'center',
 
-      dataIndex: 'hocKy',
-      key: 'hocKy'
-    },
+    //   dataIndex: 'hocKy',
+    //   key: 'hocKy'
+    // },
     {
       title: 'Hình thức thi',
       align: 'center',
@@ -858,6 +881,23 @@ const Pages = () => {
           </Select>
         </div>
 
+        <div className="w-[25%] flex items-center gap-2 font-bold">
+          <div className="text-base-bold">Khoa:</div>
+          <Select size="small"
+            className="w-[40%]"
+            placeholder="Lọc theo khoa"
+            allowClear
+            value={selectedKhoa}
+            onChange={value => setSelectedKhoa(value)}
+          >
+            {khoaOptions.map(khoa => (
+              <Option key={khoa} value={khoa}>
+                {khoa}
+              </Option>
+            ))}
+          </Select>
+        </div>
+
       </div>
 
       <Table
@@ -872,7 +912,7 @@ const Pages = () => {
       <div className="mt-2 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={() => exportToExcelChiTiet(dataList, id, getType())}
+          onClick={() => exportTongHopLaoDongDetail(dataList, id, getType(),namHoc)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

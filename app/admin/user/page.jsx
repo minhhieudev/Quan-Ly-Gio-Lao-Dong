@@ -9,6 +9,7 @@ import Loader from "../../../components/Loader";
 import * as XLSX from 'xlsx';
 import { SearchOutlined } from '@ant-design/icons'
 import { FileExcelOutlined } from '@ant-design/icons';
+import { exportGiangVien } from "@lib/fileExport";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -38,7 +39,11 @@ const UserForm = () => {
 
     const [khoaOptions, setKhoaOptions] = useState([]);
     const [ngachOptions, setNgachOptions] = useState([]);
-    const quyenOptions = ["Giảng viên", "Giáo vụ", "Admin"];
+    const quyenOptions = [
+        { label: "Giảng viên", value: "user" },
+        { label: "Giáo vụ", value: "user" },
+        { label: "Admin", value: "admin" }
+    ];
 
     const fileInputRef = useRef(null);
     const [isUploading, setIsUploading] = useState(false);
@@ -63,10 +68,10 @@ const UserForm = () => {
         if (searchName) {
             filteredData = filteredData.filter(user => user.username.toLowerCase().includes(searchName.toLowerCase()));
         }
-        if (selectedKhoa && selectedKhoa != null ) {
+        if (selectedKhoa && selectedKhoa != null) {
             filteredData = filteredData.filter(user => user.khoa === selectedKhoa);
         }
-        if (selectedRole && selectedRole != null ) {
+        if (selectedRole && selectedRole != null) {
             filteredData = filteredData.filter(user => user.role === selectedRole);
         }
         setFilteredList(filteredData);
@@ -272,7 +277,7 @@ const UserForm = () => {
         //     dataIndex: 'GCGD',
         //     key: 'GCGD'
         // },
-       
+
         {
             title: 'Mã ngạch',
             dataIndex: 'maNgach',
@@ -611,7 +616,7 @@ const UserForm = () => {
                 <div className="mt-2 flex justify-between">
                     <Button
                         className="button-lien-thong-vlvh text-white font-bold shadow-md "
-                    //onClick={() => exportToExcelTongHop() }
+                        onClick={() => exportGiangVien(paginatedData, selectedKhoa)}
                     ><FileExcelOutlined />
                         Xuất file Excel
                     </Button>

@@ -5,6 +5,7 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } fro
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
+import { exportChamThi } from '@/lib/fileExport';
 
 
 const { Option } = Select;
@@ -22,7 +23,7 @@ const PcChamThiTable = () => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const [hocKy, setHocKy] = useState("");
+  const [hocKy, setHocKy] = useState("1");
 
 
   const router = useRouter();
@@ -95,6 +96,10 @@ const PcChamThiTable = () => {
     } catch (err) {
       toast.error("Có lỗi xảy ra!");
     }
+  };
+
+  const handleExport = () => {
+    exportChamThi(filteredData, hocKy, namHoc, loaiKyThi, loai);
   };
 
   const columns = [
@@ -286,9 +291,10 @@ const PcChamThiTable = () => {
 
       <div className="mt-2 flex justify-between">
         <Button
-          className="button-lien-thong-vlvh text-white font-bold shadow-md "
-        //onClick={() => exportToExcelTongHop() }
-        ><FileExcelOutlined />
+          className="button-lien-thong-vlvh text-white font-bold shadow-md"
+          onClick={handleExport}
+        >
+          <FileExcelOutlined />
           Xuất file Excel
         </Button>
         <Pagination

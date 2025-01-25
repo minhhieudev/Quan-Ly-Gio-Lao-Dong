@@ -5,6 +5,7 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } fro
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
+import { exportPCGD } from "@lib/fileExport";
 
 
 const { Option } = Select;
@@ -13,7 +14,7 @@ const TeachingAssignmentTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [namHoc, setNamHoc] = useState("2024-2025");
-  const [kiHoc, setKiHoc] = useState("");
+  const [kiHoc, setKiHoc] = useState("1");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -235,7 +236,7 @@ const TeachingAssignmentTable = () => {
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
-          <Select size="small"
+          <Select size="small" allowClear value={kiHoc}
             placeholder="Chọn học kỳ"
             onChange={(value) => setKiHoc(value)}
             className="w-[50%]"
@@ -273,7 +274,7 @@ const TeachingAssignmentTable = () => {
       <div className="mt-2 flex justify-between">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md "
-        //onClick={() => exportToExcelTongHop() }
+          onClick={() => exportPCGD(dataList, kiHoc , namHoc)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

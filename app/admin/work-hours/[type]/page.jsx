@@ -10,9 +10,9 @@ import toast from "react-hot-toast";
 import * as XLSX from 'xlsx';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { ArrowRightOutlined } from '@ant-design/icons';
-import { exportToExcelTongHop, exportToExcelTongHopBoiDuong } from '../../../../components/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
+import { exportTongHopLaoDong } from '@lib/fileExport';
 
 const App = () => {
   const [dataList, setDataList] = useState([]);
@@ -37,6 +37,8 @@ const App = () => {
 
   const [namHoc, setNamHoc] = useState("2024-2025");
   const [kiHoc, setKiHoc] = useState("1");
+  const [khoaOptions, setKhoaOptions] = useState([]);
+  const [selectedKhoa, setSelectedKhoa] = useState("");
 
   const fetchData = async () => {
     setLoading(true);
@@ -59,6 +61,27 @@ const App = () => {
     }
     setLoading(false);
   };
+
+
+  const getListKhoa = async () => {
+    try {
+      const res = await fetch(`/api/admin/khoa`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
+        const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+        setKhoaOptions(tenKhoaList);
+      } else {
+        toast.error("Failed to get khoa");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data khoa");
+    }
+  };
+
 
   const contentEmail = `
   Kính gửi Quý Thầy / Cô,
@@ -117,6 +140,9 @@ const App = () => {
   useEffect(() => {
     fetchData();
   }, [namHoc, kiHoc]);
+  useEffect(() => {
+    getListKhoa()
+  }, []);
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -748,7 +774,7 @@ const App = () => {
       <div className="flex justify-around items-center mb-3">
         <div className="w-[25%] flex items-center gap-2 font-bold">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
-          <Select size='small'
+          <Select size='small' allowClear
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
@@ -762,6 +788,23 @@ const App = () => {
         </div>
 
         <div className="w-[25%] flex items-center gap-2 font-bold">
+          <div className="text-base-bold">Khoa:</div>
+          <Select size="small"
+            className="w-[40%]"
+            placeholder="Lọc theo khoa"
+            allowClear
+            value={selectedKhoa}
+            onChange={value => setSelectedKhoa(value)}
+          >
+            {khoaOptions.map(khoa => (
+              <Option key={khoa} value={khoa}>
+                {khoa}
+              </Option>
+            ))}
+          </Select>
+        </div>
+
+        {/* <div className="w-[25%] flex items-center gap-2 font-bold">
           <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
           <Select size='small'
             placeholder="Chọn học kỳ:"
@@ -772,7 +815,7 @@ const App = () => {
             <Option value="1">1</Option>
             <Option value="2">2</Option>
           </Select>
-        </div>
+        </div> */}
 
       </div>
 
@@ -789,7 +832,10 @@ const App = () => {
       <div className="mt-0 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}
+          //onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}
+          onClick={() => exportTongHopLaoDong(dataList, type, getType(), namHoc)}
+        //exportTongHopLaoDong(dataList, 'boi-duong', 'BẢNG TỔNG HỢP CÔNG TÁC GIẢNG DẠY - BỒI DƯỠNG');
+
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

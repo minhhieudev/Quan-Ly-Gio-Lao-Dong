@@ -10,6 +10,8 @@ import { UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
+import { FileExcelOutlined } from '@ant-design/icons';
+import { exportPCKiemNhiem } from "@lib/fileExport";
 
 const { TextArea } = Input;
 
@@ -322,6 +324,7 @@ const KiemNhiemForm = () => {
         reader.readAsBinaryString(file);
     };
 
+
     return loading ? (
         <Loader />
     ) : (
@@ -547,6 +550,11 @@ const KiemNhiemForm = () => {
                     showSizeChanger
                     className="flex justify-end"
                 />
+
+                <Button className="button-lien-thong-vlvh text-white font-bold shadow-md " onClick={() => exportPCKiemNhiem(dataList)}>
+                    <FileExcelOutlined /> Xuất Excel
+                </Button>
+
             </div>
 
 

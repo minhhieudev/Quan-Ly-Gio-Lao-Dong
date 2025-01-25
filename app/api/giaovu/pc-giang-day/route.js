@@ -24,7 +24,7 @@ export const GET = async (req) => {
     }
 
     // Nếu có tham số ky, thêm vào điều kiện tìm kiếm
-    if (ky) {
+    if (ky && ky !== 'undefined') {
       filter.ky = ky;
     }
 

@@ -6,7 +6,7 @@ import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@a
 import moment from 'moment';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import { exportToExcelChiTiet } from '../../../../../components/fileExport'
+import { exportToExcelChiTiet } from '../../../../../lib/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";

@@ -49,20 +49,24 @@ export const GET = async (req, { params }) => {
     await connectToDB();
 
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const namHoc = url.searchParams.get('namHoc'); 
-    const ky = url.searchParams.get('ky'); 
-
+    const namHoc = url.searchParams.get('namHoc');
+    //const ky = url.searchParams.get('ky'); 
+    console.log('4444', namHoc)
     const query = {};
 
-    if (namHoc) {
+    if (namHoc && namHoc !== 'undefined') {
       query.namHoc = namHoc;
     }
 
-    if (ky) {
-      query.ky = ky;
+    if (type) {
+      query.loai = type
     }
 
-    const records = await TongHopLaoDong.find().populate('user', 'username'); 
+    // if (ky && ky !== 'undefined') {
+    //   query.ky = ky;
+    // }
+
+    const records = await TongHopLaoDong.find(query).populate('user', 'username');
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {
