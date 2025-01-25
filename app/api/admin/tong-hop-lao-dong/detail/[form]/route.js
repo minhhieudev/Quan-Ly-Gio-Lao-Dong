@@ -16,7 +16,6 @@ const models = {
   CongTacKiemNhiem,
   CongTacRaDe,
 };
-
 export const GET = async (req, { params }) => {
   try {
     const { form } = params;
@@ -29,17 +28,21 @@ export const GET = async (req, { params }) => {
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     const type = url.searchParams.get('type');
-    console.log(type);
+    const namHoc = url.searchParams.get('namHoc');
+    const kiHoc = url.searchParams.get('kiHoc');
 
-    const currentYear = new Date().getFullYear();
-    const startOfYear = new Date(currentYear, 0, 1);
-    const endOfYear = new Date(currentYear + 1, 0, 1);
     const model = models[form];
 
-    const records = await model.find({
+    let query = {
       type: type,
-      createdAt: { $gte: startOfYear, $lt: endOfYear }
-    }).populate('user', 'username');
+      namHoc: namHoc,
+    };
+
+    if (form !== 'CongTacKiemNhiem') {
+      query.ky = kiHoc;
+    }
+
+    const records = await model.find(query).populate('user', 'username khoa');
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {

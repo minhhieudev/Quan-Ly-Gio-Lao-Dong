@@ -6,7 +6,7 @@ import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@a
 import moment from 'moment';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import { exportToExcelChiTiet } from '../../../../../lib/fileExport'
+import { exportTongHopLaoDongForUser } from '../../../../../lib/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
@@ -42,6 +42,49 @@ const Pages = () => {
   const searchParams = useSearchParams();
   const ki = searchParams.get('ki');
   const namHoc = searchParams.get('namHoc');
+  // Thêm state mới để lưu trữ dữ liệu tổng hợp
+  const [allData, setAllData] = useState({
+    info: null,
+    data: {
+      CongTacGiangDay: [],
+      CongTacChamThi: [],
+      CongTacCoiThi: [],
+      CongTacHuongDan: [],
+      CongTacKiemNhiem: [],
+      CongTacRaDe: []
+    }
+  });
+
+  // Thêm state mới để quản lý trạng thái loading của nút xuất Excel
+  const [exportLoading, setExportLoading] = useState(false);
+
+  const fetchAllData = async () => {
+    setExportLoading(true); // Bắt đầu loading
+    try {
+      const res = await fetch(`/api/admin/tong-hop-lao-dong/get-all/?user=${encodeURIComponent(UserID)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(ki)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log('Data', data)
+        setAllData(data);
+        if (allData){
+          exportTongHopLaoDongForUser(allData, 'Kỹ thuật công nghệ', namHoc)
+        }
+        toast.success("Xuất Excel thành công!");
+      } else {
+        toast.error("Không thể xuất Excel. Vui lòng thử lại!");
+      }
+    } catch (err) {
+      console.log(err)
+      toast.error("Đã xảy ra lỗi khi xuất Excel");
+    } finally {
+      setExportLoading(false); // Kết thúc loading dù thành công hay thất bại
+    }
+  };
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -874,7 +917,7 @@ const Pages = () => {
               }}
             /> QUAY LẠI
           </Button>
-          <div className='text-base-bold flex-grow'>{`BẢNG KÊ KHAI LAO ĐỘNG GIẢNG VIÊN - ${tenGV.toUpperCase()}`} </div>
+          <div className='text-base-bold flex-grow'>{`BẢNG KÊ KHAI LAO ĐỘNG GIẢNG VIÊN - ${tenGV?.toUpperCase()}`} </div>
         </div>
         <div className="flex space-x-4 justify-around items-center max-sm:flex-col max-sm:gap-4 mt-2 mb-2">
           {getButtonList().map((buttonText) => (
@@ -901,9 +944,12 @@ const Pages = () => {
       <div className="mt-2 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={() => exportToExcelChiTiet(dataList, loai, getType())}
-        ><FileExcelOutlined />
-          Xuất file Excel
+          onClick={() => fetchAllData()}
+          loading={exportLoading}
+          disabled={exportLoading}
+        >
+          {!exportLoading && <FileExcelOutlined />}
+          {exportLoading ? 'Đang xuất Excel...' : 'Xuất file Excel'}
         </Button>
         {/* <CldUploadButton
           className="button-huong-dan rounded-md shadow-md mr-2"

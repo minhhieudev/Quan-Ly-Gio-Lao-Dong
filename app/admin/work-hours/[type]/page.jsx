@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Table, Input, Button, Space, Popconfirm, Spin, Modal, Select } from 'antd';
 import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
@@ -740,6 +740,12 @@ const App = () => {
     await sendEmail();
   };
 
+  // Tạo filteredDataList để lọc từ dataList
+  const filteredDataList = useMemo(() => {
+    if (!selectedKhoa) return dataList;
+    return dataList.filter(item => item.user?.khoa === selectedKhoa);
+  }, [dataList, selectedKhoa]);
+
   return (
     <div className='p-2 font-bold text-center bg-white rounded-md shadow-md m-auto  my-3'>
       <div className="flex items-center justify-center mb-0">
@@ -823,7 +829,7 @@ const App = () => {
         bordered
         columns={getColumns()}
         rowKey={(record) => record._id}
-        dataSource={dataList}
+        dataSource={filteredDataList}
         pagination={tableParams.pagination}
         loading={loading}
         onChange={handleTableChange}
@@ -833,7 +839,7 @@ const App = () => {
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
           //onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}
-          onClick={() => exportTongHopLaoDong(dataList, type, getType(), namHoc)}
+          onClick={() => exportTongHopLaoDong(dataList, type, getType(), namHoc, selectedKhoa)}
         //exportTongHopLaoDong(dataList, 'boi-duong', 'BẢNG TỔNG HỢP CÔNG TÁC GIẢNG DẠY - BỒI DƯỠNG');
 
         ><FileExcelOutlined />
@@ -845,14 +851,14 @@ const App = () => {
         >
           Gửi email
         </Button> */}
-        <CldUploadButton
+        {/* <CldUploadButton
           className="button-huong-dan rounded-md shadow-md mr-2"
           options={{ maxFiles: 1 }}
           onUpload={uploadPhoto}
           uploadPreset="e0rggou2"
         >
           <p className="text-white text-small-bold px-2">Chọn file gửi Email</p>
-        </CldUploadButton>
+        </CldUploadButton> */}
       </div>
       <Modal
         title="Thông Báo"

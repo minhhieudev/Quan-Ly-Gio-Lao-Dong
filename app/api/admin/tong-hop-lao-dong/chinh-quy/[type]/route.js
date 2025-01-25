@@ -66,7 +66,7 @@ export const GET = async (req, { params }) => {
     //   query.ky = ky;
     // }
 
-    const records = await TongHopLaoDong.find(query).populate('user', 'username');
+    const records = await TongHopLaoDong.find(query).populate('user', 'username khoa');
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {
