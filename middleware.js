@@ -6,21 +6,19 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-
-    // Nếu user cố gắng truy cập /admin nhưng không phải admin
-    if (path.startsWith('/admin') && token?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/work-hours', req.url));
+    // Ngăn admin truy cập vào /work-hours
+    if (path === '/work-hours' && token?.role === 'admin') {
+      return NextResponse.redirect(new URL('/admin', req.url)); // Chuyển hướng admin đến /admin
     }
 
-    // Nếu user đã đăng nhập, điều hướng theo role
-    if (path === '/') {
-      if (token?.role === 'admin') {
-        return NextResponse.redirect(new URL('/admin', req.url));
-      } else if (token?.role === 'giaovu') {
-        return NextResponse.redirect(new URL('/giaovu', req.url));
-      } else {
-        return NextResponse.redirect(new URL('/work-hours', req.url));
-      }
+    // Nếu người dùng là admin và đang ở đường dẫn '/'
+    if (path === '/' && token?.role === 'admin') {
+      return NextResponse.redirect(new URL('/admin', req.url));
+    }
+
+    // Nếu người dùng cố gắng truy cập /admin nhưng không phải admin
+    if (path.startsWith('/admin') && token?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/work-hours', req.url));
     }
 
     return NextResponse.next();
