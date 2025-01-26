@@ -8,7 +8,6 @@ import { Logout } from "@mui/icons-material";
 
 
 const TopBar = () => {
-  const pathname = usePathname();
 
   const handleLogout = async () => {
     signOut({ callbackUrl: "/" });
@@ -30,20 +29,8 @@ const TopBar = () => {
       </div>
 
       <div className="menu">
-          <Link
-            href="/admin"
-            className={`${pathname === "/admin" ? "text-red-1" : ""
-              } font-bold`}
-          >
-            Admin
-          </Link>
-        <Link
-          href="/work-hours"
-          className={`${pathname === "/work-hours" ? "text-red-1" : ""
-            } font-bold`}
-        >
-          Home
-        </Link>
+        <div className="text-bold font-bold text-green-500">{user?.username}</div>
+
         <Logout
           sx={{ color: "#737373", cursor: "pointer" }}
           onClick={handleLogout}
