@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { connectToDB } from '@mongodb';
 import PcGiangDay from "@models/PcGiangDay";
 import HocPhan from "@models/HocPhan";
-
+import ChucVu from "@models/ChucVu";
 
 export const GET = async (req) => {
   try {

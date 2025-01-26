@@ -13,7 +13,7 @@ import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
 import MaNgach from "@models/MaNgach";
 
 import User from "@models/User";
-
+import ChucVu from "@models/ChucVu";
 
 const models = {
   CongTacGiangDay,
