@@ -10,12 +10,32 @@ export const GET = async (req) => {
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get('page')) || 1;
     const pageSize = parseInt(url.searchParams.get('pageSize')) || 10;
+    const searchTerm = url.searchParams.get('search') || '';
+    const khoa = url.searchParams.get('khoa') || '';
 
-    const assignments = await HocPhan.find()
+    // Xây dựng query
+    let query = {};
+    
+    // Thêm điều kiện tìm kiếm
+    if (searchTerm) {
+      query = {
+        $or: [
+          { maMH: { $regex: searchTerm, $options: 'i' } },
+          { tenMH: { $regex: searchTerm, $options: 'i' } }
+        ]
+      };
+    }
+
+    // Thêm điều kiện lọc theo khoa
+    if (khoa) {
+      query.khoa = khoa;
+    }
+
+    const assignments = await HocPhan.find(query)
       .skip((page - 1) * pageSize)
       .limit(pageSize);
 
-    const total = await HocPhan.countDocuments();
+    const total = await HocPhan.countDocuments(query);
 
     return new Response(JSON.stringify({ assignments, total }), { status: 200 });
   } catch (err) {

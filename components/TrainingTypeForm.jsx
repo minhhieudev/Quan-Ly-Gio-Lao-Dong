@@ -48,7 +48,6 @@ const TrainingTypeForm = ({ namHoc, ky }) => {
   }, [soTietLT, soTietTH, setValue]);
 
   useEffect(() => {
-    alert(namHoc)
     if (!currentUser?._id) return;
 
     const fetchData = async () => {

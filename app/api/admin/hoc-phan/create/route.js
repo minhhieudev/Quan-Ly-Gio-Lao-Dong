@@ -24,7 +24,8 @@ export const POST = async (req) => {
           trinhDo, 
           soLuong, 
           heSo, 
-          ghiChu
+          ghiChu,
+          khoa
         } = item;
 
         // Tìm và cập nhật nếu tồn tại, nếu không thì tạo mới
@@ -39,7 +40,8 @@ export const POST = async (req) => {
               trinhDo, 
               soLuong, 
               heSo, 
-              ghiChu
+              ghiChu,
+              khoa
             }
           }, 
           { new: true, upsert: true } 

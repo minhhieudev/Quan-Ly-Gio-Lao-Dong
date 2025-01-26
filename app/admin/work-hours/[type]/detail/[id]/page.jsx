@@ -9,9 +9,11 @@ import { useRouter } from "next/navigation";
 import { exportToExcelChiTiet, exportTongHopLaoDongDetail } from '../../../../../../lib/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 const Pages = () => {
-  const { type, id } = useParams();
+  const { type } = useParams();
+  const idDetail = useRef(useParams().id);
   const [dataList, setDataList] = useState([]);
   const [tableParams, setTableParams] = useState({
     pagination: {
@@ -41,8 +43,8 @@ const Pages = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/admin/tong-hop-lao-dong/detail/${id}/?type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&kiHoc=${encodeURIComponent(kiHoc)}`, {
-          method: "GET",
+        const res = await fetch(`/api/admin/tong-hop-lao-dong/detail/${idDetail.current}/?type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&kiHoc=${encodeURIComponent(kiHoc)}`, {
+          method: "GET", 
           headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {
@@ -59,6 +61,7 @@ const Pages = () => {
 
     fetchData();
   }, [namHoc, kiHoc]);
+
   useEffect(() => {
     const getListKhoa = async () => {
       try {
@@ -81,8 +84,9 @@ const Pages = () => {
 
     getListKhoa();
   }, []);
+  
   const getColumns = () => {
-    switch (id) {
+    switch (idDetail.current) {
       case 'CongTacGiangDay':
         return columnsGiangDay;
       case 'CongTacChamThi':
@@ -260,7 +264,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -328,7 +332,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -401,7 +405,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -498,7 +502,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -586,7 +590,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -701,7 +705,7 @@ const Pages = () => {
       render: (_, record) => (
         <Space size="small">
 
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -742,7 +746,7 @@ const Pages = () => {
     }
   };
   const getTitle2 = () => {
-    switch (id) {
+    switch (idDetail.current) {
       case 'CongTacGiangDay':
         return 'GIẢNG DẠY';
       case 'CongTacChamThi':
@@ -839,6 +843,25 @@ const Pages = () => {
     return dataList.filter(item => item.user?.khoa === selectedKhoa);
   }, [dataList, selectedKhoa]);
 
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/work-hours/${idDetail.current}`, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        setDataList(prevData => prevData.filter(item => item._id !== id));
+        toast.success("Xóa thành công");
+      } else {
+        toast.error("Failed to delete record");
+      }
+    } catch (err) {
+      toast.error("An error occurred while deleting data");
+    }
+  };
+
   return (
     <div className='p-2 font-bold text-center bg-white rounded-md shadow-md w-[98%] m-auto my-3'>
       <div className="flex items-center justify-center mb-3">
@@ -921,7 +944,7 @@ const Pages = () => {
       <div className="mt-2 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={() => exportTongHopLaoDongDetail(filteredDataList, id, getType(),namHoc, selectedKhoa)}
+          onClick={() => exportTongHopLaoDongDetail(filteredDataList, idDetail.current, getType(),namHoc, selectedKhoa)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

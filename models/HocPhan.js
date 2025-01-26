@@ -28,6 +28,9 @@ const HocPhanSchema = new mongoose.Schema({
   ghiChu: {
     type: String,
   },
+  khoa: {
+    type: String,
+  },
 },{
   timestamps: true,
 });

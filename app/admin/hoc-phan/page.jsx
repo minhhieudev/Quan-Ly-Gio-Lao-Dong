@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -20,39 +20,85 @@ const TeachingAssignmentTable = () => {
 
   const router = useRouter();
 
+  const [khoaOptions, setKhoaOptions] = useState([]);
+  const [selectedKhoa, setSelectedKhoa] = useState("");
+
   useEffect(() => {
-    const fetchData = async () => {
+    const getListKhoa = async () => {
       try {
-        setLoading(true);
-        const res = await fetch(`/api/admin/hoc-phan?page=${current}&pageSize=${pageSize}`, {
+        const res = await fetch(`/api/admin/khoa`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {
-          const { assignments, total } = await res.json();
-          setDataList(assignments);
-          setFilteredData(assignments);
-          setTotal(total);
+          const data = await res.json();
+          // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
+          const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+          setKhoaOptions(tenKhoaList);
         } else {
-          toast.error("Không thể tải dữ liệu học phần");
+          toast.error("Failed to get khoa");
         }
-        setLoading(false);
       } catch (err) {
-        toast.error("Lỗi khi tải dữ liệu học phần");
-        setLoading(false);
+        toast.error("An error occurred while fetching data khoa");
       }
     };
 
+    getListKhoa();
+  }, []);
+
+  // Tạo hàm fetchData với useCallback để tránh tạo lại hàm mỗi lần render
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const queryParams = new URLSearchParams({
+        page: current.toString(),
+        pageSize: pageSize.toString(),
+      });
+
+      if (searchTerm) {
+        queryParams.append('search', searchTerm);
+      }
+
+      if (selectedKhoa) {
+        queryParams.append('khoa', selectedKhoa);
+      }
+
+      const res = await fetch(`/api/admin/hoc-phan?${queryParams}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const { assignments, total } = await res.json();
+        setDataList(assignments);
+        setFilteredData(assignments);
+        setTotal(total);
+      } else {
+        toast.error("Không thể tải dữ liệu học phần");
+      }
+      setLoading(false);
+    } catch (err) {
+      toast.error("Lỗi khi tải dữ liệu học phần");
+      setLoading(false);
+    }
+  }, [current, pageSize, searchTerm, selectedKhoa]);
+
+  // Xử lý thay đổi trang và pageSize - gọi API ngay lập tức
+  useEffect(() => {
     fetchData();
   }, [current, pageSize]);
 
+  // Xử lý tìm kiếm và lọc khoa - có debounce 1 giây
   useEffect(() => {
-    const filtered = dataList.filter((item) =>
-      item?.maMH?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.tenMH?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredData(filtered);
-  }, [searchTerm, dataList]);
+    const timeoutId = setTimeout(() => {
+      // Chỉ áp dụng debounce khi có thay đổi về searchTerm hoặc selectedKhoa
+      if (searchTerm !== undefined || selectedKhoa !== undefined) {
+        fetchData();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedKhoa, fetchData]);
 
   const handleDelete = async (id) => {
     try {
@@ -71,6 +117,18 @@ const TeachingAssignmentTable = () => {
     } catch (err) {
       toast.error("Có lỗi xảy ra!");
     }
+  };
+
+  // Cập nhật hàm xử lý tìm kiếm
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setCurrent(1); // Reset về trang 1 khi tìm kiếm
+  };
+
+  // Cập nhật hàm xử lý chọn khoa
+  const handleKhoaChange = (value) => {
+    setSelectedKhoa(value);
+    setCurrent(1); // Reset về trang 1 khi chọn khoa
   };
 
   const columns = [
@@ -162,9 +220,27 @@ const TeachingAssignmentTable = () => {
             <Input.Search size="small"
               placeholder="Tìm kiếm môn học..."
               allowClear
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
+
+          <div className="w-[25%] flex items-center gap-2 font-bold">
+            <div className="text-base-bold">Khoa:</div>
+            <Select size="small"
+              className="w-[40%]"
+              placeholder="Lọc theo khoa"
+              allowClear
+              value={selectedKhoa}
+              onChange={handleKhoaChange}
+            >
+              {khoaOptions.map(khoa => (
+                <Option key={khoa} value={khoa}>
+                  {khoa}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
           <Button
             className="button-dang-day text-white font-bold shadow-md mb-0"
             onClick={() => router.push(`/admin/hoc-phan/create`)}

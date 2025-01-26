@@ -34,7 +34,6 @@ export const POST = async (req, { params }) => {
 
     await connectToDB();
     const body = await req.json();
-    console.log('bodybody:', body);
 
     const model = models[form];
 
@@ -90,6 +89,8 @@ export const DELETE = async (req, { params }) => {
     await connectToDB();
     const { id } = await req.json();
     const model = models[form];
+
+
     await model.findByIdAndDelete(id);
     return new Response(`${form} record deleted successfully`, { status: 200 });
   } catch (err) {
@@ -126,9 +127,6 @@ export const GET = async (req, { params }) => {
     if (namHoc) {
       query.namHoc = namHoc;
     }
-
-    console.log('NAM namHocnamHocnamHocnamHocnamHoc:',namHoc)
-
 
     if (ky) {
       query.ky = ky;
@@ -193,7 +191,6 @@ export const GET = async (req, { params }) => {
       }
     }
     else {
-      console.log('NAM HOCCCCC:',namHoc)
       let kiemNhiem = []
       let maNgachInfo
       const currentUser = await User.find({ _id: user })

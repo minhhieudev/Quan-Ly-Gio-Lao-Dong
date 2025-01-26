@@ -237,7 +237,7 @@ const PcCoiThiTable = () => {
   );
 
   return (
-    <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-2 h-full flex flex-col">
+    <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-2  flex flex-col">
 
       <div className="flex items-center justify-between mb-1">
         <div className="flex gap-2">
@@ -315,7 +315,7 @@ const PcCoiThiTable = () => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 75px)' }}>
+        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}
@@ -323,6 +323,8 @@ const PcCoiThiTable = () => {
             pagination={false} // Tắt phân trang trên Table
           />
         </div>
+
+
       )}
 
       <div className="mt-2 flex justify-between">

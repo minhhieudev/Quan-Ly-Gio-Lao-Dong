@@ -68,7 +68,6 @@ const Pages = () => {
 
       if (res.ok) {
         const data = await res.json();
-        console.log('Data', data)
         setAllData(data);
         if (allData){
           exportTongHopLaoDongForUser(allData, 'Kỹ thuật công nghệ', namHoc)
@@ -92,8 +91,14 @@ const Pages = () => {
       setLoading(true);
 
       try {
-        const res = await fetch(`/api/work-hours/${loai}/?user=${encodeURIComponent(UserID)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(ki)}`, {
-          method: "GET",
+        // Build URL based on whether it's CongTacKiemNhiem or not
+        let url = `/api/work-hours/${loai}/?user=${encodeURIComponent(UserID)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}`;
+        if (loai !== 'CongTacKiemNhiem') {
+          url += `&ky=${encodeURIComponent(ki)}`;
+        }
+
+        const res = await fetch(url, {
+          method: "GET", 
           headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {
@@ -284,7 +289,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -358,7 +363,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -431,7 +436,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -518,7 +523,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -611,7 +616,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -726,7 +731,7 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -898,6 +903,25 @@ const Pages = () => {
         break
       default:
         return null;
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/work-hours/${loai}`, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        setDataList(prevData => prevData.filter(item => item._id !== id));
+        toast.success("Xóa thành công");
+      } else {
+        toast.error("Failed to delete record");
+      }
+    } catch (err) {
+      toast.error("An error occurred while deleting data");
     }
   };
 

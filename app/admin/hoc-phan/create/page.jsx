@@ -35,12 +35,13 @@ const TeachingAssignmentForm = () => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
 
+
   const onSubmit = async (data) => {
     try {
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/admin/hoc-phan`, {
         method,
-        body: JSON.stringify(data ),
+        body: JSON.stringify(data),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -69,49 +70,65 @@ const TeachingAssignmentForm = () => {
       return `HP${Date.now()}${counter}`; // Kết hợp thời gian hiện tại và biến đếm
     };
   })();
-  
+
+  // Cập nhật hàm chuẩn hóa khoảng trắng
+  const normalizeWhitespace = (str) => {
+    return str
+      .replace(/\s+/g, ' ')          // Chuẩn hóa khoảng trắng thành một dấu cách
+      .replace(/\s*-\s*/g, ' - ')    // Chuẩn hóa dấu gạch ngang với khoảng trắng
+      .trim();                       // Xóa khoảng trắng đầu cuối
+  };
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
-  
+
     reader.onload = (event) => {
       const data = event.target.result;
       const workbook = XLSX.read(data, { type: "binary" });
-  
+
       let ListData = [];
-  
+      let khoa = "";
+
       // Đọc tất cả các sheet trong file Excel
       workbook.SheetNames.forEach((sheetName) => {
         const sheet = workbook.Sheets[sheetName];
         const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-  
+
         // Lặp qua từng dòng trong sheet
         rawData.forEach((row, index) => {
-          if (index === 0) {
-            // Bỏ qua dòng tiêu đề
+          // Kiểm tra nếu dòng chứa thông tin khoa
+          if (row[0] && typeof row[0] === 'string' && 
+              /^\d+\.?\s*K(?:hoa|HOA)(?:\s+K(?:hoa|HOA))?\s/i.test(row[0])) {
+            
+            
+            const khoaMatch = row[0].match(/^\d+\.?\s*K(?:hoa|HOA)\s+((?:K(?:hoa|HOA)\s+)?.*?)(?:\s*:|\s*$)/i);
+            if (khoaMatch) {
+              khoa = normalizeWhitespace(khoaMatch[1]);
+            }
             return;
           }
-  
-          // Kiểm tra và chuyển đổi dữ liệu dòng
-          if (row[0] && row[1] && row[2] && row[0] != "TT") {
-            ListData.push({
-              maMH: generateUniqueId(),
-              tenMH: row[1] || "",
-              soTC: row[2] || 0,
-              soTietLT: row[3] || 0,
-              soTietTH: row[4] || 0,
-              trinhDo: row[5] || "",
-              soLuong: row[6] || "",
-              heSo: row[7] || "",
-              ghiChu: row[8] || ""
-            });
+
+          // Chỉ bỏ qua các dòng tiêu đề thực sự
+          if (row[0] === "TT" || !row[0] || !row[1] || !row[2]) {
+            return;
           }
+
+          ListData.push({
+            maMH: generateUniqueId(),
+            tenMH: row[1] || "",
+            soTC: row[2] || 0,
+            soTietLT: row[3] || 0,
+            soTietTH: row[4] || 0,
+            trinhDo: row[5] || "",
+            soLuong: row[6] || "",
+            heSo: row[7] || "",
+            ghiChu: row[8] || "",
+            khoa: khoa
+          });
         });
       });
-  
-      console.log("Final ListData:", ListData);
-  
+
       // Xử lý toàn bộ dữ liệu từ tất cả các sheet
       if (ListData.length > 0) {
         createMany(ListData);
@@ -119,14 +136,14 @@ const TeachingAssignmentForm = () => {
         toast.error("No data found in file.");
       }
     };
-  
+
     reader.onerror = () => {
       toast.error("Đã xảy ra lỗi khi đọc file Excel");
     };
-  
+
     reader.readAsBinaryString(file);
   };
-  
+
 
   const createMany = async (ListData) => {
     setIsUploading(true);
@@ -224,10 +241,10 @@ const TeachingAssignmentForm = () => {
             <Form.Item label="Trình độ" validateStatus={errors.trinhDo ? 'error' : ''} help={errors.trinhDo?.message}>
               <Controller
                 name="trinhDo"
-               
+
                 control={control}
                 rules={{ required: "Trình độ là bắt buộc" }}
-                render={({ field }) => <Input  placeholder="Nhập trình độ..." {...field} />}
+                render={({ field }) => <Input placeholder="Nhập trình độ..." {...field} />}
               />
             </Form.Item>
           </Col>
@@ -302,3 +319,4 @@ const TeachingAssignmentForm = () => {
 };
 
 export default TeachingAssignmentForm;
+
