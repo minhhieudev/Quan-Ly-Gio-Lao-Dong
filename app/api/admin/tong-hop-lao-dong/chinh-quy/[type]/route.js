@@ -22,11 +22,29 @@ export const POST = async (req) => {
       thuaThieuGioLaoDong,
     };
 
-    const newRecord = await TongHopLaoDong.create(data);
-    return new Response(JSON.stringify(newRecord), { status: 200 });
+    // Kiểm tra xem bản ghi đã tồn tại chưa
+    const existingRecord = await TongHopLaoDong.findOne({ 
+      user: body.user, // Giả sử bạn có trường user trong body
+      loai: body.loai, // Giả sử bạn có trường loai trong body
+      namHoc: body.namHoc // Giả sử bạn có trường namHoc trong body
+    });
+
+    if (existingRecord) {
+      // Nếu tồn tại, cập nhật bản ghi
+      const updatedRecord = await TongHopLaoDong.findOneAndUpdate(
+        { _id: existingRecord._id }, // Tìm bản ghi theo ID
+        data, // Cập nhật với dữ liệu mới
+        { new: true } // Trả về bản ghi đã cập nhật
+      );
+      return new Response(JSON.stringify(updatedRecord), { status: 200 });
+    } else {
+      // Nếu không tồn tại, tạo mới bản ghi
+      const newRecord = await TongHopLaoDong.create(data);
+      return new Response(JSON.stringify(newRecord), { status: 200 });
+    }
   } catch (err) {
     console.log(err);
-    return new Response(`Failed to create new record`, { status: 500 });
+    return new Response(`Failed to create or update record`, { status: 500 });
   }
 };
 

@@ -1,9 +1,9 @@
 'use client'
 import { useState, useEffect } from "react";
 import { Card, Button, Upload, message, Spin, Popconfirm } from "antd";
-import { 
-  DownloadOutlined, 
-  UploadOutlined, 
+import {
+  DownloadOutlined,
+  UploadOutlined,
   FileExcelOutlined,
   FilePdfOutlined,
   FileWordOutlined,
@@ -69,7 +69,7 @@ const BieuMauPage = () => {
     try {
       setUploading(true);
       const uploadResult = await uploadFile(file);
-      
+
       // Lưu thông tin file vào database
       const fileData = {
         filename: file.name,
@@ -150,19 +150,19 @@ const BieuMauPage = () => {
   };
 
   return (
-    <div className="  bg-gradient-to-r from-blue-100 via-white to-blue-100 p-2 mt-2 h-[92vh] overflow-hidden">
+    <div className="  bg-gradient-to-r from-blue-100 via-white to-blue-100 p-2 mt-2 h-[91vh] overflow-hidden">
       <div className="flex flex-col h-full">
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold text-blue-600">BIỂU MẪU</h1>
           <Upload
             customRequest={({ file }) => handleFileUpload(file)}
             showUploadList={false}
           >
-            <Button 
+            <Button
               icon={<UploadOutlined />}
               loading={uploading}
               className="bg-green-500 text-white hover:bg-green-600 flex items-center gap-2"
-              size="large"
+              size="base"
             >
               {uploading ? 'Đang tải lên...' : 'Tải lên biểu mẫu mới'}
             </Button>
@@ -175,29 +175,29 @@ const BieuMauPage = () => {
           </div>
         ) : (
           <div className="flex-1 p-2">
-            <div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max max-h-[87%] overflow-auto"
-            
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-max max-h-[78%] overflow-y-auto"
+
             >
               {bieuMauList.map((bieuMau, index) => (
                 <Card
                   key={index}
-                  className="hover:shadow-xl transition-all duration-300 border-t-4"
+                  className="hover:shadow-xl transition-all duration-300 border-t-4 overflow-hidden"
                   style={{
-                    borderTopColor: 
+                    borderTopColor:
                       bieuMau.filename.endsWith('xlsx') ? '#217346' :
-                      bieuMau.filename.endsWith('pdf') ? '#FF4D4F' :
-                      bieuMau.filename.endsWith('doc') || bieuMau.filename.endsWith('docx') ? '#2B579A' :
-                      '#4091F7'
+                        bieuMau.filename.endsWith('pdf') ? '#FF4D4F' :
+                          bieuMau.filename.endsWith('doc') || bieuMau.filename.endsWith('docx') ? '#2B579A' :
+                            '#4091F7'
                   }}
                 >
                   <div className="flex items-start gap-4">
                     {getFileIcon(bieuMau.filename)}
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1 text-gray-800">
+                      <h3 className="font-semibold text-lg mb-1 text-gray-800 truncate">
                         {bieuMau.filename}
                       </h3>
-                      <p className="text-gray-500 text-sm mb-2">
+                      <p className="text-gray-500 text-sm mb-2 truncate">
                         {bieuMau.description || 'Không có mô tả'}
                       </p>
                       <p className="text-xs text-gray-400">
@@ -205,9 +205,10 @@ const BieuMauPage = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex justify-between mt-4 pt-4 border-t">
                     <Button
+                      size="small"
                       type="primary"
                       icon={<DownloadOutlined />}
                       onClick={() => downloadFile(bieuMau.url, bieuMau.filename)}
@@ -215,7 +216,7 @@ const BieuMauPage = () => {
                     >
                       Tải xuống
                     </Button>
-                    
+
                     <Popconfirm
                       title="Xóa biểu mẫu"
                       description="Bạn có chắc chắn muốn xóa biểu mẫu này?"
@@ -224,7 +225,9 @@ const BieuMauPage = () => {
                       cancelText="Hủy"
                       okButtonProps={{ danger: true }}
                     >
-                      <Button 
+                      <Button
+                        size="small"
+
                         danger
                         icon={<DeleteOutlined />}
                         className="flex items-center gap-2"

@@ -90,7 +90,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     };
 
     const handleSaveNewHocPhan = () => {
-        console.log('newHocPhannewHocPhan',newHocPhan)
+        console.log('newHocPhannewHocPhan', newHocPhan)
         const newHocPhanObj = {
             _id: Math.random().toString(36).substr(2, 9),
             hocPhan: newHocPhan,
@@ -144,7 +144,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
+                const res = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${ky}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -163,7 +163,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [currentUser]);
+    }, [namHoc, ky]);
 
     useEffect(() => {
         if (!namHoc && !ky) return;
@@ -209,7 +209,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             toast.error('Vui lòng nhập năm học!')
             return
         }
-        console.log('data:', data)
+
         try {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacCoiThi", {
@@ -220,8 +220,9 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
             if (res.ok) {
                 const newData = await res.json();
-                if (editRecord && newData) {
-                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+
+                if (editRecord || dataList.some(item => item.hocPhan === newData.hocPhan)) {
+                    setDataList(prevData => prevData.map(item => (item.hocPhan === newData.hocPhan ? newData : item)));
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
@@ -280,18 +281,12 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     };
 
     const columns = [
-        {
-            title: 'Học kỳ',
-            dataIndex: 'ky',
-            key: 'ky'
-        },
-        {
-            title: 'Số tiết quy chuẩn',
-            dataIndex: 'soTietQuyChuan',
-            key: 'soTietQuyChuan',
-            render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+        // {
+        //     title: 'Học kỳ',
+        //     dataIndex: 'ky',
+        //     key: 'ky'
+        // },
 
-        },
         {
             title: 'Học phần',
             dataIndex: 'hocPhan',
@@ -299,15 +294,24 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             render: (text) => <span style={{ fontWeight: 'bold', color: 'green' }}>{text}</span>,
         },
         {
-            title: 'Thời gian thi',
+            title: 'Thời gian',
             dataIndex: 'thoiGianThi',
-            key: 'thoiGianThi'
+            key: 'thoiGianThi',
+            render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
         },
         {
             title: 'Ngày thi',
             dataIndex: 'ngayThi',
             key: 'ngayThi',
-            render: (text) => moment(text).format('DD-MM-YYYY'),
+            render: (text) => <span style={{ fontWeight: 'bold' }}>{moment(text).format('DD-MM-YYYY')}</span>,
+
+        },
+        {
+            title: 'Số tiết quy chuẩn',
+            dataIndex: 'soTietQuyChuan',
+            key: 'soTietQuyChuan',
+            render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+
         },
         {
             title: 'Ghi chú',
@@ -517,10 +521,10 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         </div>
 
                         <div className="flex  justify-between text-center">
-                            <Button type="default" danger onClick={onReset}>Nhập lại</Button>
                             <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                {editRecord ? "Cập nhật" : "Thêm mới"}
+                                {editRecord ? "Cập nhật" : "Lưu"}
                             </Button>
+                            <Button type="default" danger onClick={onReset}>Reset</Button>
                         </div>
                     </Space>
                 </Form>

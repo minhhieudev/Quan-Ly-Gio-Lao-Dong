@@ -1,39 +1,23 @@
 import { connectToDB } from '@mongodb';
-import User from "@models/User";
+import PcChamThi from "@models/PcChamThi";
 
 export const GET = async (req) => {
     try {
         await connectToDB();
 
-        // Danh sách học vị có thể có
-        const hocViList = ['Thạc sĩ', 'Tiến sĩ'];
-
-        // Lấy danh sách tất cả users cần cập nhật
-        const users = await User.find({ role: "user" });
-
-        // Cập nhật từng user với học vị ngẫu nhiên
-        const updatePromises = users.map(async (user) => {
-            // Chọn ngẫu nhiên một học vị
-            const randomHocVi = hocViList[Math.floor(Math.random() * hocViList.length)];
-            
-            // Cập nhật user với học vị ngẫu nhiên
-            return User.findByIdAndUpdate(
-                user._id,
-                { hocHamHocVi: randomHocVi },
-                { new: true }
-            );
-        });
-
-        // Thực hiện tất cả các cập nhật
-        await Promise.all(updatePromises);
+        // Cập nhật trường 'ky' của tất cả đối tượng với giá trị "1"
+        const result = await PcChamThi.updateMany(
+            {}, // Điều kiện trống để cập nhật tất cả tài liệu
+            { $set: { ky: "1" } } // Cập nhật trường 'ky' với giá trị "1"
+        );
 
         return new Response(JSON.stringify({ 
-            message: `Đã cập nhật học vị cho ${users.length} giảng viên`,
+            message: `Đã cập nhật trường 'ky' cho ${result.modifiedCount} đối tượng`,
             success: true 
         }), { status: 200 });
 
     } catch (err) {
-        console.error("Lỗi khi cập nhật học vị:", err);
+        console.error("Lỗi khi cập nhật trường 'ky':", err);
         return new Response(JSON.stringify({ 
             message: `Lỗi: ${err.message}`,
             success: false 

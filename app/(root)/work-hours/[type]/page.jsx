@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Row, Col, Button, Input, Tabs, Spin, Select } from "antd";
+import { Row, Col, Button, Input, Tabs, Spin, Select, Modal } from "antd";
 import TeachingForm from '@components/GiangDay/TeachingForm';
 import EvaluationForm from "@components/ChamThi/EvaluationForm";
 import DutyExemptionForm from "@components/KiemNhiem/DutyExemptionForm";
@@ -196,30 +196,39 @@ const Pages = () => {
   }, []);
 
   const submitResult = async () => {
-    try {
-      const res = await fetch(type !== "boi-duong" ? `/api/admin/tong-hop-lao-dong/chinh-quy/${type}` : "/api/admin/tong-hop-lao-dong/boi-duong", {
-        method: "POST",
-        body: JSON.stringify({
-          user: currentUser._id,
-          congTacGiangDay,
-          congTacKhac: { ...congTacKhac, tong: congTacKhac.chamThi + congTacKhac.coiThi + congTacKhac.deThi + congTacKhac.ngoaiKhoa },
-          kiemNhiem,
-          loai: type,
-          namHoc
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
+    Modal.confirm({
+        title: "Xác nhận",
+        content: "Kết quả sẽ được gửi đi. Bạn có chắc chắn không?",
+        onOk: async () => {
+            try {
+                const res = await fetch(type !== "boi-duong" ? `/api/admin/tong-hop-lao-dong/chinh-quy/${type}` : "/api/admin/tong-hop-lao-dong/boi-duong", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        user: currentUser._id,
+                        congTacGiangDay,
+                        congTacKhac: { ...congTacKhac, tong: congTacKhac.chamThi + congTacKhac.coiThi + congTacKhac.deThi + congTacKhac.ngoaiKhoa },
+                        kiemNhiem,
+                        loai: type,
+                        namHoc
+                    }),
+                    headers: { "Content-Type": "application/json" },
+                });
 
-      if (res.ok) {
-        toast.success("Lưu kết quả thành công !");
-        // onReset();
-      } else {
-        toast.error("Failed to save record");
-      }
-    } catch (err) {
-      console.log('Err:', err)
-      toast.error("An error occurred while saving data");
-    }
+                if (res.ok) {
+                    toast.success("Lưu kết quả thành công !");
+                    // onReset();
+                } else {
+                    toast.error("Failed to save record");
+                }
+            } catch (err) {
+                console.log('Err:', err);
+                toast.error("An error occurred while saving data");
+            }
+        },
+        onCancel() {
+            console.log('Cancelled');
+        },
+    });
   };
 
   return (

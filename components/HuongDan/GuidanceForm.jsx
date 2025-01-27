@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Select, InputNumber,Tabs, Table, Popconfirm, Spin } from "antd";
+import { Button, Input, Form, Space, Typography, Select, InputNumber, Tabs, Table, Popconfirm, Spin } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -63,48 +63,47 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         setValue("tongCong", watch("soTietQuyChuan"));
     }, [watch("soTietQuyChuan"), setValue]);
 
+    const fetchData = async () => {
+        try {
+            const res = await fetch(`/api/work-hours/CongTacHuongDan/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDataList(data);
+                setLoading(false)
+                setLoadings(false)
+
+            } else {
+                toast.error("Failed to fetch data");
+            }
+        } catch (err) {
+            toast.error("An error occurred while fetching data");
+        }
+    };
+    const fetchData2 = async () => {
+        try {
+            const res = await fetch(`/api/work-hours/select/huong-dan`, { /////////////////////////////////////
+                method: "GET",
+                headers: { "Content-Type": "application/json" },
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setDataListSelect(data);
+            } else {
+                toast.error("Failed to fetch data");
+            }
+        } catch (err) {
+            toast.error("An error occurred while fetching data");
+        }
+    };
+
     useEffect(() => {
         if (!currentUser?._id) return;
-
-        const fetchData = async () => {
-            try {
-                const res = await fetch(`/api/work-hours/CongTacHuongDan/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setDataList(data);
-                    setLoading(false)
-                    setLoadings(false)
-
-                } else {
-                    toast.error("Failed to fetch data");
-                }
-            } catch (err) {
-                toast.error("An error occurred while fetching data");
-            }
-        };
-        const fetchData2 = async () => {
-            try {
-                const res = await fetch(`/api/work-hours/select/huong-dan`, { /////////////////////////////////////
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    setDataListSelect(data);
-                } else {
-                    toast.error("Failed to fetch data");
-                }
-            } catch (err) {
-                toast.error("An error occurred while fetching data");
-            }
-        };
-
         fetchData();
         fetchData2();
-    }, [currentUser]);
+    }, [namHoc, ky]);
 
     const calculateTotals = () => {
         onUpdateCongTacHuongDan(totalSoTietQuyChuan);
@@ -123,14 +122,16 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacHuongDan", {
                 method,
-                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc ,ky}),
+                body: JSON.stringify({ ...data, type: type, user: currentUser._id, id: editRecord?._id, namHoc, ky }),
                 headers: { "Content-Type": "application/json" },
             });
 
             if (res.ok) {
                 const newData = await res.json();
-                if (editRecord && newData) {
-                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+                //if (editRecord && newData) {
+                if (editRecord || dataList.some(item => item.noiDungCongViec === newData.noiDungCongViec)) {
+
+                    setDataList(prevData => prevData.map(item => (item.noiDungCongViec === newData.noiDungCongViec ? newData : item)));
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
@@ -248,9 +249,9 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         setLoadings(true);
         setSelectedTab(key);
         setTimeout(() => {
-          setLoadings(false);
+            setLoadings(false);
         }, 500);
-      };
+    };
 
     const totalSoTietQuyChuan = useMemo(() => {
         return dataList.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
@@ -391,7 +392,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         <Form.Item>
                             <Space>
                                 <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                    {isSubmitting ? "Submitting..." : "Submit"}
+                                    {isSubmitting ? "Đang xử lý..." : "Lưu"}
                                 </Button>
                                 <Button type="default" danger onClick={onReset} disabled={isSubmitting}>
                                     Reset
@@ -422,7 +423,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         </div>
                     </TabPane>
                     <TabPane tab="PHỤ LỤC CÔNG VIỆC" key="Phụ lục công việc" className="text-center">
-                        {loadings ? <Spin size="large" /> : <TableHuongDan data = {dataListSelect} />}
+                        {loadings ? <Spin size="large" /> : <TableHuongDan data={dataListSelect} />}
                     </TabPane>
                 </Tabs>
 

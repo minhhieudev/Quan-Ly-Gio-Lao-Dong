@@ -40,7 +40,10 @@ const CongTacChamThiSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  hinhThucThoiGianThi: {
+  hinhThuc: {
+    type: String,  
+  },
+  thoiGian: {
     type: String,  
   },
 },{

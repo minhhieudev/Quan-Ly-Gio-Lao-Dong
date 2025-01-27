@@ -105,6 +105,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   useEffect(() => {
     if (soTietTH && /^\d+\s*giờ$/.test(soTietTH)) {
+
       const match = soTietTH.match(/(\d+)/); // Tìm số trong chuỗi
       if (match) {
         const numericValue = parseInt(match[0], 10);
@@ -124,7 +125,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
     else {
 
+
       if (currentHocPhan) {
+
         let result;
 
         // Tách giá trị từ currentHocPhan.soLuong
@@ -181,9 +184,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           setValue("soTietQCTH", result);
 
         } else {
-          heSoValues = [parseFloat(currentHocPhan.record?.heSo)];
-          result = soTietTH * heSoValues[0];
-          setValue("soTietQCTH", result);
+
+          if (!currentHocPhan.record?.heSo && soTietTH != 0) {
+            toast.error("Chưa có dữ liệu TH cho học phần này nên không thể tính số tiết QC!.");
+          } else {
+            heSoValues = [parseFloat(currentHocPhan.record?.heSo)];
+            result = soTietTH * heSoValues[0];
+            setValue("soTietQCTH", result);
+          }
 
         }
 
@@ -217,9 +225,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           record: data[0]
         };
 
-        if (data.length < 1) {
-          toast.warning("Không có dữ liệu thực hành cho học phần này !");
-        }
+        // if (data.length < 1) {
+        //   toast.error("Lưu ý. Không có dữ liệu thực hành cho học phần này !");
+        // }
 
         // Cập nhật listSelect với học phần mới
         setListSelect([...listSelect, newHocPhanObj]);
@@ -232,6 +240,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         toast.error("Có lỗi khi lấy dữ liệu HPTH !");
       }
     } catch (err) {
+      console.log(err)
       toast.error("An error occurred while fetching data HPTH");
     }
 
@@ -428,11 +437,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       key: 'hocPhan',
       className: 'text-blue-500 font-bold'
     },
-    {
-      title: 'Học kỳ',
-      dataIndex: 'ky',
-      key: 'ky'
-    },
+   
     {
       title: 'Số TC',
       dataIndex: 'soTinChi',
@@ -552,11 +557,11 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             <Form.Item
               label={
                 <span className="font-bold text-xl">
-                  Mã học phần <span className="text-red-600">*</span>
+                  Mã học phần
                 </span>
               }
               className="w-[40%] p-0"
-              validateStatus={errors.maMH ? 'error' : ''}
+              //validateStatus={errors.maMH ? 'error' : ''}
               help={errors.maMH?.message}
             >
               <Space className="flex">
@@ -564,7 +569,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                   <Controller
                     name="maMH"
                     control={control}
-                    rules={{ required: "Mã học phần là bắt buộc" }}
+                    //rules={{ required: "Mã học phần là bắt buộc" }}
                     render={({ field }) => <Input className="input-text w-[90%]" onBlur={(e) => {
                       field.onBlur(); // Gọi hàm mặc định của react-hook-form
                       handleBlur(e.target.value); // Thêm xử lý của bạn khi rời khỏi input
@@ -698,14 +703,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
                     <Form.Item
                       className="max-sm:ml-20"
-                      label={<span className="font-semibold text-base">TH <span className="text-red-600">*</span></span>}
+                      label={<span className="font-semibold text-base">TH </span>}
                       validateStatus={errors.soTietTH ? 'error' : ''}
                       help={errors.soTietTH?.message}
                     >
                       <Controller
                         name="soTietTH"
                         control={control}
-                        rules={{ required: "Số tiết TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
+                        //rules={{ required: "Số tiết TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
                         render={({ field }) => <Input className="input-number w-14" {...field} />}
                       />
                     </Form.Item>
@@ -737,7 +742,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                       <Controller
                         name="soTietQCTH"
                         control={control}
-                        render={({ field }) => <InputNumber className="input-number w-14" readOnly {...field} />}
+                        render={({ field }) => <InputNumber className="input-number w-14"  {...field} />}
                       />
                     </Form.Item>
                   </div>
