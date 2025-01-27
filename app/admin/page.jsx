@@ -96,7 +96,7 @@ const Dashboard = () => {
             ]);
             setLoading(false);
         };
-        
+
         fetchAllData();
     }, [namHoc]);
 
@@ -129,8 +129,8 @@ const Dashboard = () => {
 
     return (
         <Spin spinning={loading} tip="Loading...">
-            <div className="p-6">
-                <div className="grid grid-cols-3 gap-6 mb-6">
+            <div className="p-2">
+                <div className="grid grid-cols-3 gap-3 mb-2">
                     <div className="bg-white p-4 rounded-lg shadow-xl flex items-center">
                         <CalendarOutlined style={{ fontSize: "90px" }} className="mr-4 text-blue-500" />
                         <div className="text-base-bold space-y-3">
@@ -170,7 +170,7 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <Progress
-                            type="dashboard" 
+                            type="dashboard"
                             percent={Math.round((dataCount.completed / dataCount.total) * 100)}
                             trailColor="rgba(0, 0, 0, 0.06)"
                             strokeWidth={20}
@@ -187,7 +187,7 @@ const Dashboard = () => {
                         </div>
                         <Progress
                             type="dashboard"
-                            percent={Math.round((dataCount.notCompleted / dataCount.total) * 100)} 
+                            percent={Math.round((dataCount.notCompleted / dataCount.total) * 100)}
                             status="exception"
                             trailColor="rgba(0, 0, 0, 0.06)"
                             strokeWidth={20}
@@ -195,10 +195,10 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-5 gap-6 h-full">
-                    <div className="col-span-3 bg-white p-6 rounded-lg shadow-md">
+                <div className="grid grid-cols-5 gap-3 ">
+                    <div className="col-span-3 bg-white p-3 rounded-lg shadow-md h-[65vh]">
                         <div className="flex justify-between">
-                            <h2 className="text-xl font-bold mb-4">Danh sách</h2>
+                            <h2 className="text-xl font-bold mb-3">Danh sách</h2>
                             <Search
                                 placeholder="Tìm kiếm theo tên..."
                                 allowClear
@@ -211,26 +211,29 @@ const Dashboard = () => {
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
-                        <Table
-                            dataSource={filteredData}
-                            columns={columns}
-                            pagination={false}
-                        />
+
+                        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 220px)' }}>
+                            <Table
+                                dataSource={filteredData}
+                                columns={columns}
+                                pagination={false}
+                            />
+                        </div>
                     </div>
 
 
-                    <div className="col-span-2 bg-white p-6 rounded-lg shadow-md">
+                    <div className="col-span-2 bg-white p-3 rounded-lg shadow-md">
                         <h2 className="text-xl font-bold mb-4">Danh sách các khoa</h2>
-                        <div className="list-disc max-h-[45vh] overflow-y-auto">
+                        <div className="list-disc max-h-[56vh] overflow-y-auto">
                             {khoaList.map((khoa, index) => (
                                 <div
                                     key={index}
-                                    className={`mb-4 p-4 cursor-pointer border-2 rounded-lg ${selectedKhoa === khoa ? "bg-blue-100 border border-blue-500" : "bg-white"
+                                    className={`mb-4 p-4 cursor-pointer border-4 rounded-lg ${selectedKhoa === khoa ? "bg-blue-100 border-4 border-blue-500" : "bg-white"
                                         }`}
                                     onClick={() => handleSelectKhoa(khoa)}
                                 >
                                     <div className="flex justify-between items-center">
-                                        <span>{khoa.tenKhoa}</span>
+                                        <span className="font-bold text-green-500">{khoa.tenKhoa}</span>
                                         <span className="text-red-500">
                                             {dataList[khoa.tenKhoa]?.current}/{dataList[khoa.tenKhoa]?.total}
                                         </span>

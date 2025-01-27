@@ -241,7 +241,17 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     };
 
     const handleEdit = (record) => {
-        setEditRecord(record);
+        console.log('record:', record);
+        
+        // Đổ dữ liệu vào form
+        setValue("user", record.user);
+        setValue("ky", record.ky);
+        setValue("hocPhan", record.hocPhan);
+        setValue("thoiGianThi", record.thoiGianThi);
+        setValue("soTietQuyChuan", record.soTietQuyChuan);
+        
+        // Đảm bảo rằng ngayThi được thiết lập đúng cách
+        setValue("ngayThi", new Date(record.ngayThi).toISOString().split('T')[0]); // Chuyển đổi định dạng ngày
     };
 
     const handleDelete = async (id) => {
