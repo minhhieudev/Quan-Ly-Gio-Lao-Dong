@@ -40,8 +40,11 @@ const SideBar = () => {
     }));
   };
 
-  const getIconStyle = (paths) => 
-    paths.includes(pathname) ? { color: 'red' } : { color: 'black' };
+  const getIconStyle = (paths) => {
+    const pathname = usePathname();
+    const isActive = paths.some(path => pathname.startsWith(path));
+    return isActive ? { color: 'red' } : { color: 'black' };
+  };
 
   const GroupHeader = ({ title, group, icon }) => (
     <div 
@@ -61,7 +64,7 @@ const SideBar = () => {
       {/* Dashboard và Thống kê */}
       <Link href="/admin/dashboard" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <DashboardOutlined style={{ fontSize: "20px" }} className="text-blue-600"/>
-        <span style={getIconStyle(["/admin/dashboard", "/admin"])}>Dashboard</span>
+        <span style={getIconStyle(["/admin/dashboard"])}>Dashboard</span>
       </Link>
       <Link href="/admin/work-hours" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <ClockCircleOutlined style={{ fontSize: "20px" }} className="text-green-600"/>
