@@ -51,19 +51,12 @@ const Dashboard = () => {
         }
     };
     const fetchData = async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
         try {
             setLoading(true);
             const res = await fetch(`/api/admin/dashboard/get-complete?namHoc=${namHoc}`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
-                signal: controller.signal,
             });
-
-            clearTimeout(timeoutId);
-
             if (res.ok) {
                 const data = await res.json();
                 setDataList(data);
@@ -71,13 +64,7 @@ const Dashboard = () => {
                 toast.error("Failed to fetch data");
             }
         } catch (err) {
-            if (err.name === 'AbortError') {
-                toast.error("Request timed out");
-            } else {
-                toast.error("An error occurred while fetching data");
-            }
-        } finally {
-            setLoading(false);
+            toast.error("An error occurred while fetching data");
         }
     };
     const fetchDataCount = async () => {
