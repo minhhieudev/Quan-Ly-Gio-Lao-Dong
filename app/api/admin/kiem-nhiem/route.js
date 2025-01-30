@@ -1,4 +1,5 @@
 import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
+import ChucVu from "@models/ChucVu";
 import { connectToDB } from "@mongodb";
 
 export const GET = async (req) => {
