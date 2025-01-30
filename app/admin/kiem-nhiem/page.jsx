@@ -45,13 +45,15 @@ const KiemNhiemForm = () => {
     const [current, setCurrent] = useState(1);
     const [khoaOptions, setKhoaOptions] = useState([]);
     const [selectedKhoa, setSelectedKhoa] = useState("");
+    const [showForm, setShowForm] = useState(false);
+    const [loaiChucVuList, setLoaiChucVuList] = useState([]);
 
     // Thêm hàm xử lý filter data
     const getFilteredData = () => {
         return dataList.filter(item => {
             const matchName = item.user?.username?.toLowerCase().includes(searchName.toLowerCase());
             const matchKhoa = !selectedKhoa || item.user?.khoa === selectedKhoa;
-            const matchChucVu = !selectedLoai || item.chucVu?.tenCV === selectedLoai;
+            const matchChucVu = !selectedLoai || item.chucVu?.loaiCV === selectedLoai;
 
             return matchName && matchKhoa && matchChucVu;
         });
@@ -68,13 +70,24 @@ const KiemNhiemForm = () => {
         fetchData2();
         fetchData3();
         getListKhoa();
+        fetchLoaiChucVu();
     }, []);
 
 
     useEffect(() => {
         fetchData();
     }, []);
-
+    const fetchLoaiChucVu = async () => {
+        try {
+            const res = await fetch('/api/admin/loai-chuc-vu');
+            if (res.ok) {
+                const data = await res.json();
+                setLoaiChucVuList(data);
+            }
+        } catch (error) {
+            toast.error("Lỗi khi tải danh sách loại chức vụ");
+        }
+    };
 
     const fetchData3 = async () => {
         try {
@@ -180,13 +193,11 @@ const KiemNhiemForm = () => {
     };
     const handleEdit = (record) => {
         setEditRecord(record);
-        setValue("chucVu", record?.chucVu?._id); // Thiết lập ID của chucVu
+        setShowForm(true);
+        setValue("chucVu", record?.chucVu?._id);
         setValue("user", record?.user?._id);
-
-        // Chuyển đổi startTime và endTime thành đối tượng dayjs
-        setValue("startTime", dayjs(record.startTime)); // Chuyển đổi thành dayjs
-        setValue("endTime", dayjs(record.endTime));     // Chuyển đổi thành dayjs
-
+        setValue("startTime", dayjs(record.startTime));
+        setValue("endTime", dayjs(record.endTime));
         setValue("ghiChu", record.ghiChu);
     };
     const handleDelete = async (id) => {
@@ -252,6 +263,13 @@ const KiemNhiemForm = () => {
             className: 'text-black font-bold',
 
         },
+        // {
+        //     title: 'Ghi chú',
+        //     dataIndex: 'chucVu',
+        //     key: 'chucVu',
+        //     className: 'text-black font-bold',
+        //     render: (text) => text?.loaiCV,
+        // },
 
         {
             title: 'Hành động',
@@ -328,154 +346,167 @@ const KiemNhiemForm = () => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-2 max-sm:flex-col mt-2 h-[92vh]">
-            <div className="p-4 shadow-xl bg-white rounded-xl flex-[25%]">
-                <Title className="text-center" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
-
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
-                    <Form.Item
-                        label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
-                        validateStatus={errors.chucVu ? 'error' : ''}
-                        help={errors.chucVu?.message}
-                    >
-                        <Controller
-                            name="chucVu"
-                            control={control}
-                            rules={{ required: "Chức vụ, công việc là bắt buộc" }}
-                            render={({ field }) => (
-                                <Select
-                                    className="input-select"
-                                    placeholder="Chọn công việc, chức vụ ..."
-                                    {...field}
-                                    options={listChucVu.map(item => ({ label: item.tenCV, value: item._id }))}
-                                // onChange={(value) => {
-                                //     field.onChange(value); // Cập nhật giá trị cho Controller
-                                //     const selectedItem = dataListSelect.find(item => item.maCV === value); // Lấy item đầy đủ
-                                //     handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
-                                // }}
-                                />
-                            )}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={<span className="font-bold text-xl">Người nhận nhiệm vụ <span className="text-red-600">*</span></span>}
-                        validateStatus={errors.user ? 'error' : ''}
-                        help={errors.user?.message}
-                    >
-                        <Controller
-                            name="user"
-                            control={control}
-                            rules={{ required: "Bắt buộc" }}
-
-                            render={({ field }) => (
-                                <Select
-                                    className="input-select"
-                                    placeholder="Chọn người nhận nhiệm vụ ..."
-                                    {...field}
-                                    options={listUser.map(item => ({ label: item.username, value: item._id }))}
-                                    showSearch
-                                    filterOption={(input, option) =>
-                                        option.label.toLowerCase().includes(input.toLowerCase())
-                                    }
-                                // onChange={(value) => {
-                                //     field.onChange(value); // Cập nhật giá trị cho Controller
-                                //     const selectedItem = dataListSelect.find(item => item.maCV === value); // Lấy item đầy đủ
-                                //     handleSelectChange(selectedItem); // Gọi hàm với item đầy đủ
-                                // }}
-                                />
-                            )}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={<span className="font-bold text-xl">Ngày bắt đầu </span>}
-                        className="w-[40%]"
-                        help={errors.startTime?.message}
-                    >
-                        <Controller
-                            name="startTime"
-                            control={control}
-                            render={({ field }) => (
-                                <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
-                            )}
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        label={<span className="font-bold text-xl">Ngày kết thúc </span>}
-                        className="w-[40%]"
-                        help={errors.endTime?.message}
-                    >
-                        <Controller
-                            name="endTime"
-                            control={control}
-                            render={({ field }) => (
-                                <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
-                            )}
-                        />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={<span className="font-bold text-xl">Ghi chú <span className="text-red-600">*</span></span>}
-                        validateStatus={errors.ghiChu ? 'error' : ''}
-                        help={errors.ghiChu?.message}
-                    >
-                        <Controller
-                            name="ghiChu"
-                            control={control}
-                            render={({ field }) => <TextArea className="input-text" placeholder="Nhập ghi chú..." {...field} />}
-                        />
-                    </Form.Item>
-
-
-                    <Space size="middle">
-                        <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
-                            {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+        <div className="flex gap-2 max-sm:flex-col mt-2 h-[90vh]">
+            {showForm && (
+                <div className="p-4 shadow-xl bg-white rounded-xl basis-1/3">
+                    <div className="flex justify-between items-center">
+                        <Title className="text-center" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
+                        <Button
+                            type="text"
+                            onClick={() => setShowForm(false)}
+                            className="text-gray-500 hover:text-red-500"
+                        >
+                            ✕
                         </Button>
-                        <div className="text-center">
-                            <Spin spinning={isUploading}>
-                                <label htmlFor="excelUpload">
-                                    <Button
-                                        className=" button-lien-thong-vlvh"
-                                        type="primary"
-                                        icon={<UploadOutlined />}
-                                        onClick={() => fileInputRef.current.click()}
-                                        disabled={isUploading}
-                                    >
-                                        {isUploading ? 'Đang tải lên...' : 'Import từ Excel'}
-                                    </Button>
-                                </label>
-                            </Spin>
+                    </div>
+                    <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.chucVu ? 'error' : ''}
+                            help={errors.chucVu?.message}
+                        >
+                            <Controller
+                                name="chucVu"
+                                control={control}
+                                rules={{ required: "Chức vụ, công việc là bắt buộc" }}
+                                render={({ field }) => (
+                                    <Select
+                                        className="input-select"
+                                        placeholder="Chọn công việc, chức vụ ..."
+                                        {...field}
+                                        options={listChucVu.map(item => ({ label: item.tenCV, value: item._id }))}
+                                    />
+                                )}
+                            />
+                        </Form.Item>
 
-                            <div className="hidden">
-                                <input
-                                    type="file"
-                                    accept=".xlsx, .xls"
-                                    onChange={handleFileUpload}
-                                    className="hidden"
-                                    id="excelUpload"
-                                    ref={fileInputRef}
-                                />
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Người nhận nhiệm vụ <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.user ? 'error' : ''}
+                            help={errors.user?.message}
+                        >
+                            <Controller
+                                name="user"
+                                control={control}
+                                rules={{ required: "Bắt buộc" }}
+
+                                render={({ field }) => (
+                                    <Select
+                                        className="input-select"
+                                        placeholder="Chọn người nhận nhiệm vụ ..."
+                                        {...field}
+                                        options={listUser.map(item => ({ label: item.username, value: item._id }))}
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.label.toLowerCase().includes(input.toLowerCase())
+                                        }
+                                    />
+                                )}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Ngày bắt đầu </span>}
+                            className="w-[40%]"
+                            help={errors.startTime?.message}
+                        >
+                            <Controller
+                                name="startTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                )}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Ngày kết thúc </span>}
+                            className="w-[40%]"
+                            help={errors.endTime?.message}
+                        >
+                            <Controller
+                                name="endTime"
+                                control={control}
+                                render={({ field }) => (
+                                    <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                )}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            label={<span className="font-bold text-xl">Ghi chú <span className="text-red-600">*</span></span>}
+                            validateStatus={errors.ghiChu ? 'error' : ''}
+                            help={errors.ghiChu?.message}
+                        >
+                            <Controller
+                                name="ghiChu"
+                                control={control}
+                                render={({ field }) => <TextArea className="input-text" placeholder="Nhập ghi chú..." {...field} />}
+                            />
+                        </Form.Item>
+
+
+                        <Space size="middle">
+                            <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
+                                {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                            </Button>
+                            <div className="text-center">
+                                <Spin spinning={isUploading}>
+                                    <label htmlFor="excelUpload">
+                                        <Button
+                                            className=" button-lien-thong-vlvh"
+                                            type="primary"
+                                            icon={<UploadOutlined />}
+                                            onClick={() => fileInputRef.current.click()}
+                                            disabled={isUploading}
+                                        >
+                                            {isUploading ? 'Đang tải lên...' : 'Import từ Excel'}
+                                        </Button>
+                                    </label>
+                                </Spin>
+
+                                <div className="hidden">
+                                    <input
+                                        type="file"
+                                        accept=".xlsx, .xls"
+                                        onChange={handleFileUpload}
+                                        className="hidden"
+                                        id="excelUpload"
+                                        ref={fileInputRef}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        <Button danger className="ml-4" htmlType="button" onClick={onReset}>
-                            Reset
-                        </Button>
-                    </Space>
-                </Form>
-            </div>
+                            <Button danger className="ml-4" htmlType="button" onClick={onReset}>
+                                Reset
+                            </Button>
+                        </Space>
+                    </Form>
+                </div>
+            )}
 
-            <div className="p-3 shadow-xl bg-white rounded-xl flex-[73%] ">
+            <div className={`p-3 shadow-xl bg-white rounded-xl ${showForm ? 'basis-2/3' : 'w-full'}`}>
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
-                    <Title level={3} className="text-center">DANH SÁCH PHÂN CÔNG</Title>
+                    <div className="flex justify-between w-full items-center">
+                        <div className="flex-1 text-center">
+                            <Title level={4}>DANH SÁCH PHÂN CÔNG</Title>
+                        </div>
+                        {!showForm && (
+                            <Button
+                                type="primary"
+                                onClick={() => setShowForm(true)}
+                                className="bg-blue-500"
+                            >
+                                Thêm mới
+                            </Button>
+                        )}
+                    </div>
                 </div>
 
-                <div className="flex gap-3 justify-around w-full mb-1">
-                    <div className="flex-1">
+                <div className="flex gap-3 justify-around w-full mb-1 text-small-bold">
+                    <div className="">
                         <Input
                             placeholder="Tìm kiếm theo tên ..."
                             allowClear
-                            className="w-[30%]"
+                            className=""
                             size="small"
                             style={{
                                 width: 250,
@@ -488,17 +519,17 @@ const KiemNhiemForm = () => {
                         />
                     </div>
 
-                    <div className="flex w-[72%] gap-1">
+                    <div className="flex gap-1">
                         <div className="text-base-bold">Khoa:</div>
                         <Select
                             size="small"
-                            className="w-[40%]"
+                            style={{ width: 200 }}
                             placeholder="Lọc theo khoa"
                             allowClear
                             value={selectedKhoa}
                             onChange={value => {
                                 setSelectedKhoa(value);
-                                setCurrent(1); // Reset về trang 1 khi thay đổi filter
+                                setCurrent(1);
                             }}
                         >
                             {khoaOptions.map(khoa => (
@@ -507,29 +538,30 @@ const KiemNhiemForm = () => {
                                 </Option>
                             ))}
                         </Select>
-
+                    </div>
+                    <div className="flex gap-1">
                         <div className="text-base-bold ml-2">Chức vụ:</div>
                         <Select
                             size="small"
-                            className="w-[40%]"
+                            style={{ width: 200 }}
                             placeholder="Lọc theo chức vụ"
                             allowClear
                             value={selectedLoai}
                             onChange={value => {
                                 setSelectedLoai(value);
-                                setCurrent(1); // Reset về trang 1 khi thay đổi filter
+                                setCurrent(1);
                             }}
                         >
-                            {listChucVu.map(cv => (
-                                <Option key={cv._id} value={cv.tenCV}>
-                                    {cv.tenCV}
+                             {loaiChucVuList.map(loai => (
+                                <Option key={loai._id} value={loai.tenLoai}>
+                                    {loai.tenLoai}
                                 </Option>
                             ))}
                         </Select>
                     </div>
                 </div>
 
-                <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+                <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 120px)' }}>
                     <Table
                         dataSource={paginatedData}
                         columns={columns}
@@ -541,7 +573,7 @@ const KiemNhiemForm = () => {
                 <Pagination
                     current={current}
                     pageSize={pageSize}
-                    total={filteredData.length} 
+                    total={filteredData.length}
                     onChange={(page, size) => {
                         setCurrent(page);
                         setPageSize(size);
@@ -551,14 +583,14 @@ const KiemNhiemForm = () => {
                     className="flex justify-end"
                 />
 
-                <Button className="button-lien-thong-vlvh text-white font-bold shadow-md " onClick={() => exportPCKiemNhiem(dataList)}>
+                <Button className="button-lien-thong-vlvh text-white font-bold shadow-md " onClick={() => exportPCKiemNhiem(paginatedData)}>
                     <FileExcelOutlined /> Xuất Excel
                 </Button>
 
             </div>
 
 
-        </div>
+        </div >
     );
 };
 

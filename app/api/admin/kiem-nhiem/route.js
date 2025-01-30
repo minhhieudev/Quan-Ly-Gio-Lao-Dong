@@ -8,10 +8,10 @@ export const GET = async (req) => {
 
     // Lấy dữ liệu với điều kiện tìm kiếm và phân trang
     const data = await PhanCongKiemNhiem.find()
-      .populate('chucVu', 'tenCV') // Populate trường chucVu
+      .populate('chucVu', 'tenCV loaiCV') // Populate trường chucVu
       .populate('user', 'username khoa') // Populate trường user
     // Lấy tổng số bản ghi để tính toán phân trang
-
+    console.log(data);
     return new Response(JSON.stringify(data ), { status: 200 });
 
   } catch (err) {
