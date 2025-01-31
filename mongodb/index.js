@@ -23,24 +23,23 @@ export const connectToDB = async () => {
 
     // Kiểm tra tài khoản admin
     const existingAdmin = await User.findOne({ email: adminEmail });
-    if (existingAdmin) {
-      // Xóa tài khoản admin nếu đã tồn tại
-      await User.deleteOne({ email: adminEmail });
-      console.log("Existing admin user deleted");
+    
+    // Chỉ tạo admin nếu chưa tồn tại
+    if (!existingAdmin) {
+      const hashedPassword = await hash(adminPassword, 10);
+      const adminUser = new User({
+        username: 'Admin',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'admin',
+      });
+      await adminUser.save();
+      console.log('Admin user created successfully');
     }
-
-    // Tạo tài khoản admin mới
-    const hashedPassword = await hash(adminPassword, 10);
-    const adminUser = new User({
-      username: 'Admin',
-      email: adminEmail,
-      password: hashedPassword,
-      role: 'admin',
-    });
-    await adminUser.save();
-    console.log('Admin user created successfully');
 
   } catch (error) {
     console.error("MongoDB connection error:", error);
+    // Reset trạng thái kết nối nếu có lỗi
+    isConnected = false;
   }
 };
