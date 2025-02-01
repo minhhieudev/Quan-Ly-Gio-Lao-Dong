@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination } from "antd";
+import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination, Modal, Divider } from "antd";
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, PlusOutlined } from '@ant-design/icons'
 import { UploadOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 
@@ -34,6 +34,10 @@ const ChucVuForm = () => {
     const [pageSize, setPageSize] = useState(10);
     const [current, setCurrent] = useState(1);
 
+    const [loaiChucVuList, setLoaiChucVuList] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [newLoaiChucVu, setNewLoaiChucVu] = useState("");
+
     // Phân trang dữ liệu
     const paginatedData = filteredList.slice(
         (current - 1) * pageSize,
@@ -42,6 +46,7 @@ const ChucVuForm = () => {
 
     useEffect(() => {
         fetchData();
+        fetchLoaiChucVu();
     }, []);
 
     useEffect(() => {
@@ -78,6 +83,18 @@ const ChucVuForm = () => {
             }
         } catch (err) {
             toast.error("An error occurred while fetching data");
+        }
+    };
+
+    const fetchLoaiChucVu = async () => {
+        try {
+            const res = await fetch('/api/admin/loai-chuc-vu');
+            if (res.ok) {
+                const data = await res.json();
+                setLoaiChucVuList(data);
+            }
+        } catch (error) {
+            toast.error("Lỗi khi tải danh sách loại chức vụ");
         }
     };
 
@@ -131,6 +148,42 @@ const ChucVuForm = () => {
             }
         } catch (err) {
             toast.error("An error occurred while deleting data");
+        }
+    };
+
+    const handleAddLoaiChucVu = async () => {
+        try {
+            const res = await fetch('/api/admin/loai-chuc-vu', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenLoai: newLoaiChucVu })
+            });
+
+            if (res.ok) {
+                toast.success("Thêm loại chức vụ thành công");
+                setNewLoaiChucVu("");
+                setIsModalVisible(false);
+                fetchLoaiChucVu();
+            }
+        } catch (error) {
+            toast.error("Lỗi khi thêm loại chức vụ");
+        }
+    };
+
+    const handleDeleteLoaiChucVu = async (id) => {
+        try {
+            const res = await fetch('/api/admin/loai-chuc-vu', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (res.ok) {
+                toast.success("Xóa loại chức vụ thành công");
+                fetchLoaiChucVu();
+            }
+        } catch (error) {
+            toast.error("Lỗi khi xóa loại chức vụ");
         }
     };
 
@@ -284,13 +337,48 @@ const ChucVuForm = () => {
                             name="loaiCV"
                             control={control}
                             render={({ field }) => (
-                                <Select className="w-full" placeholder="Chọn loại chức vụ ..." {...field}>
-                                    <Select.Option key={'Chính quyền'} value={'Chính quyền'}> Chính quyền</Select.Option>
-                                    <Select.Option key={'Công đoàn'} value={'Công đoàn'}> Công đoàn</Select.Option>
-                                    <Select.Option key={'Đảng'} value={'Đảng'}> Đảng</Select.Option>
-                                    <Select.Option key={'Đoàn hội'} value={'Đoàn hội'}> Đoàn hội </Select.Option>
-                                    <Select.Option key={'Kiêm nhiệm'} value={'Kiêm nhiệm'}> Kiêm nhiệm</Select.Option>
-                                    <Select.Option key={'Khác'} value={'Khác'}> Khác</Select.Option>
+                                <Select
+                                    className="w-full"
+                                    placeholder="Chọn loại chức vụ ..."
+                                    {...field}
+                                    dropdownRender={(menu) => (
+                                        <>
+                                            {menu}
+                                            <Divider style={{ margin: '8px 0' }} />
+                                            <Space style={{ padding: '0 8px 4px' }}>
+                                                <Button
+                                                    type="text"
+                                                    icon={<PlusOutlined />}
+                                                    onClick={() => setIsModalVisible(true)}
+                                                >
+                                                    Thêm loại chức vụ
+                                                </Button>
+                                            </Space>
+                                        </>
+                                    )}
+                                >
+                                    {loaiChucVuList.map(loai => (
+                                        <Select.Option key={loai._id} value={loai.tenLoai}>
+                                            <div className="flex justify-between items-center">
+                                                <span>{loai.tenLoai}</span>
+                                                <Popconfirm
+                                                    title="Bạn có chắc chắn muốn xóa?"
+                                                    onConfirm={() => handleDeleteLoaiChucVu(loai._id)}
+                                                    okText="Có"
+                                                    cancelText="Không"
+                                                >
+                                                    <Button
+                                                        size="small"
+                                                        type="text"
+                                                        danger
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        Xóa
+                                                    </Button>
+                                                </Popconfirm>
+                                            </div>
+                                        </Select.Option>
+                                    ))}
                                 </Select>
                             )}
                         />
@@ -370,18 +458,17 @@ const ChucVuForm = () => {
                     <div className="flex w-[25%] gap-1">
                         <div className="text-base-bold">Loại:</div>
                         <Select size="small"
-                            className="flex-1 "
+                            className="flex-1"
                             placeholder="Lọc theo loại"
                             allowClear
                             value={selectedLoai}
                             onChange={value => setSelectedLoai(value)}
                         >
-                            {[...new Set(dataList.map(role => role.loaiCV))].map(uniqueLoaiCV => (
-                                <Option key={uniqueLoaiCV} value={uniqueLoaiCV}>
-                                    {uniqueLoaiCV}
+                            {loaiChucVuList.map(loai => (
+                                <Option key={loai._id} value={loai.tenLoai}>
+                                    {loai.tenLoai}
                                 </Option>
                             ))}
-
                         </Select>
                     </div>
                 </div>
@@ -409,7 +496,21 @@ const ChucVuForm = () => {
                 />
             </div>
 
-
+            <Modal
+                title="Thêm loại chức vụ mới"
+                open={isModalVisible}
+                onOk={handleAddLoaiChucVu}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    setNewLoaiChucVu("");
+                }}
+            >
+                <Input
+                    value={newLoaiChucVu}
+                    onChange={(e) => setNewLoaiChucVu(e.target.value)}
+                    placeholder="Nhập tên loại chức vụ mới"
+                />
+            </Modal>
         </div>
     );
 };

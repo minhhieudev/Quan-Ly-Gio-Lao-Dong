@@ -9,61 +9,113 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
 
-    // Lấy danh sách tất cả các khoa
-    const khoas = await Khoa.find({});
-    console.log('namHoc:',namHoc)
-    
-    // Khởi tạo object để lưu kết quả
-    let result = {};
+    console.log('namHoc:', namHoc);
 
-    // Xử lý từng khoa
-    for (const khoa of khoas) {
-      // Đếm tổng số giảng viên của khoa
-      const totalUsers = await User.countDocuments({ 
-        khoa: khoa.tenKhoa,
-        role: "user" 
-      });
+    // Lấy tất cả các khoa và xử lý với aggregation
+    const result = await Khoa.aggregate([
+      {
+        $lookup: {
+          from: "users", // Bảng User
+          localField: "tenKhoa", // Tên khoa từ Khoa
+          foreignField: "khoa", // Tên khoa trong User
+          as: "usersInKhoa", // Kết hợp danh sách user theo khoa
+        },
+      },
+      {
+        $addFields: {
+          totalUsers: { $size: "$usersInKhoa" }, // Tổng số user trong khoa
+        },
+      },
+      {
+        $lookup: {
+          from: "tonghoplaodongs", // Bảng TongHopLaoDong
+          let: { usersIds: "$usersInKhoa._id", namHoc },
+          pipeline: [
+            { 
+              $match: { 
+                $expr: { 
+                  $and: [
+                    { $eq: ["$namHoc", "$$namHoc"] },
+                    { $in: ["$user", "$$usersIds"] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: "completedUsersData", // Danh sách giảng viên đã nộp trong khoa
+        },
+      },
+      {
+        $addFields: {
+          completedUsers: { $size: "$completedUsersData" }, // Số lượng giảng viên đã nộp
+        },
+      },
+      {
+        $project: {
+          tenKhoa: 1,
+          totalUsers: 1,
+          completedUsers: 1,
+          listGV: {
+            $map: {
+              input: "$usersInKhoa",
+              as: "user",
+              in: {
+                username: "$$user.username",
+                tongGioChinhQuy: {
+                  $ifNull: [
+                    {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$completedUsersData",
+                            as: "data",
+                            cond: { $eq: ["$$data.user", "$$user._id"] },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                    { tongGioChinhQuy: 0 },
+                  ],
+                }.tongGioChinhQuy,
+                thuaThieuGioLaoDong: {
+                  $ifNull: [
+                    {
+                      $arrayElemAt: [
+                        {
+                          $filter: {
+                            input: "$completedUsersData",
+                            as: "data",
+                            cond: { $eq: ["$$data.user", "$$user._id"] },
+                          },
+                        },
+                        0,
+                      ],
+                    },
+                    { thuaThieuGioLaoDong: 0 },
+                  ],
+                }.thuaThieuGioLaoDong,
+              },
+            },
+          },
+        },
+      },
+    ]);
 
-      // Lấy danh sách user_id của giảng viên trong khoa
-      const khoaUsers = await User.find({ 
-        khoa: khoa.tenKhoa, 
-        role: "user" 
-      }).select('_id username');
-
-      // Đếm số giảng viên đã nộp của khoa
-      const completedUsers = await TongHopLaoDong.countDocuments({
-        namHoc: namHoc,
-        user: { $in: khoaUsers.map(user => user._id) }
-      });
-
-      // Lấy thông tin chi tiết về giảng viên và dữ liệu tổng hợp
-      const listGV = await Promise.all(
-        khoaUsers.map(async (user) => {
-          const tongHopData = await TongHopLaoDong.findOne({
-            user: user._id,
-            namHoc: namHoc
-          });
-
-          return {
-            username: user.username,
-            tongGioChinhQuy: tongHopData?.tongGioChinhQuy || 0,
-            thuaThieuGioLaoDong: tongHopData?.thuaThieuGioLaoDong || 0
-          };
-        })
-      );
-
-      // Thêm vào kết quả
-      result[khoa.tenKhoa] = {
-        current: completedUsers,
-        total: totalUsers,
-        listGV
+    // Định dạng lại kết quả trả về
+    const formattedResult = result.reduce((acc, khoa) => {
+      acc[khoa.tenKhoa] = {
+        current: khoa.completedUsers,
+        total: khoa.totalUsers,
+        listGV: khoa.listGV,
       };
-    }
+      return acc;
+    }, {});
 
-    return new Response(JSON.stringify(result), { status: 200 });
+    return new Response(JSON.stringify(formattedResult), { status: 200 });
 
   } catch (err) {
-    console.error("Lỗi khi lấy thống kê :", err);
+    console.error("Lỗi khi lấy thống kê:", err);
     return new Response(JSON.stringify({ message: `Lỗi: ${err.message}` }), { status: 500 });
   }
 };

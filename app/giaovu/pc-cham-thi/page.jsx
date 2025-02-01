@@ -136,13 +136,13 @@ const PcChamThiTable = () => {
       render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 1',
+      title: 'Cán bộ chấm thi 1',
       dataIndex: 'cb1',
       key: 'cb1',
       render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
     },
     {
-      title: 'Cán bộ coi thi 2',
+      title: 'Cán bộ chấm thi 2',
       dataIndex: 'cb2',
       key: 'cb2',
       render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,

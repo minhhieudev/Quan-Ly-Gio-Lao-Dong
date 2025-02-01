@@ -127,7 +127,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
+                const res = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${ky}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -146,7 +146,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [currentUser]);
+    }, [namHoc, ky]);
 
     useEffect(() => {
         if (!namHoc && !ky) return;
@@ -155,7 +155,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             try {
                 setLoading(true);
 
-                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
+                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser?.username}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -202,8 +202,8 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
             if (res.ok) {
                 const newData = await res.json();
-                if (editRecord && newData) {
-                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+                if (editRecord  || dataList.some(item => item.hocPhan === newData.hocPhan)) {
+                    setDataList(prevData => prevData.map(item => (item.hocPhan === newData.hocPhan ? newData : item)));
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
@@ -257,11 +257,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             dataIndex: 'lopHocPhan',
             key: 'lopHocPhan'
         },
-        {
-            title: 'Học kỳ',
-            dataIndex: 'ky',
-            key: 'ky'
-        },
+       
         {
             title: 'Cán bộ chấm thi',
             dataIndex: 'canBoChamThi',
@@ -279,10 +275,21 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             className: 'text-green-500 font-bold'
         },
         {
-            title: 'Hình thức thi',
-            dataIndex: 'hinhThucThoiGianThi',
-            key: 'hinhThucThoiGianThi',
-        },
+            title: 'HT',
+            dataIndex: 'hinhThuc',
+            key: 'hinhThuc',
+            render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+            width: 20,
+      
+          },
+          {
+            title: 'TG',
+            dataIndex: 'thoiGian',
+            key: 'thoiGian',
+            render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+            width: 20,
+      
+          },
         {
             title: 'Ghi chú',
             dataIndex: 'ghiChu',
@@ -334,10 +341,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             setValue("thoiGian", selectedHocPhan.thoiGian);
             setValue("lopHocPhan", selectedHocPhan.nhomLop);
 
-            if (selectedHocPhan.cb1 == currentUser.username) {
+            if (selectedHocPhan.cb1 == currentUser?.username) {
                 setValue('canBoChamThi', '1')
             }
-            else if (selectedHocPhan.cb2 == currentUser.username) {
+            else if (selectedHocPhan.cb2 == currentUser?.username) {
                 setValue('canBoChamThi', '2')
             }
             else {
@@ -499,7 +506,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         <div className="flex justify-between">
 
                             <Form.Item
-                                label={<span className="font-bold text-xl">Thời gian<span className="text-red-600">*</span></span>}
+                                label={<span className="font-bold text-xl">Thời gian (phút)<span className="text-red-600">*</span></span>}
                                 validateStatus={errors.thoiGian ? 'error' : ''}
                                 help={errors.thoiGian?.message}
                             >
@@ -603,7 +610,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         <div className="flex justify-between">
                             <Button type="default" danger onClick={onReset}>Reset</Button>
                             <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                {editRecord ? "Cập nhật" : "Thêm mới"}
+                                {editRecord ? "Cập nhật" : "Lưu"}
                             </Button>
                         </div>
                     </Space>
@@ -628,7 +635,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     rowKey="id"
                                 />
                                 <div className="flex justify-center mt-5 text-lg">
-                                    <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-500 text-lg">{totalHours}</span></span>
+                                    <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-500 text-lg">{totalHours.toFixed(3)}</span></span>
                                 </div>
                             </div>
                         }

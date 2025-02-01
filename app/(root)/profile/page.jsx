@@ -7,6 +7,7 @@ import { CldUploadButton } from "next-cloudinary";
 import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Table, Select, Progress, Input } from "antd";
+import toast from "react-hot-toast";
 
 const { Option } = Select;
 
@@ -16,35 +17,12 @@ const Profile = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const [khoaList, setKhoaList] = useState([]);
-
-  const fetchKhoaData = async () => {
-    try {
-      const res = await fetch(`/api/admin/khoa`, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setKhoaList(data);
-      } else {
-        toast.error("Failed to fetch khoa data");
-      }
-    } catch (err) {
-      toast.error("An error occurred while fetching khoa data");
-    }
-  };
-
-  useEffect(() => {
-    fetchKhoaData();
-  }, []);
 
   useEffect(() => {
     if (user) {
       reset({
         username: user?.username,
         profileImage: user?.profileImage,
-        khoa: user?.khoa || khoaList[0]
       });
     }
     setLoading(false);
@@ -74,18 +52,33 @@ const Profile = () => {
   const updateUser = async (data) => {
     setLoading(true);
     try {
+      // Remove khoa from the data before sending
+      const { khoa, ...updateData } = data;
+      
       const res = await fetch(`/api/users/${user._id}/update`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(updateData),
       });
 
-      setLoading(false);
-      window.location.reload();
+      if (res.ok) {
+        toast.success("Cập nhật thông tin thành công!");
+        // Redirect to home page
+        if(user.role === 'admin'){
+          window.location.href = "/admin";
+        }else{
+          window.location.href = "/work-hours";
+        }
+      } else {
+        toast.error("Cập nhật thất bại!");
+      }
     } catch (error) {
       console.log(error);
+      toast.error("Đã có lỗi xảy ra!");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -115,26 +108,6 @@ const Profile = () => {
         {error?.username && (
           <p className="text-red-500">{error.username.message}</p>
         )}
-
-        {/* Select Khoa */}
-        <Controller
-          name="khoa"
-          control={control}
-          rules={{ required: "Khoa là bắt buộc" }}
-          render={({ field }) => (
-            <Select className="w-full" placeholder="Chọn khoa" {...field}>
-              {khoaList.length > 0 ? (
-                khoaList.map(khoa => (
-                  <Option key={khoa._id} value={khoa.tenKhoa}>
-                    {khoa.tenKhoa}
-                  </Option>
-                ))
-              ) : (
-                <Option disabled>Không có khoa nào</Option>
-              )}
-            </Select>
-          )}
-        />
 
         <div className="flex items-center justify-between">
           <img

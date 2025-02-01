@@ -47,20 +47,20 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
     useEffect(() => {
         if (hinhThuc) {
             let gioChuan
-           
+
             if (hinhThuc == 'TL' || hinhThuc == 'TL+TN(1)') {
                 gioChuan = 2
             }
             if (hinhThuc == 'TN' || hinhThuc == 'TL+TN(2)') {
                 gioChuan = 4
             }
-            if (hinhThuc == 'VĐ' ) {
+            if (hinhThuc == 'VĐ') {
                 gioChuan = 4
             }
 
-            setValue("soTietQuyChuan", gioChuan); 
+            setValue("soTietQuyChuan", gioChuan);
         }
-        
+
     }, [hinhThuc]);
 
     useEffect(() => {
@@ -98,7 +98,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/work-hours/CongTacRaDe/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}`, {
+                const res = await fetch(`/api/work-hours/CongTacRaDe/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${ky}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -115,7 +115,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [currentUser]);
+    }, [namHoc, ky]);
 
     const calculateTotals = () => {
         onUpdateCongTacRaDe(totalSoTietQuyChuan);
@@ -130,6 +130,10 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
             toast.error('Vui lòng nhập năm học!')
             return
         }
+        if (ky == '') {
+            toast.error('Vui lòng nhập học kỳ!')
+            return
+        }
         try {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacRaDe", {
@@ -140,8 +144,9 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
 
             if (res.ok) {
                 const newData = await res.json();
-                if (editRecord && newData) {
-                    setDataList(prevData => prevData.map(item => (item._id === newData._id ? newData : item)));
+
+                if (editRecord || dataList.some(item => item.hocPhan === newData.hocPhan)) {
+                    setDataList(prevData => prevData.map(item => (item.hocPhan === newData.hocPhan ? newData : item)));
                 } else {
                     setDataList(prevData => [...prevData, newData]);
                 }
@@ -200,11 +205,11 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
             key: 'lopHocPhan',
             className: 'text-green-500 font-bold'
         },
-        {
-            title: 'Học kỳ',
-            dataIndex: 'hocKy',
-            key: 'hocKy'
-        },
+        // {
+        //     title: 'Học kỳ',
+        //     dataIndex: 'hocKy',
+        //     key: 'hocKy'
+        // },
         {
             title: 'Hình thức thi',
             dataIndex: 'hinhThucThi',

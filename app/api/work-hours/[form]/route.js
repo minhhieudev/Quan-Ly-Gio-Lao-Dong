@@ -28,18 +28,21 @@ const models = {
 export const POST = async (req, { params }) => {
   try {
     const { form } = params;
+    
+
     if (!models[form]) {
       return new Response("Invalid form name", { status: 400 });
     }
 
     await connectToDB();
     const body = await req.json();
+    console.log('body',body)
 
     const model = models[form];
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const { maMH, namHoc, user, ky } = body;
-    const existingRecord = await model.findOne({ maMH, namHoc, user, ky });
+    const { hocPhan, namHoc, user, ky } = body;
+    const existingRecord = await model.findOne({ hocPhan, namHoc, user, ky });
 
     if (existingRecord) {
       // Nếu bản ghi đã tồn tại, cập nhật bản ghi

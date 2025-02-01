@@ -33,12 +33,11 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const [dataListSelect, setDataListSelect] = useState([]);
     const [dataTong, setDataTong] = useState([]);
     const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
-
+    const [resultsDisplay, setResultsDisplay] = useState([]);
 
     const { control, handleSubmit, reset, watch, setValue, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
-
 
     const { data: session } = useSession();
     const currentUser = session?.user;
@@ -208,6 +207,14 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 max: r.max,
             }))
         );
+
+        // Cập nhật state với kết quả
+        setResultsDisplay(results.map((r) => ({
+            from: new Date(r.from).toLocaleDateString("vi-VN"),
+            to: new Date(r.to).toLocaleDateString("vi-VN"),
+            max: r.max,
+        })));
+
         setDataTong(results)
         return results;
     };
@@ -355,14 +362,14 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[25%]">
+            <div className="p-5 shadow-xl bg-white rounded-xl flex-[30%]">
                 <Title className="text-center" level={3}>CÔNG TÁC KIÊM NHIỆM</Title>
 
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">
                     <Space direction="vertical" className="w-full">
-                        <div className="flex justify-between max-sm:flex-col">
+                        <div className="flex gap-2 justify-between max-sm:flex-col">
                             <Form.Item
-                                label={<span className="font-bold text-xl">Chức vụ, công việc  <span className="text-red-600">*</span></span>}
+                                label={<span className="font-bold text-xl">Chức vụ, CV  <span className="text-red-600">*</span></span>}
                                 className="w-[50%]"
                                 validateStatus={errors.chucVuCongViec ? 'error' : ''}
                                 help={errors.chucVuCongViec?.message}
@@ -390,6 +397,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 label={<span className="font-bold text-xl">Thời gian được tính <span className="text-red-600">*</span></span>}
                                 validateStatus={errors.thoiGianTinh ? 'error' : ''}
                                 help={errors.thoiGianTinh?.message}
+                                className="w-[50%]"
                             >
                                 <Controller
                                     name="thoiGianTinh"
@@ -484,6 +492,18 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     </TabPane>
                 </Tabs>
 
+            </div>
+
+            {/* Hiển thị kết quả */}
+            <div className="results-display bg-white rounded-lg p-4 shadow-md">
+                <h3 className="text-lg font-semibold mb-2">Kết quả:</h3>
+                <ul className="list-disc pl-5">
+                    {resultsDisplay.map((result, index) => (
+                        <li key={index} className="mb-1">
+                            {result.from} - {result.to} -{">"} {result.max}
+                        </li>
+                    ))}
+                </ul>
             </div>
 
         </div>
