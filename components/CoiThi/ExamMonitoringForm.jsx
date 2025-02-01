@@ -79,7 +79,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             gioChuan *= 1.2; // Nhân hệ số 1,2 nếu rơi vào ngoài giờ hành chính
         }
 
-        console.log("2:", timeValue);
         setValue("soTietQuyChuan", gioChuan); // Cập nhật giá trị số tiết quy chuẩn vào form
     }, [ngayThi, currentHocPhan, thoiGian]);
 
@@ -90,7 +89,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     };
 
     const handleSaveNewHocPhan = () => {
-        console.log('newHocPhannewHocPhan',newHocPhan)
         const newHocPhanObj = {
             _id: Math.random().toString(36).substr(2, 9),
             hocPhan: newHocPhan,
@@ -110,7 +108,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     const handleSelectChange = (setCurrentHocPhan) => {
         const selectedHocPhan = listSelect.find(item => item.hocPhan.join(', ') === setCurrentHocPhan);
-        console.log(selectedHocPhan);
 
         if (selectedHocPhan) {
             // Chuyển đổi định dạng ngày từ "DD-MM-YYYY" sang "YYYY-MM-DD"
@@ -183,9 +180,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 }
                 const data = await res.json();
                 setListSelect(data);
-                console.log('Data:', data)
-
-
             } catch (err) {
                 console.log('error:', err);
                 toast.error("An error occurred while fetching data");
@@ -209,7 +203,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             toast.error('Vui lòng nhập năm học!')
             return
         }
-        console.log('data:', data)
         try {
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/work-hours/CongTacCoiThi", {
@@ -270,7 +263,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             if (existingUser) {
                 // Nếu tài khoản tồn tại, thực hiện xóa
                 await User.deleteOne({ email: email }); // Thay đổi theo cách bạn xóa người dùng
-                console.log('Tài khoản đã được xóa thành công');
             } else {
                 console.log('Tài khoản không tồn tại');
             }

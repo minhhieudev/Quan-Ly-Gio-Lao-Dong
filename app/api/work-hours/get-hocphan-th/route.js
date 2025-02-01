@@ -14,9 +14,6 @@ export const GET = async (req) => {
       tenMH: { $regex: new RegExp(name, 'i') }
     });
      
-    console.log('ffffffffff',data)
-    console.log('namenamename',name)
-
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
     console.error("Error fetching PhanCongKiemNhiem:", err);

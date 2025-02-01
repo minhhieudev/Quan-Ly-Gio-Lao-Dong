@@ -133,9 +133,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         let heSoValues = [];
         if (typeof currentHocPhan.record?.heSo === "string" && currentHocPhan.record?.heSo.includes("-")) {
 
-          console.log("Raw heSo string:", currentHocPhan.record?.heSo);
-          console.log("Split values:", currentHocPhan.record?.heSo.split("-"));
-
           const cleanedHeSo = currentHocPhan.record.heSo.replace(/[–—]/g, "-").trim();
 
           ///////////////////////
@@ -295,7 +292,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         if (res.ok) {
           const data = await res.json();
           setListSelect(data);
-          console.log("Data:", data)
           //setFilteredData(data);
         } else {
           toast.error("Không thể tải dữ liệu");

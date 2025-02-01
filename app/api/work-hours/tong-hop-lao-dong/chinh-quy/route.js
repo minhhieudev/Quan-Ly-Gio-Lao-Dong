@@ -6,7 +6,6 @@ export const POST = async (req) => {
   try {
     await connectToDB();
     const body = await req.json();
-    console.log(body);
 
     const gioChuan = 0;
     const chuanNamHoc = 1;
@@ -44,7 +43,6 @@ export const DELETE = async (req) => {
 export const GET = async (req, { params }) => {
   try {
     const { type } = params;
-    console.log('333:',type)
 
     await connectToDB();
 

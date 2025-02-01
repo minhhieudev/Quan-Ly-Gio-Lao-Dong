@@ -145,9 +145,6 @@ const TeachingAssignmentForm = () => {
         }
       });
 
-      console.log('rawData:', rawData);
-
-
       // Lọc và định dạng dữ liệu theo cấu trúc mong muốn
       let ListData = rawData
         .filter((row) => row[1] && row[2] && row[3]) // Lọc các dòng có dữ liệu cần thiết
@@ -169,8 +166,6 @@ const TeachingAssignmentForm = () => {
           return [maMH, tenMH, soTC, soSVDK, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky,diaDiem];
         });
       ListData.shift();
-
-      console.log('Data:', ListData);
 
       if (ListData.length > 0) {
         createMany(ListData);

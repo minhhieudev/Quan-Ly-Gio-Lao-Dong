@@ -41,7 +41,6 @@ const Dashboard = () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log('Khoa List:', data);
                 setKhoaList(data);
             } else {
                 toast.error("Failed to fetch khoa data");

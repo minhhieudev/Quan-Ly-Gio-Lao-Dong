@@ -167,7 +167,6 @@ const TeachingAssignmentForm = () => {
         });
       ListData.shift();
 
-      console.log('Data:', ListData);
 
       if (ListData.length > 0) {
         createMany(ListData);

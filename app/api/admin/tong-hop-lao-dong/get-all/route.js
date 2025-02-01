@@ -33,8 +33,6 @@ export const GET = async (request) => {
       const kiemNhiemInfo = await PhanCongKiemNhiem.find({ user: userInfo._id }).populate('chucVu', 'tenCV');
       info.kiemNhiemInfo = kiemNhiemInfo.map(info => info.chucVu.tenCV);
 
-      console.log(kiemNhiemInfo)
-
     }
 
     // Lấy dữ liệu từ tất cả các collection
@@ -65,7 +63,6 @@ export const GET = async (request) => {
         CongTacRaDe: raDe
       }
     };
-    console.log(responseData)
 
     return new Response(JSON.stringify(responseData), { status: 200 });
   } catch (error) {

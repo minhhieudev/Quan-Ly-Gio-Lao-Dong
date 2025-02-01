@@ -74,8 +74,6 @@ const PcCoiThiForm = () => {
             toast.error("Không thể tải dữ liệu!");
           }
         } catch (error) {
-          console.log("Data đã format:", error);
-
           toast.error("Có lỗi xảy ra khi tải dữ liệu!");
         }
       };

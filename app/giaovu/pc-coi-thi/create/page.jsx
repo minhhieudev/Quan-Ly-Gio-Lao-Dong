@@ -57,7 +57,6 @@ const TeachingAssignmentForm = () => {
     data.time = data.time.split(',').map(item => item.trim());
 
     try {
-      console.log('Data:', data);
       const method = editRecord ? "PUT" : "POST";
       const res = await fetch(`/api/giaovu/pc-coi-thi`, {
         method,
@@ -123,7 +122,6 @@ const TeachingAssignmentForm = () => {
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-      console.log('Raw Data:', rawData);
 
       const structuredData = [];
       let currentEntry = null;
@@ -132,7 +130,6 @@ const TeachingAssignmentForm = () => {
 
       rawData.forEach((row) => {
         if (row.length === 1 && typeof row[0] === 'string' && /^\d\./.test(row[0])) {
-          console.log('Input:', row);
 
           const inputString = row[0].trim();
           const yearMatch = inputString.match(/(?:Năm học\s*|\s*[-|,]?\s*)?(\d{4}\s*[-\s]\s*\d{4})$/);
@@ -151,8 +148,6 @@ const TeachingAssignmentForm = () => {
           if (loaiKyThi.includes('Năm học') || loaiKyThi.includes('năm học')) {
             loaiKyThi = loaiKyThi.split(/[-|,]?\s*Năm học/)[0].trim();
           }
-          console.log('loaiKyThi:', loaiKyThi);
-          console.log('namHoc:', namHoc);
         } else if (row.length > 1) {
           if (typeof row[0] === 'number') {
             if (currentEntry) {
@@ -188,7 +183,6 @@ const TeachingAssignmentForm = () => {
         structuredData.push(currentEntry);
       }
 
-      console.log('Structured Data:', structuredData);
       createMany(structuredData);
     };
 

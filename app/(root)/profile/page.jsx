@@ -26,7 +26,6 @@ const Profile = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        console.log('Khoa List:', data);
         setKhoaList(data);
       } else {
         toast.error("Failed to fetch khoa data");
@@ -62,7 +61,6 @@ const Profile = () => {
   } = useForm();
 
   const uploadPhoto = (result) => {
-    console.log("Upload result:", result); // In ra kết quả từ Cloudinary
     const secureUrl = result?.info?.secure_url;
 
     if (secureUrl) {
@@ -74,7 +72,6 @@ const Profile = () => {
 
 
   const updateUser = async (data) => {
-    console.log('Data:', data);
     setLoading(true);
     try {
       const res = await fetch(`/api/users/${user._id}/update`, {

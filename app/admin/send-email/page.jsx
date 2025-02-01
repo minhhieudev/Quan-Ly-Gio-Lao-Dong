@@ -119,7 +119,6 @@ const SendEmail = () => {
         };
 
         setFileUrl((prevUrls) => [...prevUrls, fileObject]);
-        console.log('Url:', fileUrl);
     };
 
     const contentEmail = `

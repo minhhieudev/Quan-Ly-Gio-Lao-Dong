@@ -28,7 +28,6 @@ export const POST = async (req) => {
       text: text || 'Default Email Body',
       attachments: attachments,
     };
-    console.log(emails)
 
     try {
       await transporter.sendMail(mailOptions);

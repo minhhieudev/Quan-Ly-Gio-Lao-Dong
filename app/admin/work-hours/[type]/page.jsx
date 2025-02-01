@@ -51,7 +51,6 @@ const App = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        console.log(data);
         setDataList(data.map((item, index) => ({ ...item, index: index + 1 })));
       } else {
         console.log('Failed to fetch data');

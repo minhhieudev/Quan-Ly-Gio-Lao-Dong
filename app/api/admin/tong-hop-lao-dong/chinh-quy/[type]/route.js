@@ -51,7 +51,6 @@ export const GET = async (req, { params }) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const namHoc = url.searchParams.get('namHoc');
     //const ky = url.searchParams.get('ky'); 
-    console.log('4444', namHoc)
     const query = {};
 
     if (namHoc && namHoc !== 'undefined') {

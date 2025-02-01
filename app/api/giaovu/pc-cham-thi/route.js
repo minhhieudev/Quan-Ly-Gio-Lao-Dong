@@ -79,7 +79,6 @@ export const POST = async (req) => {
       loai: data.loai || "",
       ky
     });
-    console.log('hoc phan:', hocPhan)
 
     // Lưu bản ghi mới vào database
     await newAssignment.save();

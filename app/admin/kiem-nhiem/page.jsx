@@ -123,7 +123,6 @@ const KiemNhiemForm = () => {
             }
 
             const data = await res.json(); // Đảm bảo gọi json() trên đối tượng res
-            console.log(data)
             setDataList(data); // Cập nhật danh sách dữ liệu
             setLoading(false); // Đặt loading thành false
         } catch (err) {

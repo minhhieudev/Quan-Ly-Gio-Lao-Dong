@@ -242,7 +242,6 @@ const UserForm = () => {
                 toast.error("No user data found in file.");
             }
 
-            console.log("Dữ liệu từ file Excel đã lọc:", ListDataUser);
         };
 
         reader.onerror = () => {

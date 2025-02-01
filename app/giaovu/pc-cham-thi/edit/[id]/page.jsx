@@ -70,7 +70,6 @@ const PcCoiThiForm = () => {
             const data = await res.json();
             setEditRecord(data);
             setLoai(data?.loai)
-            console.log("Data:", data)
             reset(data);
           } else {
             toast.error("Không thể tải dữ liệu!");

@@ -16,7 +16,6 @@ export const POST = async (req) => {
     const { subject, text, attachments, email } = await req.json();
 
     //const email = ['minhhieudev31@gmail.com', '211ctt004_hieu@pyu.edu.vn']
-    console.log('hhh:',attachments)
 
     const mailOptions = {
       from: "TRƯỜNG ĐẠI HỌC PHÚ YÊN",
