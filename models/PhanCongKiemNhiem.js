@@ -19,6 +19,12 @@ const PhanCongKiemNhiemSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId, 
     ref: "User", 
   },
+  schoolYearStart: {
+    type: Date,
+  },
+  schoolYearEnd: {
+    type: Date,
+  },
 
 });
 

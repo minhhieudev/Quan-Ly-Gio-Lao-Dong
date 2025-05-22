@@ -26,6 +26,9 @@ const formSchema = {
     ghiChu: ''
 };
 
+const SCHOOL_YEAR_START_KEY = "schoolYearStart";
+const SCHOOL_YEAR_END_KEY = "schoolYearEnd";
+
 const KiemNhiemForm = () => {
     const [dataList, setDataList] = useState([]);
     const [listChucVu, setListChucVu] = useState([]);
@@ -47,6 +50,32 @@ const KiemNhiemForm = () => {
     const [selectedKhoa, setSelectedKhoa] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [loaiChucVuList, setLoaiChucVuList] = useState([]);
+
+    // Thêm state cho ngày bắt đầu/kết thúc năm học
+    const [schoolYearStart, setSchoolYearStart] = useState(null);
+    const [schoolYearEnd, setSchoolYearEnd] = useState(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
+            setSchoolYearStart(valStart ? dayjs(valStart) : null);
+
+            const valEnd = localStorage.getItem(SCHOOL_YEAR_END_KEY);
+            setSchoolYearEnd(valEnd ? dayjs(valEnd) : null);
+        }
+    }, []);
+
+    // Khi thay đổi, lưu vào localStorage
+    const handleSchoolYearStartChange = (date) => {
+        setSchoolYearStart(date);
+        if (date) localStorage.setItem(SCHOOL_YEAR_START_KEY, date.toISOString());
+        else localStorage.removeItem(SCHOOL_YEAR_START_KEY);
+    };
+    const handleSchoolYearEndChange = (date) => {
+        setSchoolYearEnd(date);
+        if (date) localStorage.setItem(SCHOOL_YEAR_END_KEY, date.toISOString());
+        else localStorage.removeItem(SCHOOL_YEAR_END_KEY);
+    };
 
     // Thêm hàm xử lý filter data
     const getFilteredData = () => {
@@ -167,10 +196,18 @@ const KiemNhiemForm = () => {
 
     const onSubmit = async (data) => {
         try {
+            // Thêm ngày bắt đầu/kết thúc năm học vào data
+            const payload = {
+                ...data,
+                id: editRecord?._id,
+                schoolYearStart,
+                schoolYearEnd,
+            };
+            console.log(payload);
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/admin/kiem-nhiem", {
                 method,
-                body: JSON.stringify({ ...data, id: editRecord?._id }),
+                body: JSON.stringify(payload),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -263,6 +300,22 @@ const KiemNhiemForm = () => {
 
         },
         // {
+        //     title: 'Ngày bắt đầu năm học',
+        //     dataIndex: 'schoolYearStart',
+        //     key: 'schoolYearStart',
+        //     render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : "",
+        //     className: 'text-black font-bold',
+
+        // },
+        // {
+        //     title: 'Ngày kết thúc năm học',
+        //     dataIndex: 'schoolYearEnd',
+        //     key: 'schoolYearEnd',
+        //     render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : "",
+        //     className: 'text-black font-bold',
+
+        // },
+        // {
         //     title: 'Ghi chú',
         //     dataIndex: 'chucVu',
         //     key: 'chucVu',
@@ -293,16 +346,24 @@ const KiemNhiemForm = () => {
     const createMany = async (ListDataUser) => {
         setIsUploading(true);
         try {
-            const method = "POST";
             const res = await fetch("/api/admin/kiem-nhiem/create", {
-                method,
+                method: "POST",
                 body: JSON.stringify({ data: ListDataUser }),
                 headers: { "Content-Type": "application/json" },
             });
 
             if (res.ok) {
+                const result = await res.json();
                 fetchData();
                 toast.success("Thêm mới thành công");
+
+                if (result.errors && result.errors.length > 0) {
+                    // Hiển thị lỗi chi tiết
+                    toast.error(`Có ${result.errors.length} bản ghi bị bỏ qua!`);
+                    // Có thể show chi tiết hơn bằng modal hoặc bảng
+                    console.log("Lỗi import:", result.errors);
+                }
+
                 onReset();
                 fileInputRef.current.value = "";
             } else {
@@ -325,12 +386,85 @@ const KiemNhiemForm = () => {
             const workbook = XLSX.read(data, { type: "binary" });
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const ListData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-            ListData.shift();
 
-            if (ListData.length > 0) {
-                createMany(ListData);
+            // Tìm dòng header (chứa "STT")
+            const headerIndex = ListData.findIndex(
+                row => Array.isArray(row) && row[0] && row[0].toString().toLowerCase().includes("stt")
+            );
+
+            // Nếu tìm thấy header, lấy các dòng sau header và có dữ liệu thực sự
+            let dataRows = [];
+            if (headerIndex !== -1) {
+                dataRows = ListData.slice(headerIndex + 1).filter(
+                    row => Array.isArray(row) && row[0] && !isNaN(Number(row[0]))
+                );
+            }
+            console.log('dataRows:',dataRows);
+
+            const parseDate = (dateStr) => {
+                if (!dateStr) return null;
+
+                // Nếu là số (Excel date serial)
+                if (typeof dateStr === "number") {
+                    // Excel date serial: ngày 1/1/1900 là 1
+                    // dayjs không hỗ trợ trực tiếp, nên dùng new Date hoặc dayjs
+                    // Lưu ý: Excel có bug năm nhuận 1900, nhưng thường không ảnh hưởng thực tế
+                    return dayjs(new Date(Math.round((dateStr - 25569) * 86400 * 1000)));
+                }
+
+                // Nếu là object Date
+                if (dateStr instanceof Date) {
+                    return dayjs(dateStr);
+                }
+
+                // Nếu là object dayjs
+                if (dayjs.isDayjs(dateStr)) {
+                    return dateStr;
+                }
+
+                // Nếu là chuỗi, thử nhiều định dạng
+                const formats = [
+                    "DD/MM/YYYY",
+                    "D/M/YYYY",
+                    "DD-MM-YYYY",
+                    "D-M-YYYY",
+                    "YYYY/MM/DD",
+                    "YYYY/M/D",
+                    "YYYY-MM-DD",
+                    "YYYY-M-D",
+                    "MM/DD/YYYY",
+                    "M/D/YYYY",
+                    "MM-DD-YYYY",
+                    "M-D-YYYY"
+                ];
+
+                for (let fmt of formats) {
+                    let d = dayjs(dateStr, fmt, true);
+                    if (d.isValid()) return d;
+                }
+
+                // Fallback: để dayjs tự đoán
+                let d = dayjs(dateStr);
+                return d.isValid() ? d : null;
+            };
+            
+            const dataWithSchoolYear = dataRows.map(row => ({
+                stt: row[0],
+                user: row[1],
+                chucVu: row[3],
+                startTime: parseDate(row[5]),
+                endTime: parseDate(row[6]),
+                ghiChu: row[7],
+                schoolYearStart: schoolYearStart || null,
+                schoolYearEnd: schoolYearEnd || null
+            }));
+
+            console.log("Dữ liệu thực sự:", dataWithSchoolYear);
+
+            if (dataRows.length > 0) {
+                createMany(dataWithSchoolYear);
             } else {
-                toast.error("No user data found in file.");
+                toast.error("Không tìm thấy dữ liệu hợp lệ trong file.");
             }
         };
 
@@ -357,6 +491,26 @@ const KiemNhiemForm = () => {
                         >
                             ✕
                         </Button>
+                    </div>
+                    <div className="flex gap-4 mb-4">
+                        <div>
+                            <div className="font-bold">Ngày bắt đầu năm học</div>
+                            <DatePicker
+                                value={schoolYearStart}
+                                onChange={handleSchoolYearStartChange}
+                                placeholder="Chọn ngày bắt đầu năm học"
+                                style={{ width: '100%' }}
+                            />
+                        </div>
+                        <div>
+                            <div className="font-bold">Ngày kết thúc năm học</div>
+                            <DatePicker
+                                value={schoolYearEnd}
+                                onChange={handleSchoolYearEndChange}
+                                placeholder="Chọn ngày kết thúc năm học"
+                                style={{ width: '100%' }}
+                            />
+                        </div>
                     </div>
                     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
                         <Form.Item
@@ -551,7 +705,7 @@ const KiemNhiemForm = () => {
                                 setCurrent(1);
                             }}
                         >
-                             {loaiChucVuList.map(loai => (
+                            {loaiChucVuList.map(loai => (
                                 <Option key={loai._id} value={loai.tenLoai}>
                                     {loai.tenLoai}
                                 </Option>

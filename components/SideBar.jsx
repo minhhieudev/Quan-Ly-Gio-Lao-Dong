@@ -74,7 +74,7 @@ const SideBar = () => {
       {/* Nhóm Phân công */}
       <div className="border-t pt-2">
         <GroupHeader 
-          title="Phân công" 
+          title="CÔNG TÁC" 
           group="phanCong" 
           icon={<ScheduleOutlined className="text-orange-500"/>} 
         />
@@ -82,19 +82,19 @@ const SideBar = () => {
           <div className="ml-4 flex flex-col gap-2">
             <Link href="/giaovu/pc-giang-day" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <ScheduleOutlined style={{ fontSize: "20px" }} className="text-orange-500"/>
-              <span style={getIconStyle(["/giaovu/pc-giang-day"])}>PC giảng dạy</span>
+              <span style={getIconStyle(["/giaovu/pc-giang-day"])}>Giảng dạy</span>
             </Link>
             <Link href="/giaovu/pc-coi-thi" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <SafetyCertificateOutlined style={{ fontSize: "20px" }} className="text-indigo-500"/>
-              <span style={getIconStyle(["/giaovu/pc-coi-thi"])}>PC coi thi</span>
+              <span style={getIconStyle(["/giaovu/pc-coi-thi"])}>Coi thi</span>
             </Link>
             <Link href="/giaovu/pc-cham-thi" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <FileProtectOutlined style={{ fontSize: "20px" }} className="text-red-500"/>
-              <span style={getIconStyle(["/giaovu/pc-cham-thi"])}>PC chấm thi</span>
+              <span style={getIconStyle(["/giaovu/pc-cham-thi"])}>Chấm thi</span>
             </Link>
             <Link href="/admin/kiem-nhiem" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <UserOutlined style={{ fontSize: "20px" }} className="text-indigo-500"/>
-              <span style={getIconStyle(["/admin/kiem-nhiem"])}>PC Kiêm nhiệm</span>
+              <span style={getIconStyle(["/admin/kiem-nhiem"])}>Kiêm nhiệm</span>
             </Link>
           </div>
         )}

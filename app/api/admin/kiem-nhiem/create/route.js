@@ -1,3 +1,5 @@
+import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
+import User from "@models/User";
 import ChucVu from "@models/ChucVu";
 import { connectToDB } from "@mongodb";
 
@@ -11,25 +13,51 @@ export const POST = async (req) => {
       return new Response(JSON.stringify({ message: "Invalid data format" }), { status: 400 });
     }
 
-    const processed= await Promise.all(
-      data.map(async (item) => {
-        const maCV = item[0];
-        const updated= await ChucVu.findOneAndUpdate(
-          { maCV },
+    const errors = [];
+    const processed = await Promise.all(
+      data.map(async (item, idx) => {
+        // Query lấy id user và chucVu
+        const userDoc = await User.findOne({ maGV: item.user });
+        const chucVuDoc = await ChucVu.findOne({ maCV: item.chucVu });
+
+        if (!userDoc || !chucVuDoc) {
+          errors.push({
+            index: idx + 1,
+            stt: item.stt,
+            user: item.user,
+            chucVu: item.chucVu,
+            reason: !userDoc ? "Không tìm thấy user" : "Không tìm thấy chức vụ"
+          });
+          return null;
+        }
+
+        const updated = await PhanCongKiemNhiem.findOneAndUpdate(
           {
-             tenCV : item[1],
-             loaiCV : item[2],
-             soMien : item[3],
-           
+            user: userDoc._id,
+            chucVu: chucVuDoc._id,
+            schoolYearStart: item.schoolYearStart,
+            schoolYearEnd: item.schoolYearEnd,
           },
-          { new: true, upsert: true } 
+          {
+            startTime: item.startTime,
+            endTime: item.endTime,
+            ghiChu: item.ghiChu,
+          },
+          { new: true, upsert: true }
         );
 
         return updated;
       })
     );
 
-    return new Response(JSON.stringify(processed), { status: 201 });
+    // Lọc bỏ các bản ghi null (không tìm thấy user/chucVu)
+    const filtered = processed.filter(Boolean);
+
+    // Trả về cả thành công và lỗi
+    return new Response(JSON.stringify({
+      success: filtered,
+      errors
+    }), { status: 201 });
 
   } catch (err) {
     console.error("Lỗi khi xử lý yêu cầu:", err);

@@ -11,7 +11,6 @@ export const GET = async (req) => {
       .populate('chucVu', 'tenCV loaiCV') // Populate trường chucVu
       .populate('user', 'username khoa') // Populate trường user
     // Lấy tổng số bản ghi để tính toán phân trang
-    console.log(data);
     return new Response(JSON.stringify(data ), { status: 200 });
 
   } catch (err) {
@@ -24,7 +23,11 @@ export const GET = async (req) => {
 export const POST = async (req, res) => {
   try {
     await connectToDB();
-    const { chucVu, startTime, endTime, user, ghiChu } = await req.json();
+    let { chucVu, startTime, endTime, user, ghiChu, schoolYearStart, schoolYearEnd } = await req.json();
+    console.log( 'schoolYearStart:', schoolYearEnd);
+    // Gán mặc định nếu thiếu
+    if (!startTime) startTime = schoolYearStart;
+    if (!endTime) endTime = schoolYearEnd;
 
     let existing = await PhanCongKiemNhiem.findOne({ user, chucVu });
 
@@ -32,6 +35,8 @@ export const POST = async (req, res) => {
       existing.startTime = startTime;
       existing.endTime = endTime;
       existing.ghiChu = ghiChu;
+      existing.schoolYearStart = schoolYearStart;
+      existing.schoolYearEnd = schoolYearEnd;
       await existing.save();
 
       return new Response(JSON.stringify(existing), { status: 200 });
@@ -41,7 +46,9 @@ export const POST = async (req, res) => {
         startTime,
         endTime,
         user,
-        ghiChu
+        ghiChu,
+        schoolYearStart,
+        schoolYearEnd
       });
 
       await newCV.save();
@@ -57,7 +64,12 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { id, chucVu, startTime, endTime, user, ghiChu } = await req.json();
+    let { id, chucVu, startTime, endTime, user, ghiChu, schoolYearStart, schoolYearEnd } = await req.json();
+
+    // Gán mặc định nếu thiếu
+    if (!startTime) startTime = schoolYearStart;
+    if (!endTime) endTime = schoolYearEnd;
+
     const Update = await PhanCongKiemNhiem.findById(id);
 
     if (!Update) {
@@ -69,7 +81,8 @@ export const PUT = async (req, res) => {
     Update.endTime = endTime;
     Update.user = user;
     Update.ghiChu = ghiChu;
-
+    Update.schoolYearStart = schoolYearStart;
+    Update.schoolYearEnd = schoolYearEnd;
     await Update.save();
 
     return new Response(JSON.stringify(Update), { status: 200 });
