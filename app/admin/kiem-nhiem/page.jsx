@@ -100,12 +100,9 @@ const KiemNhiemForm = () => {
         fetchData3();
         getListKhoa();
         fetchLoaiChucVu();
-    }, []);
-
-
-    useEffect(() => {
         fetchData();
     }, []);
+
     const fetchLoaiChucVu = async () => {
         try {
             const res = await fetch('/api/admin/loai-chuc-vu');
