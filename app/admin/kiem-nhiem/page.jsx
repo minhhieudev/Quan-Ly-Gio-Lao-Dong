@@ -193,6 +193,23 @@ const KiemNhiemForm = () => {
 
     const onSubmit = async (data) => {
         try {
+            // Kiểm tra ngày bắt đầu/kết thúc năm học
+            if (!schoolYearStart) {
+                toast.error('Vui lòng chọn ngày bắt đầu năm học!');
+                return;
+            }
+            
+            if (!schoolYearEnd) {
+                toast.error('Vui lòng chọn ngày kết thúc năm học!');
+                return;
+            }
+
+            // Kiểm tra ngày bắt đầu
+            if (!data.startTime) {
+                toast.error('Vui lòng chọn ngày bắt đầu!');
+                return;
+            }
+            
             // Thêm ngày bắt đầu/kết thúc năm học vào data
             const payload = {
                 ...data,
@@ -491,22 +508,26 @@ const KiemNhiemForm = () => {
                     </div>
                     <div className="flex gap-4 mb-4">
                         <div>
-                            <div className="font-bold">Ngày bắt đầu năm học</div>
+                            <div className="font-bold">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
                             <DatePicker
                                 value={schoolYearStart}
                                 onChange={handleSchoolYearStartChange}
                                 placeholder="Chọn ngày bắt đầu năm học"
                                 style={{ width: '100%' }}
+                                className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
                             />
+                            {!schoolYearStart && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
                         </div>
                         <div>
-                            <div className="font-bold">Ngày kết thúc năm học</div>
+                            <div className="font-bold">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
                             <DatePicker
                                 value={schoolYearEnd}
                                 onChange={handleSchoolYearEndChange}
                                 placeholder="Chọn ngày kết thúc năm học"
                                 style={{ width: '100%' }}
+                                className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
                             />
+                            {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
                         </div>
                     </div>
                     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
@@ -556,13 +577,15 @@ const KiemNhiemForm = () => {
                         </Form.Item>
 
                         <Form.Item
-                            label={<span className="font-bold text-xl">Ngày bắt đầu </span>}
+                            label={<span className="font-bold text-xl">Ngày bắt đầu <span className="text-red-600">*</span></span>}
                             className="w-[40%]"
+                            validateStatus={errors.startTime ? 'error' : ''}
                             help={errors.startTime?.message}
                         >
                             <Controller
                                 name="startTime"
                                 control={control}
+                                rules={{ required: "Ngày bắt đầu là bắt buộc" }}
                                 render={({ field }) => (
                                     <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
                                 )}
