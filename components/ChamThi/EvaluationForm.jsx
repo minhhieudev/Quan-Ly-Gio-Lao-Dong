@@ -247,71 +247,102 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
     const columns = [
         {
-            title: 'Học phần chấm thi',
+            title: <span className="font-semibold">Học phần chấm thi</span>,
             dataIndex: 'hocPhan',
             key: 'hocPhan',
-            className: 'text-blue-500 font-bold'
+            render: (text) => <span className="text-blue-600 font-medium">{text}</span>,
+            width: '20%',
+            ellipsis: true
         },
         {
-            title: 'Lớp học phần',
+            title: <span className="font-semibold">Lớp học phần</span>,
             dataIndex: 'lopHocPhan',
-            key: 'lopHocPhan'
+            key: 'lopHocPhan',
+            width: '12%',
+            ellipsis: true
         },
        
         {
-            title: 'Cán bộ chấm thi',
+            title: <span className="font-semibold">Cán bộ chấm thi</span>,
             dataIndex: 'canBoChamThi',
-            key: 'canBoChamThi'
+            key: 'canBoChamThi',
+            width: '10%',
+            align: 'center',
+            render: (text) => <span>{text}</span>
         },
         {
-            title: 'Số bài chấm',
+            title: <span className="font-semibold">Số bài chấm</span>,
             dataIndex: 'soBaiCham',
-            key: 'soBaiCham'
+            key: 'soBaiCham',
+            width: '8%',
+            align: 'center'
         },
         {
-            title: 'Số tiết quy chuẩn',
+            title: <span className="font-semibold">Số tiết QC</span>,
             dataIndex: 'soTietQuyChuan',
             key: 'soTietQuyChuan',
-            className: 'text-green-500 font-bold'
+            render: (text) => <span className="text-green-600 font-bold">{text}</span>,
+            width: '10%',
+            align: 'center'
         },
         {
-            title: 'HT',
+            title: <span className="font-semibold">HT</span>,
             dataIndex: 'hinhThuc',
             key: 'hinhThuc',
-            render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-            width: 20,
-      
-          },
-          {
-            title: 'TG',
-            dataIndex: 'thoiGian',
-            key: 'thoiGian',
-            render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
-            width: 20,
-      
-          },
-        {
-            title: 'Ghi chú',
-            dataIndex: 'ghiChu',
-            key: 'ghiChu'
+            render: (text) => <span className="font-medium">{text}</span>,
+            width: '8%',
+            align: 'center',
+            ellipsis: true
         },
         {
-            title: 'Hành động',
+            title: <span className="font-semibold">TG</span>,
+            dataIndex: 'thoiGian',
+            key: 'thoiGian',
+            render: (text) => <span className="font-medium">{text}</span>,
+            width: '5%',
+            align: 'center'
+        },
+        {
+            title: <span className="font-semibold">Ghi chú</span>,
+            dataIndex: 'ghiChu',
+            key: 'ghiChu',
+            width: '12%',
+            ellipsis: true,
+            render: (text) => text ? <span className="text-gray-700">{text}</span> : null
+        },
+        {
+            title: <span className="font-semibold">Hành động</span>,
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button onClick={() => handleEdit(record)} size="small" type="primary">Sửa</Button>
+                    <Button 
+                        onClick={() => handleEdit(record)} 
+                        size="small" 
+                        type="primary"
+                        className="bg-blue-500 hover:bg-blue-600"
+                        icon={<span className="mr-1">✎</span>}
+                    >
+                        Sửa
+                    </Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
-                        onConfirm={() => handleDelete(record._id)} // Sử dụng ID để xoá
+                        onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button type="primary" size="small" danger>Xoá</Button>
+                        <Button 
+                            type="primary" 
+                            size="small" 
+                            danger
+                            icon={<span className="mr-1">✕</span>}
+                        >
+                            Xoá
+                        </Button>
                     </Popconfirm>
                 </Space>
             ),
-            width: 20
+            width: '15%',
+            align: 'center'
         },
     ];
 
@@ -373,18 +404,18 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="px-4 py-2 shadow-xl bg-white rounded-xl flex-[20%]">
-                <Title className="text-center" level={5}>CÔNG TÁC CHẤM THI</Title>
+        <div className="flex gap-4 max-sm:flex-col h-full overflow-hidden">
+            <div className="px-5 py-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-y-auto">
+                <Title className="text-center text-blue-700 mb-4 pb-2 border-b border-gray-200" level={4}>CÔNG TÁC CHẤM THI</Title>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-1">
-                    <Space direction="vertical" className="w-full" size="0">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="px-2">
+                    <Space direction="vertical" className="w-full" size="small">
                         <div className="flex justify-between max-sm:flex-col">
                             <div className="flex justify-between items-center w-full gap-3">
                                 {!isAddingNew && (
                                     <Form.Item
-                                        label={<span className="font-bold text-xl">Học phần <span className="text-red-600">*</span></span>}
-                                        className="w-[40%]"
+                                        label={<span className="font-semibold text-base text-gray-700">Học phần <span className="text-red-600">*</span></span>}
+                                        className="flex-1 mb-0"
                                         validateStatus={errors.hocPhan ? 'error' : ''}
                                         help={errors.hocPhan?.message}
                                     >
@@ -396,11 +427,16 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                                 <Select
                                                     showSearch
                                                     allowClear
+                                                    className="rounded-md"
+                                                    style={{ width: '100%' }}
+                                                    dropdownStyle={{ width: 'auto', minWidth: '350px' }}
+                                                    listHeight={300}
                                                     placeholder="Nhập hoặc chọn tên học phần..."
                                                     {...field}
                                                     options={listSelect.map(item => ({
                                                         value: item.hocPhan,
                                                         label: item.hocPhan,
+                                                        className: 'text-base py-1'
                                                     }))}
                                                     filterOption={(input, option) =>
                                                         option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
@@ -409,7 +445,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                                         field.onChange(value);
                                                         handleSelectChange(value);
                                                     }}
-
                                                 />
                                             }
                                         />
@@ -417,29 +452,36 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                 )}
                                 {isAddingNew && (
                                     <Form.Item
-                                        label={<span className="font-bold text-xl">Thêm học phần mới</span>}
-                                        className="w-full"
+                                        label={<span className="font-semibold text-base text-gray-700">Thêm học phần mới</span>}
+                                        className="flex w-full mb-0 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100"
                                     >
-                                        <Space className="w-full">
+                                        <Space className="flex w-[90%]">
                                             <Input
                                                 value={newHocPhan}
                                                 onChange={(e) => setNewHocPhan(e.target.value)}
                                                 placeholder="Nhập tên học phần mới..."
-                                                className="w-[90%]"
+                                                className="min-w-0 rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                             />
-                                            <Button type="primary" onClick={handleSaveNewHocPhan}>
+                                            <Button 
+                                                size="small"
+                                                type="primary" 
+                                                onClick={handleSaveNewHocPhan}
+                                                className="bg-blue-600 hover:bg-blue-700"
+                                            >
                                                 Lưu
                                             </Button>
                                         </Space>
                                     </Form.Item>
                                 )}
                                 <Form.Item
-                                    label={<span className="font-bold text-xl">Thêm</span>}
-                                    className="w-full flex-1"
+                                    label={<span className="font-semibold text-base text-gray-700">Thêm</span>}
+                                    className="w-auto mb-0"
                                 >
                                     <Button
+                                        type="primary"
                                         icon={<PlusOutlined />}
                                         onClick={handleAddNewClick}
+                                        className="ml-2 flex-shrink-0"
                                     />
                                 </Form.Item>
 
@@ -448,29 +490,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
 
                         </div>
-                        <div className="flex justify-between items-center">
-                            {/* <Form.Item
-                                label={<span className="font-bold text-xl">Học kỳ <span className="text-red-600">*</span></span>}
-                                className="w-[40%]"
-                                validateStatus={errors.ky ? 'error' : ''}
-                                help={errors.ky?.message}
-                            >
-                                <Controller
-                                    name="ky"
-                                    control={control}
-                                    rules={{ required: "Học kỳ là bắt buộc" }}
-                                    render={({ field }) => (
-                                        <Radio.Group {...field} className="font-semibold">
-                                            <Radio value="1">Kỳ 1</Radio>
-                                            <Radio value="2">Kỳ 2</Radio>
-                                        </Radio.Group>
-                                    )}
-                                />
-                            </Form.Item> */}
-
+                        <div className="flex justify-between items-center gap-4 bg-gray-50 p-2 rounded-lg mb-1">
                             <Form.Item
-                                label={<span className="font-bold text-xl">Cán bộ chấm thi <span className="text-red-600">*</span></span>}
-                                className="w-[40%]"
+                                label={<span className="font-semibold text-base text-gray-700">Cán bộ chấm thi <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.canBoChamThi ? 'error' : ''}
                                 help={errors.canBoChamThi?.message}
                             >
@@ -479,18 +502,17 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Cán bộ chấm thi là bắt buộc" }}
                                     render={({ field }) => (
-                                        <Radio.Group {...field} className="font-semibold">
-                                            <Radio value="1">1</Radio>
-                                            <Radio value="2">2</Radio>
+                                        <Radio.Group {...field} className="font-medium">
+                                            <Radio value="1">Cán bộ 1</Radio>
+                                            <Radio value="2">Cán bộ 2</Radio>
                                         </Radio.Group>
                                     )}
                                 />
                             </Form.Item>
 
-
-
                             <Form.Item
-                                label={<span className="font-bold text-xl">Lớp <span className="text-red-600">*</span></span>}
+                                label={<span className="font-semibold text-base text-gray-700">Lớp <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.lopHocPhan ? 'error' : ''}
                                 help={errors.lopHocPhan?.message}
                             >
@@ -498,15 +520,19 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     name="lopHocPhan"
                                     control={control}
                                     rules={{ required: "Lớp học phần là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập lớp ..." {...field} />}
+                                    render={({ field }) => <Input 
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                        placeholder="Nhập lớp..." 
+                                        {...field} 
+                                    />}
                                 />
                             </Form.Item>
                         </div>
 
-                        <div className="flex justify-between">
-
+                        <div className="flex justify-between gap-4 bg-gray-50 p-2 rounded-lg mb-1">
                             <Form.Item
-                                label={<span className="font-bold text-xl">Thời gian (phút)<span className="text-red-600">*</span></span>}
+                                label={<span className="font-semibold text-base text-gray-700">Thời gian (phút) <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.thoiGian ? 'error' : ''}
                                 help={errors.thoiGian?.message}
                             >
@@ -515,25 +541,27 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     render={({ field }) =>
                                         <Select
-                                            placeholder="Thời gian thi..."
+                                            placeholder="Chọn thời gian thi..."
                                             allowClear
-                                            className="w-[20%]"
+                                            className="w-full rounded-md"
                                             {...field}
+                                            options={[
+                                                { value: '45', label: '45 phút' },
+                                                { value: '60', label: '60 phút' },
+                                                { value: '90', label: '90 phút' },
+                                                { value: '120', label: '120 phút' },
+                                                { value: '180', label: '180 phút' }
+                                            ]}
                                             onChange={(value) => {
-                                                field.onChange(value); // Cập nhật giá trị trong form
+                                                field.onChange(value);
                                             }}
-                                        >
-                                            <Option value="45">45</Option>
-                                            <Option value="60">60</Option>
-                                            <Option value="90">90</Option>
-                                            <Option value="120">120</Option>
-                                            <Option value="180">180</Option>
-                                        </Select>
+                                        />
                                     }
                                 />
                             </Form.Item>
                             <Form.Item
-                                label={<span className="font-bold text-xl">Hình thức thi: <span className="text-red-600">*</span></span>}
+                                label={<span className="font-semibold text-base text-gray-700">Hình thức thi <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.hinhThuc ? 'error' : ''}
                                 help={errors.hinhThuc?.message}
                             >
@@ -545,15 +573,17 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                         <Select
                                             showSearch
                                             allowClear
-                                            placeholder="Chọn hình thức..."
+                                            className="w-full rounded-md"
+                                            placeholder="Chọn hình thức thi..."
                                             {...field}
                                             options={listOptions.map(item => ({
                                                 value: item.ten,
                                                 label: item.ten,
+                                                className: 'text-base py-1'
                                             }))}
-                                            // filterOption={(input, option) =>
-                                            //     option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                                            // }
+                                            filterOption={(input, option) =>
+                                                option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                                            }
                                             onChange={(value) => {
                                                 field.onChange(value);
                                                 handleSelectChange2(value);
@@ -562,12 +592,11 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     )}
                                 />
                             </Form.Item>
-
                         </div>
-                        <div className="flex justify-between">
-
+                        <div className="flex justify-between gap-4 bg-gray-50 p-2 rounded-lg mb-1">
                             <Form.Item
-                                label={<span className="font-bold text-xl">Số bài chấm <span className="text-red-600">*</span></span>}
+                                label={<span className="font-semibold text-base text-gray-700">Số bài chấm <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.soBaiCham ? 'error' : ''}
                                 help={errors.soBaiCham?.message}
                             >
@@ -576,13 +605,18 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Số bài chấm là bắt buộc" }}
                                     render={({ field }) => (
-                                        <InputNumber className="input-number" min={0} {...field} />
+                                        <InputNumber 
+                                            className="w-full rounded-md border-gray-300" 
+                                            min={0} 
+                                            {...field} 
+                                        />
                                     )}
                                 />
                             </Form.Item>
 
                             <Form.Item
-                                label={<span className="font-bold text-xl">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
+                                label={<span className="font-semibold text-base text-gray-700">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
+                                className="w-1/2 mb-0"
                                 validateStatus={errors.soTietQuyChuan ? 'error' : ''}
                                 help={errors.soTietQuyChuan?.message}
                             >
@@ -591,59 +625,113 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Số tiết quy chuẩn là bắt buộc" }}
                                     render={({ field }) => (
-                                        <InputNumber  readOnly className="input-number" min={0} {...field} />
+                                        <InputNumber 
+                                            readOnly 
+                                            className="w-full rounded-md border-gray-300 bg-gray-100" 
+                                            min={0} 
+                                            {...field} 
+                                        />
                                     )}
                                 />
                             </Form.Item>
                         </div>
 
-                        <Form.Item
-                            label={<span className="font-bold text-xl">Ghi chú</span>}
-                        >
+                        <div className="mb-2">
+                            <div className="mb-1">
+                                <span className="font-semibold text-base text-gray-700">Ghi chú</span>
+                            </div>
                             <Controller
                                 name="ghiChu"
                                 control={control}
-                                render={({ field }) => <Input.TextArea className="input-text" rows={4} {...field} />}
+                                render={({ field }) => 
+                                    <Input.TextArea 
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                        placeholder="Nhập ghi chú nếu cần..."
+                                        autoSize={{ minRows: 2, maxRows: 3 }}
+                                        style={{ resize: 'none' }}
+                                        {...field} 
+                                    />
+                                }
                             />
-                        </Form.Item>
+                        </div>
 
-                        <div className="flex justify-between">
-                            <Button type="default" danger onClick={onReset}>Reset</Button>
-                            <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                {editRecord ? "Cập nhật" : "Lưu"}
-                            </Button>
+                        <div className="flex justify-center mt-2">
+                            <Space size="middle">
+                                <Button 
+                                    type="primary" 
+                                    htmlType="submit" 
+                                    loading={isSubmitting}
+                                    className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
+                                >
+                                    {editRecord ? "Cập nhật" : "Lưu dữ liệu"}
+                                </Button>
+                                <Button 
+                                    type="default" 
+                                    danger 
+                                    onClick={onReset} 
+                                    disabled={isSubmitting}
+                                    className="h-8 px-6 font-medium text-base"
+                                >
+                                    Làm mới
+                                </Button>
+                            </Space>
                         </div>
                     </Space>
                 </Form>
             </div>
 
-            <div className="p-2 shadow-xl bg-white rounded-xl flex-[70%] text-center">
-
-                <Tabs activeKey={selectedTab} onChange={handleTabChange}>
-                    <TabPane tab="KẾT QUẢ CHẤM THI" key="Kết quả chấm thi">
-                        {loadings ? <Spin size="large" /> :
-                            <div>
-                                <Table
-                                    columns={columns}
-                                    dataSource={dataList}
-                                    pagination={{
-                                        current,
-                                        pageSize,
-                                        total: dataList.length,
-                                    }}
-                                    onChange={handleTableChange}
-                                    rowKey="id"
-                                />
-                                <div className="flex justify-center mt-5 text-lg">
-                                    <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-500 text-lg">{totalHours.toFixed(3)}</span></span>
+            <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-y-auto">
+                <Tabs 
+                    activeKey={selectedTab} 
+                    onChange={handleTabChange}
+                    type="card"
+                    className="custom-tabs"
+                    items={[
+                        {
+                            key: 'Kết quả chấm thi',
+                            label: <span className="font-semibold text-base">KẾT QUẢ CHẤM THI</span>,
+                            children: loadings ? 
+                                <div className="flex justify-center items-center h-40">
+                                    <Spin size="large" />
+                                </div> :
+                                <div>
+                                    <Table
+                                        columns={columns}
+                                        dataSource={dataList}
+                                        pagination={{
+                                            current, 
+                                            pageSize, 
+                                            total: dataList.length, 
+                                            onChange: handleTableChange,
+                                            showSizeChanger: true,
+                                            pageSizeOptions: ['5', '10', '20'],
+                                            showTotal: (total) => `Tổng cộng ${total} bản ghi`
+                                        }}
+                                        bordered
+                                        size="middle"
+                                        className="custom-table"
+                                        rowKey="id"
+                                    />
+                                    <div className="flex justify-center mt-5 bg-gray-50 p-2 rounded-lg">
+                                        <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-600 text-lg font-bold">{totalHours.toFixed(3)}</span></span>
+                                    </div>
                                 </div>
-                            </div>
+                        },
+                        {
+                            key: 'Phân công chấm thi',
+                            label: <span className="font-semibold text-base">PHÂN CÔNG CHẤM THI</span>,
+                            children: loadings ? 
+                                <div className="flex justify-center items-center h-40">
+                                    <Spin size="large" />
+                                </div> :
+                                <TablePcChamThi 
+                                    namHoc={namHoc || ''} 
+                                    ky={ky || ''} 
+                                    listSelect={listSelect || []} 
+                                />
                         }
-                    </TabPane>
-                    <TabPane tab="PHÂN CÔNG CHẤM THI" key="Phân công chấm thi" className="text-center">
-                        {loadings ? <Spin size="large" /> : <TablePcChamThi namHoc={namHoc || ''} ky={ky || ''} listSelect={listSelect || []} />}
-                    </TabPane>
-                </Tabs>
+                    ]}
+                />
 
             </div>
         </div>

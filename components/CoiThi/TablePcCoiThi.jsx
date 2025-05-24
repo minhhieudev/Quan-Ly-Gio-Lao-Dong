@@ -20,86 +20,104 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
 
   const columns = [
     {
-      title: 'STT',
+      title: <span className="font-semibold">STT</span>,
       dataIndex: 'index',
-      width: 10,
-      render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
+      width: '5%',
+      align: 'center',
+      render: (text, record, index) => <span className="font-medium">{index + 1}</span>,
     },
     {
-      title: 'Học phần',
+      title: <span className="font-semibold">Học phần</span>,
       dataIndex: 'hocPhan',
       key: 'hocPhan',
+      width: '20%',
       render: (text) => (
-        <span style={{ color: 'green', fontWeight: 'bold' }}>
+        <span className="text-green-600 font-medium">
           {Array.isArray(text) ? text.join(' | ') : text}
         </span>
       ),
+      ellipsis: true
     },
     {
-      title: 'Nhóm/Lớp',
+      title: <span className="font-semibold">Nhóm/Lớp</span>,
       dataIndex: 'lop',
       key: 'lop',
+      width: '10%',
       render: (text) => (
-        <span style={{ color: 'red', fontWeight: 'bold' }}>
+        <span className="text-red-600 font-medium">
           {Array.isArray(text) ? text.join(' | ') : text}
         </span>
       ),
+      ellipsis: true
     },
     {
-      title: 'Ngày thi',
+      title: <span className="font-semibold">Ngày thi</span>,
       dataIndex: 'ngayThi',
       key: 'ngayThi',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: '10%',
+      align: 'center',
+      render: (text) => <span className="font-medium">{text}</span>,
     },
     {
-      title: 'Ca',
+      title: <span className="font-semibold">Ca</span>,
       dataIndex: 'ca',
       key: 'ca',
-      width: '1%',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'orange' }}>{text}</span>,
+      width: '5%',
+      align: 'center',
+      render: (text) => <span className="text-orange-500 font-medium">{text}</span>,
     },
     {
-      title: 'Phòng thi',
+      title: <span className="font-semibold">Phòng thi</span>,
       dataIndex: 'phong',
       key: 'phong',
-      width: 120,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text.join(' - ')}</span>,
+      width: '10%',
+      align: 'center',
+      render: (text) => <span className="font-medium">{text.join(' - ')}</span>,
     },
     {
-      title: 'Cán bộ 1',
+      title: <span className="font-semibold">Cán bộ 1</span>,
       dataIndex: 'cbo1',
       key: 'cbo1',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
+      width: '10%',
+      render: (text) => <span className="text-blue-600 font-medium">{text.join(' - ')}</span>,
+      ellipsis: true
     },
     {
-      title: 'Cán bộ 2',
+      title: <span className="font-semibold">Cán bộ 2</span>,
       dataIndex: 'cbo2',
       key: 'cbo2',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text.join(' - ')}</span>,
+      width: '10%',
+      render: (text) => <span className="text-blue-600 font-medium">{text.join(' - ')}</span>,
+      ellipsis: true
     },
     {
-      title: 'Thời gian',
+      title: <span className="font-semibold">Thời gian</span>,
       dataIndex: 'thoiGian',
       key: 'thoiGian',
-      width: 20,
+      width: '8%',
+      align: 'center',
       render: (text) => (
-        <span style={{ fontWeight: 'bold' }}>
+        <span className="font-medium">
           {Array.isArray(text) ? text.join(' - ') : text}
         </span>
       ),
     },
     {
-      title: 'Địa điểm thi',
+      title: <span className="font-semibold">Địa điểm</span>,
       dataIndex: 'diaDiem',
       key: 'diaDiem',
-      width: 20,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: '7%',
+      align: 'center',
+      render: (text) => <span className="font-medium">{text}</span>,
+      ellipsis: true
     },
     {
-      title: 'Ghi chú',
+      title: <span className="font-semibold">Ghi chú</span>,
       dataIndex: 'ghiChu',
       key: 'ghiChu',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      width: '5%',
+      render: (text) => text ? <span className="text-gray-700">{text}</span> : null,
+      ellipsis: true
     },
   ];
 
@@ -112,34 +130,40 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
   return (
     <div className="flex flex-col">
       {loading ? (
-        <div className="mx-auto text-center w-full">
-          <Spin />
+        <div className="flex justify-center items-center h-40">
+          <Spin size="large" />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: '49vh' }}>
-          <Table
-            columns={columns}
-            dataSource={paginatedData}
-            rowKey="_id"
-            pagination={false} // Tắt phân trang trên Table
-          />
+        <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+          <div className="flex-grow overflow-auto" style={{ maxHeight: '60vh' }}>
+            <Table
+              columns={columns}
+              dataSource={paginatedData}
+              rowKey="_id"
+              pagination={false}
+              bordered
+              size="middle"
+              className="custom-table"
+            />
+          </div>
+          
+          <div className="bg-gray-50 p-3 border-t border-gray-200">
+            <Pagination
+              current={current}
+              pageSize={pageSize}
+              total={listSelect.length}
+              onChange={(page, size) => {
+                setCurrent(page);
+                setPageSize(size);
+              }}
+              pageSizeOptions={['5', '10', '25', '50']}
+              showSizeChanger
+              showTotal={(total) => `Tổng cộng ${total} bản ghi`}
+              className="flex justify-end"
+            />
+          </div>
         </div>
       )}
-
-      <div className="mt-2 ">
-        <Pagination
-          current={current}
-          pageSize={pageSize}
-          total={listSelect.length}
-          onChange={(page, size) => {
-            setCurrent(page);
-            setPageSize(size);
-          }}
-          pageSizeOptions={['5', '10', '25', '50', '100']}
-          showSizeChanger
-          className="flex justify-end"
-        />
-      </div>
     </div>
   );
 };

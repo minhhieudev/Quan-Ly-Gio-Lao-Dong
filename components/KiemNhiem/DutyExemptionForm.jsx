@@ -288,46 +288,80 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             title: 'Chức vụ, công việc',
             dataIndex: 'chucVuCongViec',
             key: 'chucVuCongViec',
-            className: 'text-blue-500 font-bold'
+            className: 'text-blue-600 font-medium',
+            render: (text) => <span className="text-blue-600 font-medium">{text}</span>,
+            sorter: (a, b) => a.chucVuCongViec.localeCompare(b.chucVuCongViec),
+            width: '20%'
         },
         {
             title: 'Thời gian tính',
             dataIndex: 'thoiGianTinh',
-            key: 'thoiGianTinh'
+            key: 'thoiGianTinh',
+            width: '15%',
+            render: (text) => <span className="text-gray-700">{text}</span>,
+            sorter: (a, b) => a.thoiGianTinh.localeCompare(b.thoiGianTinh)
         },
         {
             title: 'Tỷ lệ % miễn giảm',
             dataIndex: 'tyLeMienGiam',
-            key: 'tyLeMienGiam'
+            key: 'tyLeMienGiam',
+            align: 'center',
+            width: '12%',
+            render: (text) => <span>{text}%</span>,
+            sorter: (a, b) => a.tyLeMienGiam - b.tyLeMienGiam
         },
         {
             title: 'Số tiết quy chuẩn',
             dataIndex: 'soTietQC',
             key: 'soTietQC',
-            className: 'text-green-500 font-bold'
+            className: 'text-red-600 font-medium',
+            align: 'center',
+            width: '12%',
+            render: (text) => <span className="text-red-600 font-medium">{text}</span>,
+            sorter: (a, b) => a.soTietQC - b.soTietQC
         },
         {
             title: 'Ghi chú',
             dataIndex: 'ghiChu',
-            key: 'ghiChu'
+            key: 'ghiChu',
+            width: '15%',
+            ellipsis: true
         },
         {
             title: 'Hành động',
             key: 'action',
+            fixed: 'right',
+            width: '15%',
+            align: 'center',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button 
+                        size="small" 
+                        onClick={() => handleEdit(record)} 
+                        type="primary"
+                        className="bg-blue-500 hover:bg-blue-600 flex items-center"
+                        icon={<span className="mr-1">✏️</span>}
+                    >
+                        Sửa
+                    </Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
-                        onConfirm={() => handleDelete(record._id)} // Sử dụng ID để xoá
+                        onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button size="small" type="primary" danger>Xoá</Button>
+                        <Button 
+                            size="small" 
+                            type="primary" 
+                            danger
+                            className="flex items-center"
+                            icon={<span className="mr-1">🗑️</span>}
+                        >
+                            Xoá
+                        </Button>
                     </Popconfirm>
                 </Space>
-            ),
-            width: 20
+            )
         },
     ];
 
@@ -361,107 +395,177 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="p-5 shadow-xl bg-white rounded-xl flex-[30%]">
-                <Title className="text-center" level={3}>CÔNG TÁC KIÊM NHIỆM</Title>
+        <div className="flex gap-4 max-sm:flex-col h-full">
+            <div className="p-3 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100">
+                <div className="border-b border-blue-500 pb-2 mb-2">
+                    <Title className="text-center text-blue-600" level={3}>CÔNG TÁC KIÊM NHIỆM</Title>
+                </div>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-8 mt-10">
-                    <Space direction="vertical" className="w-full">
-                        <div className="flex gap-2 justify-between max-sm:flex-col">
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Chức vụ, CV  <span className="text-red-600">*</span></span>}
-                                className="w-[50%]"
-                                validateStatus={errors.chucVuCongViec ? 'error' : ''}
-                                help={errors.chucVuCongViec?.message}
-                            >
-                                <Controller
-                                    name="chucVuCongViec"
-                                    control={control}
-                                    rules={{ required: "Chức vụ, công việc là bắt buộc" }}
-                                    render={({ field }) => (
-                                        <Select allowClear
-                                            className="input-select"
-                                            placeholder="Chọn công việc, chức vụ ..."
-                                            {...field}
-                                            options={dataList.map(item => ({ label: item.chucVuCongViec, value: item._id }))}
-                                            onChange={(value) => {
-                                                field.onChange(value); // Cập nhật giá trị cho Controller
-                                                handleSelectChange(dataList.find(item => item._id === value)); // Gọi hàm với item đầy đủ
-                                            }}
-                                        />
-                                    )}
-                                />
-                            </Form.Item>
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 mt-4">
+                    <Space direction="vertical" className="w-full" size={0}>
+                        <div className="bg-gray-50 p-3 rounded-lg mb-2">
+                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                                <Form.Item
+                                    label={<span className="font-semibold text-base text-gray-700">Chức vụ, công việc <span className="text-red-600">*</span></span>}
+                                    className="w-full md:w-[48%] mb-2"
+                                    validateStatus={errors.chucVuCongViec ? 'error' : ''}
+                                    help={errors.chucVuCongViec?.message}
+                                >
+                                    <Controller
+                                        name="chucVuCongViec"
+                                        control={control}
+                                        rules={{ required: "Chức vụ, công việc là bắt buộc" }}
+                                        render={({ field }) => (
+                                            <Select 
+                                                allowClear
+                                                className="w-full"
+                                                placeholder="Chọn công việc, chức vụ ..."
+                                                {...field}
+                                                options={dataList.map(item => ({ label: item.chucVuCongViec, value: item._id }))}
+                                                onChange={(value) => {
+                                                    field.onChange(value);
+                                                    handleSelectChange(dataList.find(item => item._id === value));
+                                                }}
+                                                dropdownStyle={{ width: '400px' }}
+                                            />
+                                        )}
+                                    />
+                                </Form.Item>
 
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Thời gian được tính <span className="text-red-600">*</span></span>}
-                                validateStatus={errors.thoiGianTinh ? 'error' : ''}
-                                help={errors.thoiGianTinh?.message}
-                                className="w-[50%]"
-                            >
+                                <Form.Item
+                                    label={<span className="font-semibold text-base text-gray-700">Thời gian được tính <span className="text-red-600">*</span></span>}
+                                    validateStatus={errors.thoiGianTinh ? 'error' : ''}
+                                    help={errors.thoiGianTinh?.message}
+                                    className="w-full md:w-[48%] mb-2"
+                                >
                                 <Controller
                                     name="thoiGianTinh"
                                     control={control}
                                     rules={{ required: "Thời gian được tính là bắt buộc" }}
-                                    render={({ field }) => <Input className="input-text" placeholder="Nhập thời gian được tính ..." {...field} />}
+                                    render={({ field }) => 
+                                        <Input 
+                                            className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                            placeholder="Nhập thời gian được tính ..." 
+                                            {...field} 
+                                        />
+                                    }
+                                />
+                            </Form.Item>
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-3 rounded-lg mb-2">
+                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                                <Form.Item
+                                    label={<span className="font-semibold text-base text-gray-700">Tỷ lệ % miễn giảm <span className="text-red-600">*</span></span>}
+                                    className="w-full md:w-[48%] mb-2"
+                                    validateStatus={errors.tyLeMienGiam ? 'error' : ''}
+                                    help={errors.tyLeMienGiam?.message}
+                                >
+                                    <Controller
+                                        name="tyLeMienGiam"
+                                        control={control}
+                                        rules={{ required: "Tỷ lệ % miễn giảm là bắt buộc", min: { value: 0, message: "Tỷ lệ % miễn giảm không được âm" }, max: { value: 100, message: "Tỷ lệ % miễn giảm không được vượt quá 100" } }}
+                                        render={({ field }) => 
+                                            <InputNumber 
+                                                {...field} 
+                                                className="w-full rounded-md border-gray-300" 
+                                                min={0} 
+                                                max={100}
+                                                addonAfter="%"
+                                            />
+                                        }
+                                    />
+                                </Form.Item>
+
+                                <Form.Item
+                                    label={<span className="font-semibold text-base text-gray-700">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
+                                    className="w-full md:w-[48%] mb-2"
+                                    validateStatus={errors.soTietQC ? 'error' : ''}
+                                    help={errors.soTietQC?.message}
+                                >
+                                    <Controller
+                                        name="soTietQC"
+                                        control={control}
+                                        rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
+                                        render={({ field }) => 
+                                            <InputNumber 
+                                                {...field} 
+                                                className="w-full rounded-md border-gray-300 text-red-600 font-medium" 
+                                                min={1}
+                                            />
+                                        }
+                                    />
+                                </Form.Item>
+                            </div>
+                        </div>
+
+                        <div className="bg-gray-50 p-3 rounded-lg mb-2">
+                            <Form.Item 
+                                label={<span className="font-semibold text-base text-gray-700">Ghi chú</span>}
+                                className="mb-0"
+                            >
+                                <Controller
+                                    name="ghiChu"
+                                    control={control}
+                                    render={({ field }) => 
+                                        <TextArea 
+                                            className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                            placeholder="Nhập ghi chú nếu cần..."
+                                            autoSize={{ minRows: 2, maxRows: 4 }}
+                                            style={{ resize: 'none' }}
+                                            {...field} 
+                                        />
+                                    }
                                 />
                             </Form.Item>
                         </div>
-
-                        <div className="flex justify-between">
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Tỷ lệ % miễn giảm <span className="text-red-600">*</span></span>}
-                                validateStatus={errors.tyLeMienGiam ? 'error' : ''}
-                                help={errors.tyLeMienGiam?.message}
-                            >
-                                <Controller
-                                    name="tyLeMienGiam"
-                                    control={control}
-                                    rules={{ required: "Tỷ lệ % miễn giảm là bắt buộc", min: { value: 0, message: "Tỷ lệ % miễn giảm không được âm" }, max: { value: 100, message: "Tỷ lệ % miễn giảm không được vượt quá 100" } }}
-                                    render={({ field }) => <InputNumber {...field} className="input-number" />}
-                                />
-                            </Form.Item>
-
-                            <Form.Item
-                                label={<span className="font-bold text-xl">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
-                                validateStatus={errors.soTietQC ? 'error' : ''}
-                                help={errors.soTietQC?.message}
-                            >
-                                <Controller
-                                    name="soTietQC"
-                                    control={control}
-                                    rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
-                                    render={({ field }) => <InputNumber {...field} className="input-number" />}
-                                />
-                            </Form.Item>
-                        </div>
-
-                        <Form.Item label={<span className="font-bold text-xl">Ghi chú</span>}>
-                            <Controller
-                                name="ghiChu"
-                                control={control}
-                                render={({ field }) => <TextArea className="input-text" {...field} />}
-                            />
-                        </Form.Item>
                     </Space>
 
-                    <Form.Item>
-                        <Space>
-                            <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                                {isSubmitting ? "Submitting..." : "Lưu"}
-                            </Button>
-                            <Button type="default" danger onClick={onReset} disabled={isSubmitting}>
-                                Reset
-                            </Button>
-                        </Space>
-                    </Form.Item>
+                    <div className="text-center mt-5">
+                        <Form.Item>
+                            <Space size="middle">
+                                <Button 
+                                    type="primary" 
+                                    htmlType="submit" 
+                                    loading={isSubmitting}
+                                    className="bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600 rounded-md px-6 h-10 flex items-center justify-center"
+                                    icon={<span className="mr-1">💾</span>}
+                                >
+                                    {isSubmitting ? "Đang lưu..." : "Lưu"}
+                                </Button>
+                                <Button 
+                                    type="default" 
+                                    danger 
+                                    onClick={onReset} 
+                                    disabled={isSubmitting}
+                                    className="border-gray-300 hover:border-red-500 rounded-md px-6 h-10 flex items-center justify-center"
+                                    icon={<span className="mr-1">🔄</span>}
+                                >
+                                    Làm mới
+                                </Button>
+                            </Space>
+                        </Form.Item>
+                    </div>
                 </Form>
             </div>
 
-            <div className="p-2 shadow-xl bg-white rounded-xl flex-[65%] text-center">
+            <div className="px-6 py-4 shadow-lg bg-white rounded-xl flex-[65%] border border-gray-100">
+                <div className="border-b border-blue-500 pb-2 mb-4">
+                    <Title className="text-center text-blue-600" level={3}>QUẢN LÝ CÔNG TÁC KIÊM NHIỆM</Title>
+                </div>
 
-                <Tabs activeKey={selectedTab} onChange={handleTabChange}>
-                    <TabPane tab="DANH SÁCH CÔNG VIỆC" key="Danh sách công việc" className="text-center">
+                <Tabs 
+                    activeKey={selectedTab} 
+                    onChange={handleTabChange}
+                    type="card"
+                    className="custom-tabs"
+                >
+                    <TabPane 
+                        tab={<span className="px-2 py-1 font-medium">DANH SÁCH CÔNG VIỆC</span>} 
+                        key="Danh sách công việc" 
+                        className="text-center p-2"
+                    >
                         {loading ? <Spin size="large" /> :
                             <Table
                                 columns={columns}
@@ -472,8 +576,15 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     pageSize,
                                     total: dataList.length,
                                     onChange: (page) => setCurrent(page),
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ['5', '10', '20', '50'],
+                                    showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`
                                 }}
                                 onChange={handleTableChange}
+                                className="custom-table"
+                                bordered
+                                size="middle"
+                                scroll={{ x: 'max-content' }}
                                 summary={() => (
                                     <Table.Summary.Row>
                                         <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
@@ -483,28 +594,47 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     </Table.Summary.Row>
                                 )}
                             />
-
                         }
-
                     </TabPane>
-                    <TabPane tab="PHỤ LỤC CÔNG VIỆC" key="Phụ lục công việc" className="text-center">
+                    <TabPane 
+                        tab={<span className="px-2 py-1 font-medium">PHỤ LỤC CÔNG VIỆC</span>} 
+                        key="Phụ lục công việc" 
+                        className="text-center p-2"
+                    >
                         {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect} />}
                     </TabPane>
                 </Tabs>
-
             </div>
 
-            {/* Hiển thị kết quả */}
-            <div className="results-display bg-white rounded-lg p-4 shadow-md">
-                <h3 className="text-lg font-semibold mb-2">Kết quả:</h3>
-                <ul className="list-disc pl-5">
-                    {resultsDisplay.map((result, index) => (
-                        <li key={index} className="mb-1">
-                            {result.from} - {result.to} -{">"} {result.max}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            {resultsDisplay.length > 0 && (
+                <div className="mt-4 bg-white rounded-lg p-4 shadow-lg border border-gray-100">
+                    <div className="border-b border-blue-500 pb-2 mb-3">
+                        <h3 className="text-lg font-semibold text-blue-600 text-center">Kết quả tính toán miễn giảm</h3>
+                    </div>
+                    <div className="overflow-auto max-h-60">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-gray-50">
+                                    <th className="border border-gray-200 px-3 py-2 text-left">STT</th>
+                                    <th className="border border-gray-200 px-3 py-2 text-left">Từ ngày</th>
+                                    <th className="border border-gray-200 px-3 py-2 text-left">Đến ngày</th>
+                                    <th className="border border-gray-200 px-3 py-2 text-center">Số tiết miễn giảm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {resultsDisplay.map((result, index) => (
+                                    <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                        <td className="border border-gray-200 px-3 py-2">{index + 1}</td>
+                                        <td className="border border-gray-200 px-3 py-2 text-green-600 font-medium">{result.from}</td>
+                                        <td className="border border-gray-200 px-3 py-2 text-blue-600 font-medium">{result.to}</td>
+                                        <td className="border border-gray-200 px-3 py-2 text-center text-red-600 font-medium">{result.max}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

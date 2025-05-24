@@ -211,7 +211,7 @@ const Dashboard = () => {
                             />
                         </div>
 
-                        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 220px)' }}>
+                        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 270px)' }}>
                             <Table
                                 dataSource={filteredData}
                                 columns={columns}
