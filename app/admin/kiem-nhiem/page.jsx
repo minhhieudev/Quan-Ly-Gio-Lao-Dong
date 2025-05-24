@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination } from "antd";
+import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination, Modal, Card, Divider, Alert } from "antd";
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
-import { SearchOutlined } from '@ant-design/icons'
-import { UploadOutlined } from '@ant-design/icons';
+import { SearchOutlined, UploadOutlined, FileExcelOutlined, SaveOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import { FileExcelOutlined } from '@ant-design/icons';
 import { exportPCKiemNhiem } from "@lib/fileExport";
 
 const { TextArea } = Input;
@@ -50,6 +48,10 @@ const KiemNhiemForm = () => {
     const [selectedKhoa, setSelectedKhoa] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [loaiChucVuList, setLoaiChucVuList] = useState([]);
+    
+    // State cho modal hoàn thành
+    const [isCompletionModalVisible, setIsCompletionModalVisible] = useState(false);
+    const [isTransferring, setIsTransferring] = useState(false);
 
     // Thêm state cho ngày bắt đầu/kết thúc năm học
     const [schoolYearStart, setSchoolYearStart] = useState(null);
@@ -267,6 +269,47 @@ const KiemNhiemForm = () => {
         } catch (err) {
             toast.error("An error occurred while deleting data");
         }
+    };
+    
+    // Hàm xử lý hoàn thành và chuyển dữ liệu
+    const handleTransferData = async () => {
+        setIsTransferring(true);
+        try {
+            // Gọi API để chuyển dữ liệu từ bảng PhanCongKiemNhiem sang bảng lưu trữ
+            // Đây là mẫu code, bạn cần thay thế bằng API thực tế của bạn
+            const res = await fetch("/api/admin/kiem-nhiem/transfer", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    schoolYearStart: schoolYearStart?.toISOString(),
+                    schoolYearEnd: schoolYearEnd?.toISOString()
+                })
+            });
+
+            if (res.ok) {
+                toast.success("Chuyển dữ liệu thành công!");
+                // Cập nhật lại danh sách sau khi chuyển
+                fetchData();
+            } else {
+                const errorData = await res.json();
+                toast.error(errorData.message || "Chuyển dữ liệu thất bại");
+            }
+        } catch (error) {
+            console.error("Lỗi khi chuyển dữ liệu:", error);
+            toast.error("Đã xảy ra lỗi khi chuyển dữ liệu");
+        } finally {
+            setIsTransferring(false);
+            setIsCompletionModalVisible(false);
+        }
+    };
+    
+    // Hàm mở modal xác nhận chuyển dữ liệu
+    const showCompletionConfirm = () => {
+        if (!schoolYearStart || !schoolYearEnd) {
+            toast.error("Vui lòng chọn năm học trước khi hoàn thành!");
+            return;
+        }
+        setIsCompletionModalVisible(true);
     };
 
     const columns = [
@@ -495,9 +538,9 @@ const KiemNhiemForm = () => {
     ) : (
         <div className="flex gap-2 max-sm:flex-col mt-2 h-[90vh]">
             {showForm && (
-                <div className="p-4 shadow-xl bg-white rounded-xl basis-1/3">
-                    <div className="flex justify-between items-center">
-                        <Title className="text-center" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
+                <div className="p-6 shadow-xl bg-white rounded-xl basis-1/3">
+                    <div className="flex justify-between items-center mb-4">
+                        <Title className="text-center m-0" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
                         <Button
                             type="text"
                             onClick={() => setShowForm(false)}
@@ -506,30 +549,33 @@ const KiemNhiemForm = () => {
                             ✕
                         </Button>
                     </div>
-                    <div className="flex gap-4 mb-4">
-                        <div>
-                            <div className="font-bold">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
-                            <DatePicker
-                                value={schoolYearStart}
-                                onChange={handleSchoolYearStartChange}
-                                placeholder="Chọn ngày bắt đầu năm học"
-                                style={{ width: '100%' }}
-                                className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
-                            />
-                            {!schoolYearStart && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
+                    <Divider className="my-2" />
+                    <Card className="mb-4" title="Thông tin năm học" size="small" bordered={true}>
+                        <div className="flex gap-4">
+                            <div className="w-1/2">
+                                <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
+                                <DatePicker
+                                    value={schoolYearStart}
+                                    onChange={handleSchoolYearStartChange}
+                                    placeholder="Chọn ngày bắt đầu năm học"
+                                    style={{ width: '100%' }}
+                                    className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
+                                />
+                                {!schoolYearStart && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
+                            </div>
+                            <div className="w-1/2">
+                                <div className="font-bold mb-1">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
+                                <DatePicker
+                                    value={schoolYearEnd}
+                                    onChange={handleSchoolYearEndChange}
+                                    placeholder="Chọn ngày kết thúc năm học"
+                                    style={{ width: '100%' }}
+                                    className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
+                                />
+                                {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
+                            </div>
                         </div>
-                        <div>
-                            <div className="font-bold">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
-                            <DatePicker
-                                value={schoolYearEnd}
-                                onChange={handleSchoolYearEndChange}
-                                placeholder="Chọn ngày kết thúc năm học"
-                                style={{ width: '100%' }}
-                                className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
-                            />
-                            {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
-                        </div>
-                    </div>
+                    </Card>
                     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
                         <Form.Item
                             label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
@@ -560,7 +606,6 @@ const KiemNhiemForm = () => {
                                 name="user"
                                 control={control}
                                 rules={{ required: "Bắt buộc" }}
-
                                 render={({ field }) => (
                                     <Select
                                         className="input-select"
@@ -591,6 +636,7 @@ const KiemNhiemForm = () => {
                                 )}
                             />
                         </Form.Item>
+                        
                         <Form.Item
                             label={<span className="font-bold text-xl">Ngày kết thúc </span>}
                             className="w-[40%]"
@@ -600,7 +646,7 @@ const KiemNhiemForm = () => {
                                 name="endTime"
                                 control={control}
                                 render={({ field }) => (
-                                    <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                    <DatePicker {...field} placeholder="Chọn ngày kết thúc" />
                                 )}
                             />
                         </Form.Item>
@@ -617,45 +663,99 @@ const KiemNhiemForm = () => {
                             />
                         </Form.Item>
 
-
-                        <Space size="middle">
-                            <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
-                                {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
-                            </Button>
-                            <div className="text-center">
-                                <Spin spinning={isUploading}>
-                                    <label htmlFor="excelUpload">
-                                        <Button
-                                            className=" button-lien-thong-vlvh"
-                                            type="primary"
-                                            icon={<UploadOutlined />}
-                                            onClick={() => fileInputRef.current.click()}
-                                            disabled={isUploading}
-                                        >
-                                            {isUploading ? 'Đang tải lên...' : 'Import từ Excel'}
-                                        </Button>
-                                    </label>
-                                </Spin>
-
-                                <div className="hidden">
+                        <div className="flex justify-between items-center mt-8">
+                            <Space size="middle">
+                                <Button 
+                                    className="bg-blue-500 hover:bg-blue-700" 
+                                    loading={isSubmitting} 
+                                    type="primary" 
+                                    htmlType="submit"
+                                    icon={<SaveOutlined />}
+                                >
+                                    {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                                </Button>
+                                <Button onClick={onReset}>Hủy</Button>
+                                <div className="ml-2">
+                                    <Spin spinning={isUploading}>
+                                        <label htmlFor="excelUpload">
+                                            <Button
+                                                className="button-lien-thong-vlvh"
+                                                type="primary"
+                                                icon={<UploadOutlined />}
+                                                onClick={() => fileInputRef.current.click()}
+                                                disabled={isUploading}
+                                            >
+                                                {isUploading ? 'Đang tải lên...' : 'Import'}
+                                            </Button>
+                                        </label>
+                                    </Spin>
                                     <input
                                         type="file"
                                         accept=".xlsx, .xls"
                                         onChange={handleFileUpload}
-                                        className="hidden"
+                                        style={{ display: 'none' }}
                                         id="excelUpload"
                                         ref={fileInputRef}
                                     />
                                 </div>
-                            </div>
-                            <Button danger className="ml-4" htmlType="button" onClick={onReset}>
-                                Reset
+                            </Space>
+                            
+                            <Button 
+                                type="primary" 
+                                className="bg-green-600 hover:bg-green-700"
+                                onClick={showCompletionConfirm}
+                                icon={<CheckCircleOutlined />}
+                            >
+                                Hoàn thành
                             </Button>
-                        </Space>
+                        </div>
                     </Form>
                 </div>
             )}
 
+            {/* Modal xác nhận hoàn thành */}
+            <Modal
+                title={
+                    <div className="flex items-center">
+                        <ExclamationCircleOutlined className="text-yellow-500 mr-2" />
+                        <span>Xác nhận chuyển dữ liệu</span>
+                    </div>
+                }
+                open={isCompletionModalVisible}
+                onCancel={() => setIsCompletionModalVisible(false)}
+                footer={[
+                    <Button key="cancel" onClick={() => setIsCompletionModalVisible(false)}>
+                        Hủy bỏ
+                    </Button>,
+                    <Button
+                        key="submit"
+                        type="primary"
+                        danger
+                        loading={isTransferring}
+                        onClick={handleTransferData}
+                    >
+                        Xác nhận chuyển
+                    </Button>,
+                ]}
+            >
+                <Alert
+                    message="Cảnh báo!"
+                    description={
+                        <div>
+                            <p>Bạn đang chuẩn bị chuyển dữ liệu từ bảng Phân Công Kiêm Nhiệm sang bảng lưu trữ.</p>
+                            <p className="font-bold mt-2">Lưu ý:</p>
+                            <ul className="list-disc pl-5">
+                                <li>Hành động này sẽ chuyển toàn bộ dữ liệu của năm học {schoolYearStart && dayjs(schoolYearStart).format('DD/MM/YYYY')} - {schoolYearEnd && dayjs(schoolYearEnd).format('DD/MM/YYYY')}</li>
+                                <li>Dữ liệu sau khi chuyển sẽ được lưu trữ và không thể chỉnh sửa</li>
+                                <li>Hãy đảm bảo bạn đã kiểm tra kỹ dữ liệu trước khi tiến hành</li>
+                            </ul>
+                        </div>
+                    }
+                    type="warning"
+                    showIcon
+                />
+            </Modal>
+            
             <div className={`p-3 shadow-xl bg-white rounded-xl ${showForm ? 'basis-2/3' : 'w-full'}`}>
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
                     <div className="flex justify-between w-full items-center">

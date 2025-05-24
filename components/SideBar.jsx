@@ -21,7 +21,8 @@ import {
   ApartmentOutlined,
   FileDoneOutlined,
   CaretDownOutlined,
-  CaretRightOutlined
+  CaretRightOutlined,
+  HistoryOutlined
 } from "@ant-design/icons";
 
 const SideBar = () => {
@@ -95,6 +96,10 @@ const SideBar = () => {
             <Link href="/admin/kiem-nhiem" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <UserOutlined style={{ fontSize: "20px" }} className="text-indigo-500"/>
               <span style={getIconStyle(["/admin/kiem-nhiem"])}>Kiêm nhiệm</span>
+            </Link>
+            <Link href="/admin/kiem-nhiem-backup" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
+              <HistoryOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
+              <span style={getIconStyle(["/admin/kiem-nhiem-backup"])}>Lịch sử kiêm nhiệm</span>
             </Link>
           </div>
         )}

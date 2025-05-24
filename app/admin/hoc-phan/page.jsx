@@ -5,6 +5,7 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } fro
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
+import { exportHocPhan } from '@/lib/fileExport';
 
 const { Option } = Select;
 
@@ -69,6 +70,26 @@ const TeachingAssignmentTable = () => {
       }
     } catch (err) {
       toast.error("Có lỗi xảy ra!");
+    }
+  };
+
+  const exportToExcel = () => {
+    try {
+      toast.loading('Đang xuất file Excel...');
+      exportHocPhan(filteredData)
+        .then(() => {
+          toast.dismiss();
+          toast.success('Xuất file Excel thành công!');
+        })
+        .catch((error) => {
+          toast.dismiss();
+          console.error('Error exporting to Excel:', error);
+          toast.error('Lỗi khi xuất file Excel!');
+        });
+    } catch (error) {
+      toast.dismiss();
+      console.error('Error exporting to Excel:', error);
+      toast.error('Lỗi khi xuất file Excel!');
     }
   };
 
@@ -190,8 +211,8 @@ const TeachingAssignmentTable = () => {
 
       <div className="mt-2 flex justify-between">
         <Button
-          className="button-lien-thong-vlvh text-white font-bold shadow-md "
-        //onClick={() => exportToExcelTongHop() }
+          className="button-lien-thong-vlvh text-white font-bold shadow-md"
+          onClick={() => exportToExcel()}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>
