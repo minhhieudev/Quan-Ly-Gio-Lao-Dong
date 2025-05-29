@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
-import { connectToDB } from "@mongodb";
 import TongHopLaoDong from "@models/TongHopLaoDong";
+import { connectToDB } from "@mongodb";
 
 export const POST = async (req) => {
   try {
@@ -23,7 +23,7 @@ export const POST = async (req) => {
     };
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const existingRecord = await TongHopLaoDong.findOne({ 
+    const existingRecord = await TongHopLaoDong.findOne({
       user: body.user, // Giả sử bạn có trường user trong body
       loai: body.loai, // Giả sử bạn có trường loai trong body
       namHoc: body.namHoc // Giả sử bạn có trường namHoc trong body
