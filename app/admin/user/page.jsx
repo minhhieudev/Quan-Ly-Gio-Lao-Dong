@@ -41,7 +41,7 @@ const UserForm = () => {
     const [ngachOptions, setNgachOptions] = useState([]);
     const quyenOptions = [
         { label: "Giảng viên", value: "user" },
-        { label: "Giáo vụ", value: "user" },
+        { label: "Giáo vụ", value: "giaoVu" },
         { label: "Admin", value: "admin" }
     ];
 
@@ -338,11 +338,14 @@ const UserForm = () => {
         <div className=" mt-1 h-[92vh]">
             {showForm && (
                 <Modal
-                    title="THÊM MỚI NGƯỜI DÙNG"
+                    title={editRecord ? "CHỈNH SỬA NGƯỜI DÙNG" : "THÊM MỚI NGƯỜI DÙNG"}
                     visible={showForm}
-                    //onOk={handleOk}
-                    onCancel={() => { setShowForm(!showForm) }}
-                    footer={null} // Disable default footer to use custom buttons
+                    onCancel={() => {
+                        setShowForm(false);
+                        setEditRecord(null);
+                        reset(formSchema);
+                    }}
+                    footer={null}
                     width={'900px'}
                     height={'600px'}
                 >
@@ -497,8 +500,8 @@ const UserForm = () => {
                                                 render={({ field }) => (
                                                     <Select className="w-full" placeholder="Chọn quyền" {...field}>
                                                         {quyenOptions.map(role => (
-                                                            <Option key={role} value={role}>
-                                                                {role}
+                                                            <Option key={role.value} value={role.value}>
+                                                                {role.label}
                                                             </Option>
                                                         ))}
                                                     </Select>
@@ -588,14 +591,24 @@ const UserForm = () => {
                                 onChange={value => setSelectedRole(value)}
                             >
                                 {quyenOptions.map(role => (
-                                    <Option key={role} value={role}>
-                                        {role}
+                                    <Option key={role.value} value={role.value}>
+                                        {role.label}
                                     </Option>
                                 ))}
                             </Select>
                         </div>
                         <div >
-                            <Button type="primary" onClick={() => { setShowForm(!showForm) }} className="primary ">{showForm ? 'Đóng' : 'Tạo mới'}</Button>
+                            <Button
+                                type="primary"
+                                onClick={() => {
+                                    setEditRecord(null);
+                                    reset(formSchema);
+                                    setShowForm(true);
+                                }}
+                                className="primary"
+                            >
+                                {showForm ? 'Đóng' : 'Tạo mới'}
+                            </Button>
                         </div>
 
 

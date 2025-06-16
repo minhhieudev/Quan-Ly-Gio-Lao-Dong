@@ -40,9 +40,6 @@ const TongHopLaoDongSchema = new mongoose.Schema({
       type: Number,
     },
   },
-  gioChuan: {
-    type: Number,
-  },
   kiemNhiem: {
     type: Number,
   },

@@ -1,5 +1,7 @@
-import Khoa from "@models/Khoa";
 import { connectToDB } from '@mongodb';
+import TongHopLaoDong from "@models/TongHopLaoDong";
+import Khoa from "@models/Khoa";
+import User from "@models/User";
 
 export const GET = async (req) => {
   try {

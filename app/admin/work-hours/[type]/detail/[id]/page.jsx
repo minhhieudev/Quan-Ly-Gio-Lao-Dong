@@ -211,7 +211,7 @@ const Pages = () => {
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
       align: 'center',
-      render: (text, record) => record?.user?.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -291,7 +291,7 @@ const Pages = () => {
       align: 'center',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record.user.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -357,7 +357,7 @@ const Pages = () => {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record?.user?.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center',
       align: 'center',
 
@@ -433,7 +433,7 @@ const Pages = () => {
       align: 'center',
 
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record?.user?.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -530,7 +530,7 @@ const Pages = () => {
       align: 'center',
 
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record.user.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center'
     },
     {
@@ -616,7 +616,7 @@ const Pages = () => {
       align: 'center',
       dataIndex: 'username',
       ...getColumnSearchProps('user.username'),
-      render: (text, record) => record.user.username,
+      render: (text, record) => record.user ? record.user.username : '',
       className: 'text-blue-500 font-bold text-center'
     },
     {

@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
-import TongHopLaoDong from "@models/TongHopLaoDong";
 import { connectToDB } from "@mongodb";
+import TongHopLaoDong from "@models/TongHopLaoDong";
 
 export const POST = async (req) => {
   try {
@@ -9,21 +9,21 @@ export const POST = async (req) => {
     const body = await req.json();
     console.log(body);
 
-    const gioChuan = 0;
     const chuanNamHoc = 1;
+
+    /////////////////////////////////
     const tongGioChinhQuy = body.congTacGiangDay.tong + body.congTacKhac.tong;
     const thuaThieuGioLaoDong = tongGioChinhQuy - chuanNamHoc;
 
     const data = {
       ...body,
-      gioChuan,
       chuanNamHoc,
       tongGioChinhQuy,
       thuaThieuGioLaoDong,
     };
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const existingRecord = await TongHopLaoDong.findOne({
+    const existingRecord = await TongHopLaoDong.findOne({ 
       user: body.user, // Giả sử bạn có trường user trong body
       loai: body.loai, // Giả sử bạn có trường loai trong body
       namHoc: body.namHoc // Giả sử bạn có trường namHoc trong body
@@ -83,9 +83,28 @@ export const GET = async (req, { params }) => {
     //   query.ky = ky;
     // }
 
-    const records = await TongHopLaoDong.find(query).populate('user', 'username khoa');
+    // Lấy records và populate user để có maNgach
+    const records = await TongHopLaoDong.find(query).populate('user', 'username khoa maNgach');
 
-    return new Response(JSON.stringify(records), { status: 200 });
+    // Import model MaNgach
+    const MaNgach = (await import("@models/MaNgach")).default;
+
+    // Thêm trường gioChuan cho từng record
+    const recordsWithGioChuan = await Promise.all(records.map(async (record) => {
+      let gioChuan = null;
+      if (record.user && record.user.maNgach) {
+        const maNgachDoc = await MaNgach.findOne({ maNgach: record.user.maNgach });
+        if (maNgachDoc) {
+          gioChuan = (maNgachDoc.GCGDNam || 0) + (maNgachDoc.GCNCKHNam || 0) + (maNgachDoc.GCPVCDNam || 0);
+        }
+      }
+      // Chuyển record sang object và thêm trường gioChuan
+      const recordObj = record.toObject();
+      recordObj.gioChuan = gioChuan;
+      return recordObj;
+    }));
+
+    return new Response(JSON.stringify(recordsWithGioChuan), { status: 200 });
   } catch (err) {
     console.log(err);
     return new Response(`Failed to retrieve records`, { status: 500 });
