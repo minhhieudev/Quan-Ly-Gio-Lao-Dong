@@ -123,8 +123,18 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     }, [dataListSelect]);
 
     const handelKiemNhiem = () => {
-        const dau_nam = new Date('2025-10'); // Tháng bắt đầu (tháng 10 năm 2024)
-        const cuoi_nam = new Date('2026-5'); // Tháng kết thúc (tháng 5 năm 2025)
+        // Lấy giá trị schoolYearStart và schoolYearEnd từ phần tử đầu tiên của dataListSelect (nếu có)
+        let dau_nam, cuoi_nam;
+        
+        if (dataListSelect && dataListSelect.length > 0 && dataListSelect[0].schoolYearStart && dataListSelect[0].schoolYearEnd) {
+            dau_nam = new Date(dataListSelect[0].schoolYearStart);
+            cuoi_nam = new Date(dataListSelect[0].schoolYearEnd);
+        } 
+        // else {
+        //     // Giá trị mặc định nếu không tìm thấy trong dữ liệu
+        //     dau_nam = new Date('2025-10'); // Tháng bắt đầu (tháng 10 năm 2024)
+        //     cuoi_nam = new Date('2026-5'); // Tháng kết thúc (tháng 5 năm 2025)
+        // }
 
         const events = [];
 
@@ -641,3 +651,4 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 };
 
 export default DutyExemptionForm;
+
