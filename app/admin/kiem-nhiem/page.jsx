@@ -305,10 +305,6 @@ const KiemNhiemForm = () => {
     
     // Hàm mở modal xác nhận chuyển dữ liệu
     const showCompletionConfirm = () => {
-        if (!schoolYearStart || !schoolYearEnd) {
-            toast.error("Vui lòng chọn năm học trước khi hoàn thành!");
-            return;
-        }
         setIsCompletionModalVisible(true);
     };
 

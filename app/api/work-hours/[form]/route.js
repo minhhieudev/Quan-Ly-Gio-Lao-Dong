@@ -118,6 +118,16 @@ export const GET = async (req, { params }) => {
     const ky = url.searchParams.get('ky');
     let type = ''
 
+    //  await PhanCongKiemNhiem.updateMany(
+    //   {}, // Không có điều kiện - cập nhật tất cả
+    //   { 
+    //     $set: { 
+    //       schoolYearStart: new Date('2025-10-01'), 
+    //       schoolYearEnd: new Date('2026-05-31') 
+    //     } 
+    //   }
+    // );
+
     if (!user) {
       return new Response("User and type parameters are required", { status: 400 });
     }

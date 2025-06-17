@@ -17,37 +17,57 @@ export const POST = async (req) => {
     }
 
     // Chuyển tất cả dữ liệu sang bảng backup
-    const backupRecords = await Promise.all(
+    const backupResults = await Promise.all(
       recordsToTransfer.map(async (record) => {
-        // Tạo bản ghi backup mới
-        const backupRecord = new PhanCongKiemNhiemBackup({
+        // Kiểm tra xem bản ghi đã tồn tại trong bảng backup chưa
+        const existingBackup = await PhanCongKiemNhiemBackup.findOne({
           chucVu: record.chucVu._id,
-          startTime: record.startTime,
-          endTime: record.endTime,
-          ghiChu: record.ghiChu,
           user: record.user._id,
           schoolYearStart: record.schoolYearStart,
-          schoolYearEnd: record.schoolYearEnd,
-          transferredAt: new Date()
+          schoolYearEnd: record.schoolYearEnd
         });
 
-        await backupRecord.save();
-        return backupRecord;
+        if (existingBackup) {
+          // Nếu đã tồn tại, cập nhật bản ghi
+          existingBackup.startTime = record.startTime;
+          existingBackup.endTime = record.endTime;
+          existingBackup.ghiChu = record.ghiChu;
+          existingBackup.transferredAt = new Date();
+          await existingBackup.save();
+          return { updated: true, record: existingBackup };
+        } else {
+          // Nếu chưa tồn tại, tạo bản ghi mới
+          const backupRecord = new PhanCongKiemNhiemBackup({
+            chucVu: record.chucVu._id,
+            startTime: record.startTime,
+            endTime: record.endTime,
+            ghiChu: record.ghiChu,
+            user: record.user._id,
+            schoolYearStart: record.schoolYearStart,
+            schoolYearEnd: record.schoolYearEnd,
+            transferredAt: new Date()
+          });
+          await backupRecord.save();
+          return { updated: false, record: backupRecord };
+        }
       })
     );
     
-    // Lấy danh sách ID của các bản ghi đã chuyển để xóa
-    const recordIds = recordsToTransfer.map(record => record._id);
+    // Tính toán số lượng bản ghi đã cập nhật và tạo mới
+    const updatedCount = backupResults.filter(result => result.updated).length;
+    const newCount = backupResults.filter(result => !result.updated).length;
+
     
     // Xóa tất cả bản ghi khỏi bảng PhanCongKiemNhiem
-    const deleteResult = await PhanCongKiemNhiem.deleteMany({});
+    //await PhanCongKiemNhiem.deleteMany({});
 
     // Trả về kết quả
     return new Response(JSON.stringify({
       success: true,
-      message: `Đã chuyển ${backupRecords.length} bản ghi thành công vào bảng lưu trữ và xóa khỏi bảng gốc`,
-      count: backupRecords.length,
-      deletedCount: deleteResult.deletedCount
+      message: `Đã chuyển ${backupResults.length} bản ghi thành công vào bảng lưu trữ (${newCount} bản ghi mới, ${updatedCount} bản ghi cập nhật)`,
+      count: backupResults.length,
+      updatedCount,
+      newCount
     }), { status: 200 });
 
   } catch (err) {
@@ -58,3 +78,4 @@ export const POST = async (req) => {
     }), { status: 500 });
   }
 };
+
