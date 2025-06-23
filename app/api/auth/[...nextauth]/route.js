@@ -48,11 +48,16 @@ const handler = NextAuth({
 
       if (mongodbUser) {
         session.user._id = mongodbUser._id.toString();
-        session.user = { ...session.user, ...mongodbUser._doc };
+        
+        // Create a new object without the password
+        const { password, ...userWithoutPassword } = mongodbUser._doc;
+        session.user = { ...session.user, ...userWithoutPassword };
 
         // Lấy thông tin ngạch cho người dùng
-        const maNgachInfo = await MaNgach.findOne({ maNgach: mongodbUser.maNgach }, 'GCGD');
-        session.user.maNgachInfo = maNgachInfo; // Thêm thông tin ngạch vào session
+        const maNgachInfo = await MaNgach.findOne({ maNgach: mongodbUser.maNgach });
+        if (maNgachInfo) {
+          session.user.maNgachInfo = maNgachInfo;
+        }
       }
 
       return session;

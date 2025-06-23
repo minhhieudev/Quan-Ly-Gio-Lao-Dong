@@ -869,7 +869,7 @@ const KiemNhiemForm = () => {
                         setCurrent(page);
                         setPageSize(size);
                     }}
-                    pageSizeOptions={['10', '25', '50', '100', '200']}
+                    pageSizeOptions={['10', '25', '50', '100', '200','500','1000']}
                     showSizeChanger
                     className="flex justify-end"
                 />
