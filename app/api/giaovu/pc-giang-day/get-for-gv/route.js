@@ -1,9 +1,8 @@
 export const dynamic = 'force-dynamic';
 
-import { connectToDB } from '@mongodb';
-import PcGiangDay from "@models/PcGiangDay";
 import HocPhan from "@models/HocPhan";
-import ChucVu from "@models/ChucVu";
+import PcGiangDay from "@models/PcGiangDay";
+import { connectToDB } from '@mongodb';
 
 export const GET = async (req) => {
   try {
@@ -14,6 +13,7 @@ export const GET = async (req) => {
     const namHoc = searchParams.get('namHoc');
     const ky = searchParams.get('ky');
     const gvGiangDay = searchParams.get('gvGiangDay');
+    const maGV = searchParams.get('maGV');
 
     // Tạo đối tượng điều kiện tìm kiếm
     let filter = {};
@@ -30,6 +30,10 @@ export const GET = async (req) => {
 
     if (gvGiangDay) {
       filter.gvGiangDay = { $regex: new RegExp(gvGiangDay, 'i') };
+    }
+
+    if (maGV) {
+      filter.maGV = { $regex: new RegExp(maGV, 'i') };
     }
 
     // Nếu không có cả namHoc lẫn ky thì trả về lỗi

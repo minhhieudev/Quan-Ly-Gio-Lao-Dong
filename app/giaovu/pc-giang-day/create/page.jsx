@@ -121,11 +121,20 @@ const TeachingAssignmentForm = () => {
 
 
   const handleFileUpload = (e) => {
+    // Lấy giá trị năm học và kỳ từ form
+    const formValues = control._formValues;
+    const namHoc = formValues.namHoc;
+    const ky = formValues.ky;
+
+    // Kiểm tra xem đã chọn năm học và kỳ chưa
+    if (!namHoc || !ky) {
+      toast.error("Vui lòng chọn năm học và học kỳ trước khi import từ file Excel!");
+      fileInputRef.current.value = ""; // Reset input file
+      return;
+    }
+
     const file = e.target.files[0];
     const reader = new FileReader();
-
-    let namHoc = '';
-    let ky = '';
 
     reader.onload = (event) => {
       const data = event.target.result;
@@ -133,17 +142,8 @@ const TeachingAssignmentForm = () => {
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-      // Tìm và gán giá trị cho namHoc và ky
-      rawData.forEach((row) => {
-        if (row[0] && typeof row[0] === 'string' && row[0].includes('Học kỳ')) {
-          // Dòng chứa thông tin học kỳ và năm học
-          const matches = row[0].match(/Học kỳ (\d+)[^0-9]*−[^0-9]*Năm học (\d{4}-\d{4})/);
-          if (matches) {
-            ky = matches[1]; // Gán giá trị kỳ học
-            namHoc = matches[2]; // Gán giá trị năm học
-          }
-        }
-      });
+      // Không cần đọc namHoc và ky từ file nữa
+      // Sử dụng giá trị từ form đã lấy ở trên
 
       // Lọc và định dạng dữ liệu theo cấu trúc mong muốn
       let ListData = rawData
@@ -153,17 +153,19 @@ const TeachingAssignmentForm = () => {
           const tenMH = row[2] || ""; // Tên môn học
           const soTC = row[3] || ""; // Số tín chỉ
           const soSVDK = row[4] || ""; // Số sinh viên đăng ký
-          const gvGiangDay = row[5] || ""; // Giảng viên giảng dạy
-          const nhom = row[6] || ""; // Nhóm
-          const thu = row[7] || ""; // Thứ
-          const tietBD = row[8] || ""; // Tiết bắt đầu
-          const soTiet = row[9] || ""; // Số tiết
-          const phong = row[10] || ""; // Phòng học
-          const lop = row[11] || ""; // Lớp
-          const tuanHoc = row[12] || ""
-          const diaDiem = row[13] || ''
+          const maGV = row[5] || ""; 
+          const gvGiangDay = row[6] || ""; // Giảng viên giảng dạy
+          const nhom = row[7] || ""; // Nhóm
+          const thu = row[8] || ""; // Thứ
+          const tietBD = row[9] || ""; // Tiết bắt đầu
+          const soTiet = row[10] || ""; // Số tiết
+          const phong = row[11] || ""; // Phòng học
+          const lop = row[12] || ""; // Lớp
+          const tuanHoc = row[13] || ""
+          const diaDiem = row[14] || ''
 
-          return [maMH, tenMH, soTC, soSVDK, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky,diaDiem];
+          // Sử dụng namHoc và ky từ form
+          return [maMH, tenMH, soTC, soSVDK, maGV, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky, diaDiem];
         });
       ListData.shift();
 

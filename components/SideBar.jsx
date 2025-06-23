@@ -97,10 +97,10 @@ const SideBar = () => {
               <UserOutlined style={{ fontSize: "20px" }} className="text-indigo-500"/>
               <span style={getIconStyle(["/admin/kiem-nhiem"])}>Kiêm nhiệm</span>
             </Link>
-            <Link href="/admin/kiem-nhiem-backup" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
+            {/* <Link href="/admin/kiem-nhiem-backup" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <HistoryOutlined style={{ fontSize: "20px" }} className="text-blue-500"/>
               <span style={getIconStyle(["/admin/kiem-nhiem-backup"])}>Lịch sử kiêm nhiệm</span>
-            </Link>
+            </Link> */}
           </div>
         )}
       </div>

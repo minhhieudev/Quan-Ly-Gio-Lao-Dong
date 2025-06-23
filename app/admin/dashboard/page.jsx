@@ -16,7 +16,6 @@ const Dashboard = () => {
     const columns = [
         { title: "Họ tên giảng viên", dataIndex: "username", key: "username", className: 'text-blue-500 font-bold' },
         { title: "Tổng giờ", dataIndex: "tongGioChinhQuy", key: "tongGioChinhQuy", className: 'text-red-500 font-bold' },
-        { title: "Thừa thiếu giờ", dataIndex: "thuaThieuGioLaoDong", key: "thuaThieuGioLaoDong", className: 'text-green-500 font-bold' },
     ];
 
     const [selectedKhoa, setSelectedKhoa] = useState(null);

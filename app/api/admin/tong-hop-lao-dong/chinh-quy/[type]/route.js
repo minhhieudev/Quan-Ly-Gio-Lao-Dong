@@ -3,50 +3,47 @@ export const dynamic = 'force-dynamic';
 import { connectToDB } from "@mongodb";
 import TongHopLaoDong from "@models/TongHopLaoDong";
 
-export const POST = async (req) => {
+export async function POST(request, { params }) {
   try {
     await connectToDB();
-    const body = await req.json();
-    console.log(body);
-
-    const chuanNamHoc = 1;
-
-    /////////////////////////////////
-    const tongGioChinhQuy = body.congTacGiangDay.tong + body.congTacKhac.tong;
-    const thuaThieuGioLaoDong = tongGioChinhQuy - chuanNamHoc;
-
-    const data = {
-      ...body,
-      chuanNamHoc,
-      tongGioChinhQuy,
-      thuaThieuGioLaoDong,
-    };
+    const body = await request.json();
+    const { user, congTacGiangDay, congTacKhac, kiemNhiem, loai, namHoc, trangThai } = body;
+    const { type } = params;
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const existingRecord = await TongHopLaoDong.findOne({ 
-      user: body.user, // Giả sử bạn có trường user trong body
-      loai: body.loai, // Giả sử bạn có trường loai trong body
-      namHoc: body.namHoc // Giả sử bạn có trường namHoc trong body
-    });
+    const existingRecord = await TongHopLaoDong.findOne({ user, loai, namHoc });
 
     if (existingRecord) {
-      // Nếu tồn tại, cập nhật bản ghi
-      const updatedRecord = await TongHopLaoDong.findOneAndUpdate(
-        { _id: existingRecord._id }, // Tìm bản ghi theo ID
-        data, // Cập nhật với dữ liệu mới
-        { new: true } // Trả về bản ghi đã cập nhật
+      // Nếu bản ghi đã tồn tại, cập nhật bản ghi
+      const updatedRecord = await TongHopLaoDong.findByIdAndUpdate(
+        existingRecord._id,
+        {
+          congTacGiangDay,
+          congTacKhac,
+          kiemNhiem,
+          // Luôn cập nhật trạng thái về 0 (Chờ duyệt) khi giảng viên gửi lại
+          trangThai: 0
+        },
+        { new: true }
       );
       return new Response(JSON.stringify(updatedRecord), { status: 200 });
     } else {
-      // Nếu không tồn tại, tạo mới bản ghi
-      const newRecord = await TongHopLaoDong.create(data);
+      // Nếu không tồn tại, tạo bản ghi mới
+      const newRecord = await TongHopLaoDong.create({
+        user,
+        congTacGiangDay,
+        congTacKhac,
+        kiemNhiem,
+        loai,
+        namHoc,
+        trangThai: 0 // Mặc định là Chờ duyệt
+      });
       return new Response(JSON.stringify(newRecord), { status: 200 });
     }
-  } catch (err) {
-    console.log(err);
-    return new Response(`Failed to create or update record`, { status: 500 });
+  } catch (error) {
+    return new Response("Lỗi khi lưu dữ liệu", { status: 500 });
   }
-};
+}
 
 export const DELETE = async (req) => {
   try {
@@ -95,7 +92,7 @@ export const GET = async (req, { params }) => {
       if (record.user && record.user.maNgach) {
         const maNgachDoc = await MaNgach.findOne({ maNgach: record.user.maNgach });
         if (maNgachDoc) {
-          gioChuan = (maNgachDoc.GCGDNam || 0) + (maNgachDoc.GCNCKHNam || 0) + (maNgachDoc.GCPVCDNam || 0);
+          gioChuan = maNgachDoc.GCGD || 0;
         }
       }
       // Chuyển record sang object và thêm trường gioChuan

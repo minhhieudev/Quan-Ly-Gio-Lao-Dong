@@ -405,10 +405,12 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full overflow-hidden">
-            <div className="px-5 py-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-y-auto">
-                <Title className="text-center text-blue-700 mb-4 pb-2 border-b border-gray-200" level={4}>CÔNG TÁC CHẤM THI</Title>
+            <div className="p-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
+                <div className="border-b border-blue-500 pb-2 mb-1">
+                    <Title className="text-center text-blue-600" level={4}>CÔNG TÁC CHẤM THI</Title>
+                </div>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="px-2">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2">
                     <Space direction="vertical" className="w-full" size="small">
                         <div className="flex justify-between max-sm:flex-col">
                             <div className="flex justify-between items-center w-full gap-3">
@@ -680,7 +682,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                 </Form>
             </div>
 
-            <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-y-auto">
+            <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-auto">
                 <Tabs 
                     activeKey={selectedTab} 
                     onChange={handleTabChange}
@@ -708,11 +710,12 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                             showTotal: (total) => `Tổng cộng ${total} bản ghi`
                                         }}
                                         bordered
-                                        size="middle"
+                                        size="small"
                                         className="custom-table"
                                         rowKey="id"
+                                        scroll={{ x: 'max-content' }}
                                     />
-                                    <div className="flex justify-center mt-5 bg-gray-50 p-2 rounded-lg">
+                                    <div className="flex justify-center mt-3 bg-gray-50 p-2 rounded-lg">
                                         <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-600 text-lg font-bold">{totalHours.toFixed(3)}</span></span>
                                     </div>
                                 </div>
@@ -732,7 +735,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         }
                     ]}
                 />
-
             </div>
         </div>
     );

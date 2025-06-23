@@ -1,18 +1,14 @@
 'use client';
-import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Table, Input, Button, Space, Popconfirm, Spin, Modal, Select } from 'antd';
-import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileExcelOutlined, SearchOutlined } from '@ant-design/icons';
+import { Button, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-import * as XLSX from 'xlsx';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { ArrowRightOutlined } from '@ant-design/icons';
-import { CldUploadButton } from "next-cloudinary";
-import { useSession } from "next-auth/react";
+import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { exportTongHopLaoDong } from '@lib/fileExport';
+import { useSession } from "next-auth/react";
 
 const App = () => {
   const [dataList, setDataList] = useState([]);
@@ -20,7 +16,7 @@ const App = () => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 4,
+      pageSize: 5,
     },
   });
   const [searchText, setSearchText] = useState('');
@@ -39,7 +35,9 @@ const App = () => {
   const [kiHoc, setKiHoc] = useState("1");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
-
+  // ...existing code...
+  const [currentPageData, setCurrentPageData] = useState([]);
+  // ...existing code...
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -351,7 +349,12 @@ const App = () => {
       dataIndex: 'chuanNamHoc',
       className: 'text-center',
       align: 'center',
-
+      render: (text, record) => {
+        // Đảm bảo giá trị là số, nếu không thì trả về rỗng
+        const gioChuan = Number(record.gioChuan) || 0;
+        const kiemNhiem = Number(record.kiemNhiem) || 0;
+        return gioChuan - kiemNhiem;
+      }
     },
     {
       title: 'Công tác khác',
@@ -413,7 +416,62 @@ const App = () => {
       dataIndex: 'thuaThieuGioLaoDong',
       className: 'text-center',
       align: 'center',
-
+      render: (text, record) => {
+        const tongGioChinhQuy = Number(record.tongGioChinhQuy) || 0;
+        const gioChuan = Number(record.gioChuan) || 0;
+        const kiemNhiem = Number(record.kiemNhiem) || 0;
+        const chuanNamHoc = gioChuan - kiemNhiem;
+        return tongGioChinhQuy - chuanNamHoc;
+      }
+    },
+    {
+      title: 'Trạng thái',
+      dataIndex: 'trangThai',
+      className: 'text-center',
+      align: 'center',
+      render: (value, record) => {
+        let color = 'default';
+        let text = '';
+        switch (value) {
+          case 0:
+            color = 'orange';
+            text = 'Chờ duyệt';
+            break;
+          case 1:
+            color = 'blue';
+            text = 'Khoa duyệt';
+            break;
+          case 2:
+            color = 'green';
+            text = 'Trường duyệt';
+            break;
+          default:
+            color = 'default';
+            text = 'Không xác định';
+        }
+        return (
+          <Select
+            size="small"
+            value={typeof value === 'number' ? value : 0}
+            style={{ width: 140 }}
+            onChange={val => handleUpdateTrangThai(record._id, val)}
+            dropdownMatchSelectWidth={false}
+          >
+            <Select.Option value={0}>
+              <Tag color="orange">Chờ duyệt</Tag>
+            </Select.Option>
+            <Select.Option value={1}>
+              <Tag color="blue">Khoa duyệt</Tag>
+            </Select.Option>
+            <Select.Option value={2}>
+              <Tag color="green">Trường duyệt</Tag>
+            </Select.Option>
+            <Select.Option value={3}>
+              <Tag color="red">Yêu cầu chỉnh sửa</Tag>
+            </Select.Option>
+          </Select>
+        );
+      }
     },
     {
       title: 'Thao tác',
@@ -700,10 +758,6 @@ const App = () => {
       sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
       sortField: Array.isArray(sorter) ? undefined : sorter.field,
     });
-
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataList([]);
-    }
   };
 
   const getType = () => {
@@ -745,8 +799,44 @@ const App = () => {
     return dataList.filter(item => item.user?.khoa === selectedKhoa);
   }, [dataList, selectedKhoa]);
 
+  const handleUpdateTrangThai = async (id, newStatus) => {
+    try {
+      const res = await fetch('/api/admin/tong-hop-lao-dong/update-status', {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, trangThai: newStatus }),
+      });
+      if (res.ok) {
+        setDataList(prev =>
+          prev.map(item =>
+            item._id === id ? { ...item, trangThai: newStatus } : item
+          )
+        );
+        toast.success("Cập nhật trạng thái thành công");
+      } else {
+        toast.error("Cập nhật trạng thái thất bại");
+      }
+    } catch (err) {
+      toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+    }
+  };
+
+  // Khai báo pageData trước return
+  const { current = 1, pageSize = 5 } = tableParams.pagination || {};
+  const start = (current - 1) * pageSize;
+  const end = start + pageSize;
+  const pageData = currentPageData.length > 0
+    ? currentPageData
+    : filteredDataList.slice(start, end);
+
+  console.log("Trạng thái của các mục:", filteredDataList.map(item => ({
+    id: item._id,
+    trangThai: item.trangThai,
+    type: typeof item.trangThai
+  })));
+
   return (
-    <div className='p-2 font-bold text-center bg-white rounded-md shadow-md m-auto  my-3'>
+    <div className='p-2 font-bold text-center bg-white rounded-md shadow-md m-auto my-3'>
       <div className="flex items-center justify-center mb-0">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
@@ -776,7 +866,7 @@ const App = () => {
           </Button>
         )}
       </div>
-      <div className="flex justify-around items-center mb-3">
+      <div className="flex justify-around items-center mb-3 mt-2">
         <div className="w-[25%] flex items-center gap-2 font-bold">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
           <Select size='small' allowClear
@@ -808,6 +898,19 @@ const App = () => {
             ))}
           </Select>
         </div>
+        <div className='text-small-bold mr-4'>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <div className="bg-green-100 rounded p-1 font-semibold">
+              Đã duyệt: {filteredDataList.filter(item => item.trangThai == 2).length}
+            </div>
+            <div className="bg-orange-100 rounded p-1 font-semibold">
+              Chờ duyệt: {filteredDataList.filter(item => item.trangThai == 0).length}
+            </div>
+            <div className="bg-blue-100 rounded p-1 font-semibold">
+              Khoa duyệt: {filteredDataList.filter(item => item.trangThai == 1).length}
+            </div>
+          </div>
+        </div>
 
         {/* <div className="w-[25%] flex items-center gap-2 font-bold">
           <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
@@ -829,12 +932,26 @@ const App = () => {
         columns={getColumns()}
         rowKey={(record) => record._id}
         dataSource={filteredDataList}
-        pagination={tableParams.pagination}
+        pagination={{
+          ...tableParams.pagination,
+          showSizeChanger: true,
+          pageSizeOptions: ['5', '10', '50', '100', '500'],
+          showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} bản ghi`
+        }}
         loading={loading}
-        onChange={handleTableChange}
+        onChange={(pagination, filters, sorter, extra) => {
+          setTableParams({
+            pagination,
+            filters,
+            sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
+            sortField: Array.isArray(sorter) ? undefined : sorter.field,
+          });
+          setCurrentPageData(extra.currentDataSource); // <-- lấy data trang hiện tại
+        }}
       />
 
       <div className="mt-0 flex justify-center gap-6">
+
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
           //onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}

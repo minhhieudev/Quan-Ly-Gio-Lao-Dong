@@ -351,7 +351,7 @@ const ChucVuForm = () => {
                                                     icon={<PlusOutlined />}
                                                     onClick={() => setIsModalVisible(true)}
                                                 >
-                                                    Thêm loại chức vụ
+                                                    Thêm
                                                 </Button>
                                             </Space>
                                         </>

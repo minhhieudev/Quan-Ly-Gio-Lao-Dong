@@ -7,17 +7,11 @@ export const POST = async (req) => {
     await connectToDB();
     const body = await req.json();
 
-    const gioChuan = 0;
-    const chuanNamHoc = 1;
     const tongGioChinhQuy = body.congTacGiangDay.tong + body.congTacKhac.tong;
-    const thuaThieuGioLaoDong = tongGioChinhQuy - chuanNamHoc;
 
     const data = {
       ...body,
-      gioChuan,
-      chuanNamHoc,
       tongGioChinhQuy,
-      thuaThieuGioLaoDong,
     };
 
     const newRecord = await TongHopLaoDong.create(data);

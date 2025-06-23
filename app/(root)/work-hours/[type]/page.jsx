@@ -12,7 +12,7 @@ import TrainingTypeForm from "@components/TrainingTypeForm";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
 
 const Pages = () => {
@@ -41,6 +41,9 @@ const Pages = () => {
   const currentUser = session?.user;
 
   const [kyHoc, setKyHoc] = useState("1");
+
+  // Thêm state để lưu trạng thái
+  const [recordStatus, setRecordStatus] = useState(null);
 
   // Option lists
   const namHocOptions = [
@@ -197,62 +200,125 @@ const Pages = () => {
 
   const submitResult = async () => {
     Modal.confirm({
-        title: "Xác nhận",
-        content: "Kết quả sẽ được gửi đi. Bạn có chắc chắn không?",
-        onOk: async () => {
-            try {
-                const res = await fetch(type !== "boi-duong" ? `/api/admin/tong-hop-lao-dong/chinh-quy/${type}` : "/api/admin/tong-hop-lao-dong/boi-duong", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        user: currentUser._id,
-                        congTacGiangDay,
-                        congTacKhac: { ...congTacKhac, tong: congTacKhac.chamThi + congTacKhac.coiThi + congTacKhac.deThi + congTacKhac.ngoaiKhoa },
-                        kiemNhiem,
-                        loai: type,
-                        namHoc
-                    }),
-                    headers: { "Content-Type": "application/json" },
-                });
+      title: "Xác nhận",
+      content: "Kết quả sẽ được gửi đi. Bạn có chắc chắn không?",
+      onOk: async () => {
+        try {
+          const res = await fetch(type !== "boi-duong" ? `/api/admin/tong-hop-lao-dong/chinh-quy/${type}` : "/api/admin/tong-hop-lao-dong/boi-duong", {
+            method: "POST",
+            body: JSON.stringify({
+              user: currentUser._id,
+              congTacGiangDay,
+              congTacKhac: { ...congTacKhac, tong: congTacKhac.chamThi + congTacKhac.coiThi + congTacKhac.deThi + congTacKhac.ngoaiKhoa },
+              kiemNhiem,
+              loai: type,
+              namHoc,
+              // Luôn đặt trạng thái về 0 (Chờ duyệt) khi gửi lại
+              trangThai: 0
+            }),
+            headers: { "Content-Type": "application/json" },
+          });
 
-                if (res.ok) {
-                    toast.success("Lưu kết quả thành công !");
-                    // onReset();
-                } else {
-                    toast.error("Failed to save record");
-                }
-            } catch (err) {
-                console.log('Err:', err);
-                toast.error("An error occurred while saving data");
-            }
-        },
-        onCancel() {
-            console.log('Cancelled');
-        },
+          if (res.ok) {
+            toast.success("Lưu kết quả thành công !");
+            // Cập nhật lại trạng thái hiển thị
+            setRecordStatus(0);
+            // onReset();
+          } else {
+            toast.error("Failed to save record");
+          }
+        } catch (err) {
+          console.log('Err:', err);
+          toast.error("An error occurred while saving data");
+        }
+      },
+      onCancel() {
+        console.log('Cancelled');
+      },
     });
   };
 
+  // Thêm hàm để lấy trạng thái hiện tại
+  const fetchCurrentStatus = useCallback(async () => {
+    if (!currentUser?._id || !namHoc || !type) return;
+    
+    try {
+      const res = await fetch(`/api/work-hours/status?userId=${currentUser._id}&namHoc=${namHoc}&loai=${type}`);
+      if (res.ok) {
+        const data = await res.json();
+        setRecordStatus(data.trangThai);
+      }
+    } catch (error) {
+      console.error("Error fetching status:", error);
+    }
+  }, [currentUser, namHoc, type]);
+
+  // Gọi hàm khi component mount hoặc các dependency thay đổi
+  useEffect(() => {
+    fetchCurrentStatus();
+  }, [fetchCurrentStatus, namHoc, kyHoc]);
+
+  // Hàm để hiển thị trạng thái dưới dạng text và màu sắc
+  const renderStatusBadge = () => {
+    if (recordStatus === null) return null;
+    
+    let statusText = "";
+    let statusColor = "";
+    let statusIcon = null;
+    
+    switch (recordStatus) {
+      case 0:
+        statusText = "Chờ duyệt";
+        statusColor = "text-orange-600";
+        statusIcon = <ClockCircleOutlined style={{ marginRight: 5 }} />;
+        break;
+      case 1:
+        statusText = "Khoa đã duyệt";
+        statusColor = "text-blue-600";
+        statusIcon = <CheckCircleOutlined style={{ marginRight: 5 }} />;
+        break;
+      case 2:
+        statusText = "Trường đã duyệt";
+        statusColor = "text-green-600";
+        statusIcon = <CheckCircleOutlined style={{ marginRight: 5 }} />;
+        break;
+      case 3:
+        statusText = "Yêu cầu chỉnh sửa";
+        statusColor = "text-red-600";
+        statusIcon = <ExclamationCircleOutlined style={{ marginRight: 5 }} />;
+        break;
+      default:
+        statusText = "Không xác định";
+        statusColor = "text-gray-600";
+    }
+    
+    return (
+      <div className={`font-bold ${statusColor} flex items-center`}>
+        {statusIcon}
+        {statusText}
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-col justify-center items-center mt-1 h-[20%]">
-      <div className=" mb-1 w-[98%]  flex justify-between gap-3">
-        <div className="w-[70%]  flex bg-white items-center justify-between rounded-md">
+    <div className="container mx-auto p-4 overflow-x-hidden">
+      <div className="mb-1 w-[98%] flex justify-between gap-3">
+        <div className="w-[70%] flex bg-white items-center justify-between rounded-md">
           <Button
             className="button-kiem-nhiem text-white font-bold shadow-md ml-1"
             onClick={() => router.push(`/work-hours`)}
             size="small"
           >
-            <div className="hover:color-blue "><ArrowLeftOutlined
-              style={{
-                color: 'white',
-                fontSize: '18px',
-              }}
-            /> QUAY LẠI</div>
+            <div className="hover:color-blue">
+              <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
+            </div>
           </Button>
           <div className="flex-grow text-center rounded-xl font-bold mr-3">
             {`HỆ ${getTitle()}`}
           </div>
         </div>
-        <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
-          <div className='text-base-bold'>Năm học :</div>
+        <div className="w-[30%] px-2 bg-white rounded-md flex gap-2 items-center">
+          <div className='text-base-bold'>Năm học:</div>
           <Select
             className="w-[60%]"
             value={namHoc}
@@ -261,7 +327,7 @@ const Pages = () => {
             placeholder="Chọn năm học"
           />
         </div>
-        <div className="w-[30%]  px-2 bg-white rounded-md flex gap-2 items-center">
+        <div className="w-[30%] px-2 bg-white rounded-md flex gap-2 items-center">
           <div className='text-base-bold'>Học kỳ:</div>
           <Select allowClear
             className="w-[60%]"
@@ -271,6 +337,12 @@ const Pages = () => {
             placeholder="Chọn học kỳ"
           />
         </div>
+        {/* Thêm trạng thái vào đây */}
+        {recordStatus !== null && (
+          <div className="w-[30%] px-2 bg-white rounded-md flex items-center justify-center">
+            {renderStatusBadge()}
+          </div>
+        )}
       </div>
 
       {type !== 'boi-duong' && (
@@ -289,8 +361,8 @@ const Pages = () => {
         </div>
       )}
 
-      <div className="py-1 w-[98%] h-[67vh] max-sm:hidden">
-            {renderForm()}
+      <div className="py-1 w-full max-w-[98%] h-[67vh] overflow-auto max-sm:hidden">
+        {renderForm()}
       </div>
 
       {type !== 'boi-duong' &&

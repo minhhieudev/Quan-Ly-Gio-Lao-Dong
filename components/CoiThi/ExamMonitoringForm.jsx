@@ -380,9 +380,9 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-4 max-sm:flex-col h-full">
-            <div className="p-5 shadow-lg bg-white rounded-xl flex-[25%] border border-gray-100">
-                <div className="border-b border-blue-500 pb-2 mb-4">
+        <div className="flex gap-2 max-sm:flex-col h-full overflow-hidden">
+            <div className="p-5 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
+                <div className="border-b border-blue-500 pb-2 mb-2">
                     <Title className="text-center text-blue-600" level={4}>CÔNG TÁC COI THI</Title>
                 </div>
 
@@ -488,10 +488,10 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         </Form.Item> */}
 
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Thời gian thi (Phút) <span className="text-red-600">*</span></span>}
-                                    className="w-full md:w-[48%] mb-2"
+                                    className="w-full md:w-1/2 mb-2"
                                 >
                                     <Controller
                                         name="thoiGianThi"
@@ -520,17 +520,17 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Ngày thi <span className="text-red-600">*</span></span>}
-                                    className="w-full md:w-[48%] mb-2"
+                                    className="w-full md:w-1/2 mb-2"
                                 >
                                     <Controller
                                         name="ngayThi"
                                         control={control}
                                         rules={{ required: "Ngày thi là bắt buộc" }}
-                                        render={({ field }) => 
-                                            <Input 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                                type="date" 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <Input
+                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                                type="date"
+                                                {...field}
                                             />
                                         }
                                     />
@@ -538,7 +538,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             </div>
                         </div>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
                                     className="w-full md:w-[48%] mb-2"

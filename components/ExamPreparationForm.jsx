@@ -304,13 +304,13 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
     return loading ? (
         <Loader />
     ) : (
-        <div className="flex gap-4 max-sm:flex-col h-full">
-            <div className="p-5 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100">
-                <div className="border-b border-blue-500 pb-2 mb-4">
-                    <Title className="text-center text-blue-600" level={3}>CÔNG TÁC RA ĐỀ THI</Title>
+        <div className="flex gap-4 max-sm:flex-col h-full overflow-hidden">
+            <div className="p-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
+                <div className="border-b border-blue-500 pb-2 mb-2">
+                    <Title className="text-center text-blue-600" level={4}>CÔNG TÁC RA ĐỀ THI</Title>
                 </div>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-6">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2">
                     <Space direction="vertical" className="w-full" size={0}>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
                             <div className="flex justify-between items-start gap-4 flex-wrap">
@@ -380,7 +380,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                             </div>
                         </div>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Hình thức thi <span className="text-red-600">*</span></span>}
                                     className="w-full md:w-[48%] mb-2"
@@ -445,7 +445,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                         </div>
 
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Số tiết quy chuẩn <span className="text-red-600">*</span></span>}
                                     className="w-full md:w-[48%] mb-2"
@@ -488,7 +488,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                             </div>
                         </div>
 
-                        <div className="text-center mt-5">
+                        <div className="text-center mt-3">
                             <Form.Item>
                                 <Space size="middle">
                                     <Button 
@@ -517,9 +517,9 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                 </Form>
             </div>
 
-            <div className="px-6 py-4 shadow-lg bg-white rounded-xl flex-[70%] border border-gray-100">
+            <div className="px-4 py-3 shadow-lg bg-white rounded-xl flex-[70%] border border-gray-100 overflow-auto">
                 <div className="border-b border-blue-500 pb-2 mb-4">
-                    <Title className="text-center text-blue-600" level={3}>DANH SÁCH CÔNG TÁC RA ĐỀ THI</Title>
+                    <Title className="text-center text-blue-600" level={4}>DANH SÁCH CÔNG TÁC RA ĐỀ THI</Title>
                 </div>
 
                 <Table
@@ -531,17 +531,17 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                         pageSize, 
                         total: dataList.length,
                         showSizeChanger: true,
-                        pageSizeOptions: ['5', '10', '20', '50'],
+                        pageSizeOptions: ['5', '10', '20'],
                         showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`
                     }}
                     onChange={handleTableChange}
                     className="custom-table"
                     bordered
-                    size="middle"
+                    size="small"
                     scroll={{ x: 'max-content' }}
                 />
 
-                <div className="text-center font-bold text-lg mt-6 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div className="text-center font-bold text-lg mt-4 p-2 bg-gray-50 rounded-lg border border-gray-200">
                     <span>Tổng số tiết quy chuẩn: </span>
                     <span className="text-red-600 text-xl">{totalSoTietQuyChuan}</span>
                 </div>

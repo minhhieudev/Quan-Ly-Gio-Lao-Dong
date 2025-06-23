@@ -288,11 +288,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full">
             <div className="p-5 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100">
-                <div className="border-b border-blue-500 pb-2 mb-4">
+                <div className="border-b border-blue-500 pb-2 mb-2">
                     <Title className="text-center text-blue-600" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
                 </div>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-6">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-4">
                     <Space direction="vertical" className="w-full" size={0}>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
                             <div className="flex justify-between items-start gap-4 flex-wrap">
@@ -360,7 +360,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         </div>
 
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Lớp học phần <span className="text-red-600">*</span></span>}
                                     className="w-full md:w-[48%] mb-2"
@@ -404,7 +404,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         </div>
 
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                            <div className="flex justify-between items-start gap-4 flex-wrap">
+                            <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Số buổi <span className="text-red-600">*</span></span>}
                                     className="w-full md:w-[48%] mb-2"

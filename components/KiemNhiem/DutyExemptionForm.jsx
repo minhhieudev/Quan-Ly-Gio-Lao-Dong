@@ -616,7 +616,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 </Tabs>
             </div>
 
-            {resultsDisplay.length > 0 && (
+            {/* {resultsDisplay.length > 0 && (
                 <div className="mt-4 bg-white rounded-lg p-4 shadow-lg border border-gray-100">
                     <div className="border-b border-blue-500 pb-2 mb-3">
                         <h3 className="text-lg font-semibold text-blue-600 text-center">Kết quả tính toán miễn giảm</h3>
@@ -644,7 +644,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         </table>
                     </div>
                 </div>
-            )}
+            )} */}
 
         </div>
     );

@@ -9,8 +9,6 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
 
-    console.log('namHoc:', namHoc);
-
     // Lấy tất cả các khoa và xử lý với aggregation
     const result = await Khoa.aggregate([
       {
@@ -62,39 +60,24 @@ export const GET = async (req) => {
               in: {
                 username: "$$user.username",
                 tongGioChinhQuy: {
-                  $ifNull: [
-                    {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$completedUsersData",
-                            as: "data",
-                            cond: { $eq: ["$$data.user", "$$user._id"] },
+                  $let: {
+                    vars: {
+                      userData: {
+                        $arrayElemAt: [
+                          {
+                            $filter: {
+                              input: "$completedUsersData",
+                              as: "data",
+                              cond: { $eq: ["$$data.user", "$$user._id"] },
+                            },
                           },
-                        },
-                        0,
-                      ],
+                          0,
+                        ],
+                      },
                     },
-                    { tongGioChinhQuy: 0 },
-                  ],
-                }.tongGioChinhQuy,
-                thuaThieuGioLaoDong: {
-                  $ifNull: [
-                    {
-                      $arrayElemAt: [
-                        {
-                          $filter: {
-                            input: "$completedUsersData",
-                            as: "data",
-                            cond: { $eq: ["$$data.user", "$$user._id"] },
-                          },
-                        },
-                        0,
-                      ],
-                    },
-                    { thuaThieuGioLaoDong: 0 },
-                  ],
-                }.thuaThieuGioLaoDong,
+                    in: { $ifNull: ["$$userData.tongGioChinhQuy", 0] },
+                  }
+                }
               },
             },
           },
