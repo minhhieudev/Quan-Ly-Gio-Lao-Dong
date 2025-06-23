@@ -1,4 +1,5 @@
 import PhanCongKiemNhiemBackup from "@models/PhanCongKiemNhiemBackup";
+import ChucVu from "@models/ChucVu"; // Thêm dòng này
 import { connectToDB } from "@mongodb";
 
 export const GET = async (req) => {
