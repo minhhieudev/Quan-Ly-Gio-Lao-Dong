@@ -140,10 +140,11 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {
-            if (item.startTime && item.endTime && item.chucVu?.soMien !== undefined) {
+            if (item.startTime && item.chucVu?.soMien !== undefined) {
 
                 const dateStart = new Date(item.startTime);
-                const dateEnd = new Date(item.endTime);
+                // Nếu không có endTime thì lấy schoolYearEnd
+                const dateEnd = item.endTime ? new Date(item.endTime) : new Date(dataListSelect[0].schoolYearEnd);
 
                 const yearMonthStart = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}`;
                 const yearMonthEnd = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}`;

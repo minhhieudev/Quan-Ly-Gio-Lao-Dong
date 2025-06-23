@@ -48,7 +48,7 @@ const KiemNhiemForm = () => {
     const [selectedKhoa, setSelectedKhoa] = useState("");
     const [showForm, setShowForm] = useState(false);
     const [loaiChucVuList, setLoaiChucVuList] = useState([]);
-    
+
     // State cho modal hoàn thành
     const [isCompletionModalVisible, setIsCompletionModalVisible] = useState(false);
     const [isTransferring, setIsTransferring] = useState(false);
@@ -200,7 +200,7 @@ const KiemNhiemForm = () => {
                 toast.error('Vui lòng chọn ngày bắt đầu năm học!');
                 return;
             }
-            
+
             if (!schoolYearEnd) {
                 toast.error('Vui lòng chọn ngày kết thúc năm học!');
                 return;
@@ -211,7 +211,7 @@ const KiemNhiemForm = () => {
                 toast.error('Vui lòng chọn ngày bắt đầu!');
                 return;
             }
-            
+
             // Thêm ngày bắt đầu/kết thúc năm học vào data
             const payload = {
                 ...data,
@@ -270,7 +270,7 @@ const KiemNhiemForm = () => {
             toast.error("An error occurred while deleting data");
         }
     };
-    
+
     // Hàm xử lý hoàn thành và chuyển dữ liệu
     const handleTransferData = async () => {
         setIsTransferring(true);
@@ -302,7 +302,7 @@ const KiemNhiemForm = () => {
             setIsCompletionModalVisible(false);
         }
     };
-    
+
     // Hàm mở modal xác nhận chuyển dữ liệu
     const showCompletionConfirm = () => {
         setIsCompletionModalVisible(true);
@@ -431,98 +431,107 @@ const KiemNhiemForm = () => {
 
 
     const handleFileUpload = (e) => {
+        // Không cần kiểm tra schoolYearStart/End ở đây nữa vì đã chặn ở nút Import
         const file = e.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
 
         reader.onload = (event) => {
-            const data = event.target.result;
-            const workbook = XLSX.read(data, { type: "binary" });
-            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-            const ListData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+            try {
+                const data = event.target.result;
+                const workbook = XLSX.read(data, { type: "binary" });
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const ListData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-            // Tìm dòng header (chứa "STT")
-            const headerIndex = ListData.findIndex(
-                row => Array.isArray(row) && row[0] && row[0].toString().toLowerCase().includes("stt")
-            );
-
-            // Nếu tìm thấy header, lấy các dòng sau header và có dữ liệu thực sự
-            let dataRows = [];
-            if (headerIndex !== -1) {
-                dataRows = ListData.slice(headerIndex + 1).filter(
-                    row => Array.isArray(row) && row[0] && !isNaN(Number(row[0]))
+                // Tìm dòng header (chứa "STT")
+                const headerIndex = ListData.findIndex(
+                    row => Array.isArray(row) && row[0] && row[0].toString().toLowerCase().includes("stt")
                 );
-            }
-            console.log('dataRows:',dataRows);
 
-            const parseDate = (dateStr) => {
-                if (!dateStr) return null;
-
-                // Nếu là số (Excel date serial)
-                if (typeof dateStr === "number") {
-                    // Excel date serial: ngày 1/1/1900 là 1
-                    // dayjs không hỗ trợ trực tiếp, nên dùng new Date hoặc dayjs
-                    // Lưu ý: Excel có bug năm nhuận 1900, nhưng thường không ảnh hưởng thực tế
-                    return dayjs(new Date(Math.round((dateStr - 25569) * 86400 * 1000)));
+                // Nếu tìm thấy header, lấy các dòng sau header và có dữ liệu thực sự
+                let dataRows = [];
+                if (headerIndex !== -1) {
+                    dataRows = ListData.slice(headerIndex + 1).filter(
+                        row => Array.isArray(row) && row[0] && !isNaN(Number(row[0]))
+                    );
                 }
+                console.log('dataRows:', dataRows);
 
-                // Nếu là object Date
-                if (dateStr instanceof Date) {
-                    return dayjs(dateStr);
+                const parseDate = (dateStr) => {
+                    if (!dateStr) return null;
+
+                    // Nếu là số (Excel date serial)
+                    if (typeof dateStr === "number") {
+                        // Excel date serial: ngày 1/1/1900 là 1
+                        // dayjs không hỗ trợ trực tiếp, nên dùng new Date hoặc dayjs
+                        // Lưu ý: Excel có bug năm nhuận 1900, nhưng thường không ảnh hưởng thực tế
+                        return dayjs(new Date(Math.round((dateStr - 25569) * 86400 * 1000)));
+                    }
+
+                    // Nếu là object Date
+                    if (dateStr instanceof Date) {
+                        return dayjs(dateStr);
+                    }
+
+                    // Nếu là object dayjs
+                    if (dayjs.isDayjs(dateStr)) {
+                        return dateStr;
+                    }
+
+                    // Nếu là chuỗi, thử nhiều định dạng
+                    const formats = [
+                        "DD/MM/YYYY",
+                        "D/M/YYYY",
+                        "DD-MM-YYYY",
+                        "D-M-YYYY",
+                        "YYYY/MM/DD",
+                        "YYYY/M/D",
+                        "YYYY-MM-DD",
+                        "YYYY-M-D",
+                        "MM/DD/YYYY",
+                        "M/D/YYYY",
+                        "MM-DD-YYYY",
+                        "M-D-YYYY"
+                    ];
+
+                    for (let fmt of formats) {
+                        let d = dayjs(dateStr, fmt, true);
+                        if (d.isValid()) return d;
+                    }
+
+                    // Fallback: để dayjs tự đoán
+                    let d = dayjs(dateStr);
+                    return d.isValid() ? d : null;
+                };
+
+                const dataWithSchoolYear = dataRows.map(row => ({
+                    stt: row[0],
+                    chucVu: row[1],
+                    user: row[2],
+                    startTime: parseDate(row[3]),
+                    endTime: parseDate(row[4]) || null,
+                    ghiChu: row[5],
+                    schoolYearStart: schoolYearStart || null,
+                    schoolYearEnd: schoolYearEnd || null
+                }));
+
+                console.log("Dữ liệu thực sự:", dataWithSchoolYear);
+
+                if (dataRows.length > 0) {
+                    createMany(dataWithSchoolYear);
+                } else {
+                    toast.error("Không tìm thấy dữ liệu hợp lệ trong file.");
+                    fileInputRef.current.value = ""; // Reset lại input file
                 }
-
-                // Nếu là object dayjs
-                if (dayjs.isDayjs(dateStr)) {
-                    return dateStr;
-                }
-
-                // Nếu là chuỗi, thử nhiều định dạng
-                const formats = [
-                    "DD/MM/YYYY",
-                    "D/M/YYYY",
-                    "DD-MM-YYYY",
-                    "D-M-YYYY",
-                    "YYYY/MM/DD",
-                    "YYYY/M/D",
-                    "YYYY-MM-DD",
-                    "YYYY-M-D",
-                    "MM/DD/YYYY",
-                    "M/D/YYYY",
-                    "MM-DD-YYYY",
-                    "M-D-YYYY"
-                ];
-
-                for (let fmt of formats) {
-                    let d = dayjs(dateStr, fmt, true);
-                    if (d.isValid()) return d;
-                }
-
-                // Fallback: để dayjs tự đoán
-                let d = dayjs(dateStr);
-                return d.isValid() ? d : null;
-            };
-            
-            const dataWithSchoolYear = dataRows.map(row => ({
-                stt: row[0],
-                user: row[1],
-                chucVu: row[3],
-                startTime: parseDate(row[5]),
-                endTime: parseDate(row[6]),
-                ghiChu: row[7],
-                schoolYearStart: schoolYearStart || null,
-                schoolYearEnd: schoolYearEnd || null
-            }));
-
-            console.log("Dữ liệu thực sự:", dataWithSchoolYear);
-
-            if (dataRows.length > 0) {
-                createMany(dataWithSchoolYear);
-            } else {
-                toast.error("Không tìm thấy dữ liệu hợp lệ trong file.");
+            } catch (err) {
+                toast.error("Đã xảy ra lỗi khi đọc file Excel");
+                fileInputRef.current.value = ""; // Reset lại input file
             }
         };
 
         reader.onerror = () => {
             toast.error("Đã xảy ra lỗi khi đọc file Excel");
+            fileInputRef.current.value = ""; // Reset lại input file
         };
 
         reader.readAsBinaryString(file);
@@ -535,7 +544,7 @@ const KiemNhiemForm = () => {
         <div className="flex gap-2 max-sm:flex-col mt-2 h-[90vh]">
             {showForm && (
                 <div className="p-6 shadow-xl bg-white rounded-xl basis-1/3">
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-between items-center mb-2">
                         <Title className="text-center m-0" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
                         <Button
                             type="text"
@@ -546,8 +555,7 @@ const KiemNhiemForm = () => {
                         </Button>
                     </div>
                     <Divider className="my-2" />
-                    <Card className="mb-4" title="Thông tin năm học" size="small" bordered={true}>
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 text-small-bold">
                             <div className="w-1/2">
                                 <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
                                 <DatePicker
@@ -571,7 +579,6 @@ const KiemNhiemForm = () => {
                                 {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
                             </div>
                         </div>
-                    </Card>
                     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
                         <Form.Item
                             label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
@@ -617,35 +624,37 @@ const KiemNhiemForm = () => {
                             />
                         </Form.Item>
 
-                        <Form.Item
-                            label={<span className="font-bold text-xl">Ngày bắt đầu <span className="text-red-600">*</span></span>}
-                            className="w-[40%]"
-                            validateStatus={errors.startTime ? 'error' : ''}
-                            help={errors.startTime?.message}
-                        >
-                            <Controller
-                                name="startTime"
-                                control={control}
-                                rules={{ required: "Ngày bắt đầu là bắt buộc" }}
-                                render={({ field }) => (
-                                    <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
-                                )}
-                            />
-                        </Form.Item>
-                        
-                        <Form.Item
-                            label={<span className="font-bold text-xl">Ngày kết thúc </span>}
-                            className="w-[40%]"
-                            help={errors.endTime?.message}
-                        >
-                            <Controller
-                                name="endTime"
-                                control={control}
-                                render={({ field }) => (
-                                    <DatePicker {...field} placeholder="Chọn ngày kết thúc" />
-                                )}
-                            />
-                        </Form.Item>
+                        <div className="flex justify-between">
+                            <Form.Item
+                                label={<span className="font-bold text-xl">Ngày bắt đầu <span className="text-red-600">*</span></span>}
+                                className="w-[40%]"
+                                validateStatus={errors.startTime ? 'error' : ''}
+                                help={errors.startTime?.message}
+                            >
+                                <Controller
+                                    name="startTime"
+                                    control={control}
+                                    rules={{ required: "Ngày bắt đầu là bắt buộc" }}
+                                    render={({ field }) => (
+                                        <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                    )}
+                                />
+                            </Form.Item>
+
+                            <Form.Item
+                                label={<span className="font-bold text-xl">Ngày kết thúc </span>}
+                                className="w-[40%]"
+                                help={errors.endTime?.message}
+                            >
+                                <Controller
+                                    name="endTime"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <DatePicker {...field} placeholder="Chọn ngày kết thúc" />
+                                    )}
+                                />
+                            </Form.Item>
+                        </div>
 
                         <Form.Item
                             label={<span className="font-bold text-xl">Ghi chú <span className="text-red-600">*</span></span>}
@@ -661,10 +670,10 @@ const KiemNhiemForm = () => {
 
                         <div className="flex justify-between items-center mt-8">
                             <Space size="middle">
-                                <Button 
-                                    className="bg-blue-500 hover:bg-blue-700" 
-                                    loading={isSubmitting} 
-                                    type="primary" 
+                                <Button
+                                    className="bg-blue-500 hover:bg-blue-700"
+                                    loading={isSubmitting}
+                                    type="primary"
                                     htmlType="submit"
                                     icon={<SaveOutlined />}
                                 >
@@ -678,32 +687,45 @@ const KiemNhiemForm = () => {
                                                 className="button-lien-thong-vlvh"
                                                 type="primary"
                                                 icon={<UploadOutlined />}
-                                                onClick={() => fileInputRef.current.click()}
+                                                onClick={e => {
+                                                    if (!schoolYearStart) {
+                                                        toast.error("Vui lòng chọn ngày bắt đầu năm học trước khi import!");
+                                                        e.preventDefault();
+                                                        return;
+                                                    }
+                                                    if (!schoolYearEnd) {
+                                                        toast.error("Vui lòng chọn ngày kết thúc năm học trước khi import!");
+                                                        e.preventDefault();
+                                                        return;
+                                                    }
+                                                    fileInputRef.current.value = ""; // Đảm bảo luôn reset input file trước khi chọn mới
+                                                    fileInputRef.current.click();
+                                                }}
                                                 disabled={isUploading}
                                             >
                                                 {isUploading ? 'Đang tải lên...' : 'Import'}
                                             </Button>
                                         </label>
+                                        <input
+                                            type="file"
+                                            accept=".xlsx, .xls"
+                                            onChange={handleFileUpload}
+                                            style={{ display: 'none' }}
+                                            id="excelUpload"
+                                            ref={fileInputRef}
+                                        />
                                     </Spin>
-                                    <input
-                                        type="file"
-                                        accept=".xlsx, .xls"
-                                        onChange={handleFileUpload}
-                                        style={{ display: 'none' }}
-                                        id="excelUpload"
-                                        ref={fileInputRef}
-                                    />
                                 </div>
                             </Space>
-                            
-                            <Button 
-                                type="primary" 
+
+                            {/* <Button
+                                type="primary"
                                 className="bg-green-600 hover:bg-green-700"
                                 onClick={showCompletionConfirm}
                                 icon={<CheckCircleOutlined />}
                             >
                                 Hoàn thành
-                            </Button>
+                            </Button> */}
                         </div>
                     </Form>
                 </div>
@@ -751,7 +773,7 @@ const KiemNhiemForm = () => {
                     showIcon
                 />
             </Modal>
-            
+
             <div className={`p-3 shadow-xl bg-white rounded-xl ${showForm ? 'basis-2/3' : 'w-full'}`}>
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
                     <div className="flex justify-between w-full items-center">

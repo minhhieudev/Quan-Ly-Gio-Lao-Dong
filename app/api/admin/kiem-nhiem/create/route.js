@@ -37,10 +37,11 @@ export const POST = async (req) => {
             chucVu: chucVuDoc._id,
             schoolYearStart: item.schoolYearStart,
             schoolYearEnd: item.schoolYearEnd,
-          },
-          {
             startTime: item.startTime,
             endTime: item.endTime,
+          },
+          {
+
             ghiChu: item.ghiChu,
           },
           { new: true, upsert: true }

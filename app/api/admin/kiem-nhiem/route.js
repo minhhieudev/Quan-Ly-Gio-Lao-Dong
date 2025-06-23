@@ -8,8 +8,8 @@ export const GET = async (req) => {
 
     // Lấy dữ liệu với điều kiện tìm kiếm và phân trang
     const data = await PhanCongKiemNhiem.find()
-      .populate('chucVu', 'tenCV loaiCV') // Populate trường chucVu
-      .populate('user', 'username khoa') // Populate trường user
+      .populate('chucVu', 'tenCV loaiCV maCV') // Populate trường chucVu
+      .populate('user', 'username khoa maGV') // Populate trường user
     // Lấy tổng số bản ghi để tính toán phân trang
     return new Response(JSON.stringify(data ), { status: 200 });
 
@@ -27,7 +27,6 @@ export const POST = async (req, res) => {
     console.log( 'schoolYearStart:', schoolYearEnd);
     // Gán mặc định nếu thiếu
     if (!startTime) startTime = schoolYearStart;
-    if (!endTime) endTime = schoolYearEnd;
 
     let existing = await PhanCongKiemNhiem.findOne({ user, chucVu });
 
