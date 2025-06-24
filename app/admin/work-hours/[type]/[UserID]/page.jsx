@@ -69,9 +69,8 @@ const Pages = () => {
       if (res.ok) {
         const data = await res.json();
         setAllData(data);
-        if (allData){
-          exportTongHopLaoDongForUser(allData, 'Kỹ thuật công nghệ', namHoc)
-        }
+        // Gọi export với data vừa fetch được, không dùng allData
+        exportTongHopLaoDongForUser(data, 'Kỹ thuật công nghệ', namHoc);
         toast.success("Xuất Excel thành công!");
       } else {
         toast.error("Không thể xuất Excel. Vui lòng thử lại!");

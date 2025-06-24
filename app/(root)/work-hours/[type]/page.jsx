@@ -12,8 +12,10 @@ import TrainingTypeForm from "@components/TrainingTypeForm";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined,FileExcelOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
+import { exportTongHopLaoDongForUser } from '@lib/fileExport';
+
 
 const Pages = () => {
   const { type } = useParams();
@@ -59,6 +61,44 @@ const Pages = () => {
     // Thêm các kỳ khác nếu cần
   ];
 
+  const [exportLoading, setExportLoading] = useState(false);
+  const [allData, setAllData] = useState({
+    info: null,
+    data: {
+      CongTacGiangDay: [],
+      CongTacChamThi: [],
+      CongTacCoiThi: [],
+      CongTacHuongDan: [],
+      CongTacKiemNhiem: [],
+      CongTacRaDe: []
+    }
+  });
+
+  const fetchAllData = async () => {
+    setExportLoading(true); // Bắt đầu loading
+    try {
+      const res = await fetch(`/api/users/tong-hop-lao-dong/get-all/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kyHoc)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAllData(data);
+        if (allData) {
+          exportTongHopLaoDongForUser(allData, currentUser.khoa, namHoc)
+        }
+        toast.success("Xuất Excel thành công!");
+      } else {
+        toast.error("Không thể xuất Excel. Vui lòng thử lại!");
+      }
+    } catch (err) {
+      console.log(err)
+      toast.error("Đã xảy ra lỗi khi xuất Excel");
+    } finally {
+      setExportLoading(false); // Kết thúc loading dù thành công hay thất bại
+    }
+  };
   const handleNamHocChange = (value) => {
     setNamHoc(value);
   };
@@ -144,19 +184,19 @@ const Pages = () => {
   const renderForm = () => {
     switch (selectedForm) {
       case 'Công tác giảng dạy':
-        return <TeachingForm onUpdateCongTacGiangDay={updateCongTacGiangDay} namHoc={namHoc || ''} ky={kyHoc||''} />;
+        return <TeachingForm onUpdateCongTacGiangDay={updateCongTacGiangDay} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác chấm thi':
-        return <EvaluationForm onUpdateCongTacChamThi={updateCongTacChamThi} namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <EvaluationForm onUpdateCongTacChamThi={updateCongTacChamThi} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác hướng dẫn':
-        return <GuidanceForm onUpdateCongTacHuongDan={updateCongTacHuongDan} namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <GuidanceForm onUpdateCongTacHuongDan={updateCongTacHuongDan} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác coi thi':
-        return <ExamMonitoringForm onUpdateCongTacCoiThi={updateCongTacCoiThi} namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <ExamMonitoringForm onUpdateCongTacCoiThi={updateCongTacCoiThi} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác ra đề thi':
-        return <ExamPreparationForm onUpdateCongTacRaDe={updateCongTacRaDe} namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <ExamPreparationForm onUpdateCongTacRaDe={updateCongTacRaDe} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác kiêm nhiệm':
-        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác giảng dạy bồi dưỡng':
-        return <TrainingTypeForm namHoc={namHoc || ''} ky={kyHoc||''}/>;
+        return <TrainingTypeForm namHoc={namHoc || ''} ky={kyHoc || ''} />;
       default:
         return null;
     }
@@ -241,7 +281,7 @@ const Pages = () => {
   // Thêm hàm để lấy trạng thái hiện tại
   const fetchCurrentStatus = useCallback(async () => {
     if (!currentUser?._id || !namHoc || !type) return;
-    
+
     try {
       const res = await fetch(`/api/work-hours/status?userId=${currentUser._id}&namHoc=${namHoc}&loai=${type}`);
       if (res.ok) {
@@ -261,11 +301,11 @@ const Pages = () => {
   // Hàm để hiển thị trạng thái dưới dạng text và màu sắc
   const renderStatusBadge = () => {
     if (recordStatus === null) return null;
-    
+
     let statusText = "";
     let statusColor = "";
     let statusIcon = null;
-    
+
     switch (recordStatus) {
       case 0:
         statusText = "Chờ duyệt";
@@ -291,7 +331,7 @@ const Pages = () => {
         statusText = "Không xác định";
         statusColor = "text-gray-600";
     }
-    
+
     return (
       <div className={`font-bold ${statusColor} flex items-center`}>
         {statusIcon}
@@ -300,10 +340,101 @@ const Pages = () => {
     );
   };
 
+  // Thêm useEffect để tải tất cả dữ liệu khi component mount
+  useEffect(() => {
+    if (!currentUser?._id || !namHoc) return;
+    
+    const fetchAllDataOnLoad = async () => {
+      try {
+        // Tải dữ liệu giảng dạy
+        const resGiangDay = await fetch(`/api/work-hours/CongTacGiangDay/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kyHoc || '')}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (resGiangDay.ok) {
+          const dataGiangDay = await resGiangDay.json();
+          const totalsGiangDay = dataGiangDay.reduce((acc, item) => {
+            acc.tong += item.tongCong || 0;
+            return acc;
+          }, { tong: 0 });
+          setCongTacGiangDay(totalsGiangDay);
+        }
+        
+        // Tải dữ liệu chấm thi
+        const resChamThi = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (resChamThi.ok) {
+          const dataChamThi = await resChamThi.json();
+          const totalChamThi = dataChamThi.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+          setCongTacKhac(prev => ({ ...prev, chamThi: totalChamThi }));
+        }
+        
+        // Tải dữ liệu hướng dẫn
+        const resHuongDan = await fetch(`/api/work-hours/CongTacHuongDan/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (resHuongDan.ok) {
+          const dataHuongDan = await resHuongDan.json();
+          const totalHuongDan = dataHuongDan.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+          setCongTacKhac(prev => ({ ...prev, ngoaiKhoa: totalHuongDan }));
+        }
+        
+        // Tải dữ liệu coi thi
+        const resCoiThi = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (resCoiThi.ok) {
+          const dataCoiThi = await resCoiThi.json();
+          const totalCoiThi = dataCoiThi.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+          setCongTacKhac(prev => ({ ...prev, coiThi: totalCoiThi }));
+        }
+        
+        // Tải dữ liệu ra đề
+        const resRaDe = await fetch(`/api/work-hours/CongTacRaDe/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        
+        if (resRaDe.ok) {
+          const dataRaDe = await resRaDe.json();
+          const totalRaDe = dataRaDe.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+          setCongTacKhac(prev => ({ ...prev, deThi: totalRaDe }));
+        }
+        
+        // Nếu là chính quy, tải dữ liệu kiêm nhiệm
+        if (type === 'chinh-quy') {
+          const resKiemNhiem = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&namHoc=${namHoc}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+          
+          if (resKiemNhiem.ok) {
+            const dataKiemNhiem = await resKiemNhiem.json();
+            const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+            setKiemNhiem(totalKiemNhiem);
+          }
+        }
+        
+      } catch (error) {
+        console.error("Error fetching all data:", error);
+      }
+    };
+    
+    fetchAllDataOnLoad();
+  }, [currentUser, namHoc, kyHoc, type]);
+
   return (
     <div className="container mx-auto p-4 overflow-x-hidden">
       <div className="mb-1 w-[98%] flex justify-between gap-3">
-        <div className="w-[70%] flex bg-white items-center justify-between rounded-md">
+        <div className="w-[50%] flex bg-white items-center justify-between rounded-md">
           <Button
             className="button-kiem-nhiem text-white font-bold shadow-md ml-1"
             onClick={() => router.push(`/work-hours`)}
@@ -313,7 +444,7 @@ const Pages = () => {
               <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
             </div>
           </Button>
-          <div className="flex-grow text-center rounded-xl font-bold mr-3">
+          <div className="flex-grow text-center rounded-xl font-bold mr-3 text-base-bold">
             {`HỆ ${getTitle()}`}
           </div>
         </div>
@@ -343,6 +474,15 @@ const Pages = () => {
             {renderStatusBadge()}
           </div>
         )}
+        <Button
+          className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
+          onClick={() => fetchAllData()}
+          loading={exportLoading}
+          disabled={exportLoading}
+        >
+          {!exportLoading && <FileExcelOutlined />}
+          {exportLoading ? 'Đang xuất...' : 'Xuất Excel'}
+        </Button>
       </div>
 
       {type !== 'boi-duong' && (

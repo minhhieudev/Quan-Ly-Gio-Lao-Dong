@@ -16,7 +16,8 @@ import {
     Alert, 
     Typography, 
     Pagination,
-    Divider
+    Divider,
+    Drawer
 } from 'antd';
 import dayjs from "dayjs";
 import toast from "react-hot-toast";
@@ -75,6 +76,18 @@ const KiemNhiemForm = () => {
     const [dateRange, setDateRange] = useState([null, null]);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
+
+    // Thêm state mới
+    const [importDrawerVisible, setImportDrawerVisible] = useState(false);
+    const [selectedLoaiImport, setSelectedLoaiImport] = useState(null);
+    const [loaiChucVuOptions, setLoaiChucVuOptions] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Thêm state để kiểm tra
+    // const [testModalVisible, setTestModalVisible] = useState(false);
+
+    // Thêm state đơn giản
+    // const [simpleModalVisible, setSimpleModalVisible] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -588,6 +601,83 @@ const KiemNhiemForm = () => {
         reader.readAsBinaryString(file);
     };
 
+    // Thêm useEffect để lấy danh sách loại chức vụ
+    useEffect(() => {
+        const fetchLoaiChucVu = async () => {
+            try {
+                const res = await fetch("/api/admin/select/loai-chuc-vu");
+                if (res.ok) {
+                    const data = await res.json();
+                    setLoaiChucVuOptions(data);
+                }
+            } catch (error) {
+                console.error("Error fetching loai chuc vu:", error);
+            }
+        };
+        
+        fetchLoaiChucVu();
+    }, []);
+
+    // Hàm xử lý hiển thị modal import
+    const showImportModal = () => {
+        console.log("schoolYearStart:", schoolYearStart);
+        console.log("schoolYearEnd:", schoolYearEnd);
+        
+        // Tạm thời bỏ qua điều kiện kiểm tra để xem modal có hiển thị không
+        setIsImportModalVisible(true);
+        
+        // Sau khi xác nhận modal hiển thị, bạn có thể bỏ comment các điều kiện kiểm tra này
+        /*
+        if (!schoolYearStart) {
+            toast.error("Vui lòng chọn ngày bắt đầu năm học trước khi import!");
+            return;
+        }
+        if (!schoolYearEnd) {
+            toast.error("Vui lòng chọn ngày kết thúc năm học trước khi import!");
+            return;
+        }
+        */
+    };
+
+    // Hàm xử lý xóa dữ liệu cũ và import dữ liệu mới
+    const handleImportWithDelete = async () => {
+        if (!selectedLoaiImport) {
+            toast.error("Vui lòng chọn loại chức vụ!");
+            return;
+        }
+        
+        setIsDeleting(true);
+        try {
+            // Gọi API để xóa các record có loại chức vụ đã chọn
+            const deleteRes = await fetch("/api/admin/kiem-nhiem/delete-by-loai", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    loaiChucVu: selectedLoaiImport,
+                    schoolYearStart: schoolYearStart?.toISOString(),
+                    schoolYearEnd: schoolYearEnd?.toISOString()
+                })
+            });
+            
+            if (deleteRes.ok) {
+                const deleteData = await deleteRes.json();
+                toast.success(`Đã xóa ${deleteData.deletedCount} bản ghi cũ`);
+                
+                // Sau khi xóa thành công, mở file picker để import
+                setIsImportModalVisible(false);
+                fileInputRef.current.value = ""; // Reset input file
+                fileInputRef.current.click();
+            } else {
+                const errorData = await deleteRes.json();
+                toast.error(errorData.message || "Xóa dữ liệu thất bại");
+            }
+        } catch (error) {
+            console.error("Error deleting records:", error);
+            toast.error("Đã xảy ra lỗi khi xóa dữ liệu cũ");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     return loading ? (
         <Loader />
@@ -738,20 +828,7 @@ const KiemNhiemForm = () => {
                                                 className="button-lien-thong-vlvh"
                                                 type="primary"
                                                 icon={<UploadOutlined />}
-                                                onClick={e => {
-                                                    if (!schoolYearStart) {
-                                                        toast.error("Vui lòng chọn ngày bắt đầu năm học trước khi import!");
-                                                        e.preventDefault();
-                                                        return;
-                                                    }
-                                                    if (!schoolYearEnd) {
-                                                        toast.error("Vui lòng chọn ngày kết thúc năm học trước khi import!");
-                                                        e.preventDefault();
-                                                        return;
-                                                    }
-                                                    fileInputRef.current.value = ""; // Đảm bảo luôn reset input file trước khi chọn mới
-                                                    fileInputRef.current.click();
-                                                }}
+                                                onClick={() => setImportDrawerVisible(true)}
                                                 disabled={isUploading}
                                             >
                                                 {isUploading ? 'Đang tải lên...' : 'Import'}
@@ -762,7 +839,6 @@ const KiemNhiemForm = () => {
                                             accept=".xlsx, .xls"
                                             onChange={handleFileUpload}
                                             style={{ display: 'none' }}
-                                            id="excelUpload"
                                             ref={fileInputRef}
                                         />
                                     </Spin>
@@ -945,7 +1021,86 @@ const KiemNhiemForm = () => {
 
             </div>
 
+            {/* Thêm nút test */}
+            {/* <Button onClick={() => setTestModalVisible(true)}>
+                Test Modal
+            </Button> */}
 
+            {/* Thêm modal test */}
+            {/* <Modal
+                title="Test Modal"
+                open={testModalVisible}
+                onCancel={() => setTestModalVisible(false)}
+                footer={null}
+            >
+                <p>Đây là modal test</p>
+            </Modal> */}
+
+            {/* Thêm nút test đơn giản */}
+            {/* <Button onClick={() => setSimpleModalVisible(true)}>
+                Open Simple Modal
+            </Button> */}
+
+            {/* Thêm modal đơn giản */}
+            {/* <Modal
+                title="Simple Test Modal"
+                open={simpleModalVisible}
+                onCancel={() => setSimpleModalVisible(false)}
+                footer={null}
+            >
+                <p>This is a simple test modal</p>
+            </Modal> */}
+
+            <Drawer
+                title="Chọn loại chức vụ để import"
+                placement="right"
+                onClose={() => setImportDrawerVisible(false)}
+                open={importDrawerVisible}
+                width={400}
+            >
+                <div className="mb-4">
+                    <Alert
+                        message="Lưu ý"
+                        description="Hãy chọn loại chức vụ trước khi import dữ liệu mới."
+                        type="warning"
+                        showIcon
+                        className="mb-4"
+                    />
+                    
+                    <Form.Item
+                        label={<span className="font-bold">Chọn loại chức vụ</span>}
+                        required
+                    >
+                        <Select
+                            placeholder="Chọn loại chức vụ để import"
+                            value={selectedLoaiImport}
+                            onChange={setSelectedLoaiImport}
+                            style={{ width: '100%' }}
+                        >
+                            {loaiChucVuList.map(loai => (
+                                <Option key={loai._id} value={loai.tenLoai}>
+                                    {loai.tenLoai}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    
+                    <Button
+                        type="primary"
+                        className="mt-4"
+                        onClick={() => {
+                            if (!selectedLoaiImport) {
+                                toast.error("Vui lòng chọn loại chức vụ!");
+                                return;
+                            }
+                            setImportDrawerVisible(false);
+                            fileInputRef.current.click();
+                        }}
+                    >
+                        Tiếp tục import
+                    </Button>
+                </div>
+            </Drawer>
         </div >
     );
 };
