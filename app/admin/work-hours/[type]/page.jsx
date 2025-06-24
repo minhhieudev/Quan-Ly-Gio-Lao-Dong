@@ -1,12 +1,11 @@
 'use client';
-import { DeleteOutlined, FileExcelOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, FileExcelOutlined, SearchOutlined, ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Button, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 import toast from "react-hot-toast";
 
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { exportTongHopLaoDong } from '@lib/fileExport';
 import { useSession } from "next-auth/react";
 
@@ -35,9 +34,21 @@ const App = () => {
   const [kiHoc, setKiHoc] = useState("1");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
-  // ...existing code...
+  // Add state for delete modal
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteYear, setDeleteYear] = useState(namHoc);
+  
+  // Define namHocOptions array
+  const namHocOptions = [
+    { value: '2021-2022', label: '2021-2022' },
+    { value: '2022-2023', label: '2022-2023' },
+    { value: '2023-2024', label: '2023-2024' },
+    { value: '2024-2025', label: '2024-2025' },
+    { value: '2025-2026', label: '2025-2026' }
+  ];
+
   const [currentPageData, setCurrentPageData] = useState([]);
-  // ...existing code...
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -259,6 +270,7 @@ const App = () => {
     {
       title: 'Họ và tên giảng viên',
       dataIndex: 'username',
+      width: 120, // Giảm width
       ...getColumnSearchProps('user.username'),
       render: (text, record) => (
         <Button
@@ -405,14 +417,14 @@ const App = () => {
       className: 'text-center'
     },
     {
-      title: 'Tổng giờ chính quy',
+      title: 'Tổng giờ CQ',
       dataIndex: 'tongGioChinhQuy',
       className: 'text-red-500 font-bold text-center',
       align: 'center',
 
     },
     {
-      title: 'Thừa/Thiếu giờ lao động',
+      title: 'Thừa/Thiếu',
       dataIndex: 'thuaThieuGioLaoDong',
       className: 'text-center',
       align: 'center',
@@ -444,6 +456,10 @@ const App = () => {
           case 2:
             color = 'green';
             text = 'Trường duyệt';
+            break;
+          case 2:
+            color = 'red';
+            text = 'Yêu cầu chỉnh sửa';
             break;
           default:
             color = 'default';
@@ -821,6 +837,35 @@ const App = () => {
     }
   };
 
+  // Add function to handle bulk delete by school year
+  const handleBulkDelete = async () => {
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/admin/tong-hop-lao-dong/bulk-delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          namHoc: deleteYear,
+          loai: type
+        })
+      });
+
+      if (res.ok) {
+        toast.success("Xóa dữ liệu thành công");
+        setIsDeleteModalVisible(false);
+        fetchData(); // Refresh data after deletion
+      } else {
+        const data = await res.json();
+        toast.error(data.message || "Không thể xóa dữ liệu");
+      }
+    } catch (err) {
+      console.error("Error bulk deleting records:", err);
+      toast.error("Lỗi khi xóa dữ liệu");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   // Khai báo pageData trước return
   const { current = 1, pageSize = 5 } = tableParams.pagination || {};
   const start = (current - 1) * pageSize;
@@ -909,6 +954,9 @@ const App = () => {
             <div className="bg-blue-100 rounded p-1 font-semibold">
               Khoa duyệt: {filteredDataList.filter(item => item.trangThai == 1).length}
             </div>
+            <div className="bg-red-100 rounded p-1 font-semibold">
+              Yêu cầu chỉnh sửa: {filteredDataList.filter(item => item.trangThai == 3).length}
+            </div>
           </div>
         </div>
 
@@ -928,6 +976,7 @@ const App = () => {
       </div>
 
       <Table
+        className="text-xs" // Giảm cỡ chữ
         bordered
         columns={getColumns()}
         rowKey={(record) => record._id}
@@ -939,6 +988,7 @@ const App = () => {
           showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} bản ghi`
         }}
         loading={loading}
+        scroll={{ x: 'max-content' }}
         onChange={(pagination, filters, sorter, extra) => {
           setTableParams({
             pagination,
@@ -946,36 +996,56 @@ const App = () => {
             sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
             sortField: Array.isArray(sorter) ? undefined : sorter.field,
           });
-          setCurrentPageData(extra.currentDataSource); // <-- lấy data trang hiện tại
+          setCurrentPageData(extra.currentDataSource);
         }}
       />
 
       <div className="mt-0 flex justify-center gap-6">
-
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          //onClick={type !== 'boi-duong' ? () => exportToExcelTongHop(dataList, type, getType()) : () => { exportToExcelTongHopBoiDuong(dataList, getType()) }}
           onClick={() => exportTongHopLaoDong(dataList, type, getType(), namHoc, selectedKhoa)}
-        //exportTongHopLaoDong(dataList, 'boi-duong', 'BẢNG TỔNG HỢP CÔNG TÁC GIẢNG DẠY - BỒI DƯỠNG');
-
-        ><FileExcelOutlined />
+        >
+          <FileExcelOutlined />
           Xuất file Excel
         </Button>
-        {/* <Button
-          className="button-lien-thong-vlvh-nd71 text-white font-bold shadow-md mr-2"
-          onClick={() => { sendEmail() }}
+        
+        {/* Add Delete Button */}
+        <Button
+          className="bg-red-500 hover:bg-red-600 text-white font-bold shadow-md mr-2"
+          onClick={() => setIsDeleteModalVisible(true)}
         >
-          Gửi email
-        </Button> */}
-        {/* <CldUploadButton
-          className="button-huong-dan rounded-md shadow-md mr-2"
-          options={{ maxFiles: 1 }}
-          onUpload={uploadPhoto}
-          uploadPreset="e0rggou2"
-        >
-          <p className="text-white text-small-bold px-2">Chọn file gửi Email</p>
-        </CldUploadButton> */}
+          <DeleteOutlined />
+          Xóa theo năm học
+        </Button>
       </div>
+
+      {/* Add Delete Modal */}
+      <Modal
+        title="Xóa dữ liệu theo năm học"
+        visible={isDeleteModalVisible}
+        onOk={handleBulkDelete}
+        onCancel={() => setIsDeleteModalVisible(false)}
+        confirmLoading={isDeleting}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }}
+      >
+        <p className="mb-4 font-semibold">Bạn có chắc chắn muốn xóa tất cả dữ liệu của năm học đã chọn?</p>
+        <div className="flex items-center gap-2">
+          <span>Chọn năm học:</span>
+          <Select
+            value={deleteYear}
+            onChange={(value) => setDeleteYear(value)}
+            style={{ width: 150 }}
+          >
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
+          </Select>
+        </div>
+        <p className="mt-4 text-red-500">Lưu ý: Hành động này không thể hoàn tác!</p>
+      </Modal>
+
       <Modal
         title="Thông Báo"
         visible={isModalVisible}

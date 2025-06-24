@@ -16,7 +16,6 @@ const Dashboard = () => {
     const columns = [
         { title: "Họ tên giảng viên", dataIndex: "username", key: "username", className: 'text-blue-500 font-bold' },
         { title: "Tổng giờ", dataIndex: "tongGioChinhQuy", key: "tongGioChinhQuy", className: 'text-red-500 font-bold' },
-        { title: "Thừa thiếu giờ", dataIndex: "thuaThieuGioLaoDong", key: "thuaThieuGioLaoDong", className: 'text-green-500 font-bold' },
     ];
 
     const [selectedKhoa, setSelectedKhoa] = useState(null);
@@ -165,7 +164,7 @@ const Dashboard = () => {
                             <CheckCircleOutlined style={{ fontSize: "90px" }} className="mr-4 text-green-500" />
                             <div>
                                 <h2 className="text-xl font-bold mb-2">{dataCount.completed}/{dataCount.total}</h2>
-                                <p>Đã hoàn thành</p>
+                                <p>Đã thực hiện</p>
                             </div>
                         </div>
                         <Progress
@@ -181,7 +180,7 @@ const Dashboard = () => {
                             <CloseCircleOutlined style={{ fontSize: "90px" }} className="mr-4 text-red-500" />
                             <div>
                                 <h2 className="text-xl font-bold mb-2">{dataCount.notCompleted}/{dataCount.total}</h2>
-                                <p>Chưa hoàn thành</p>
+                                <p>Chưa thực hiện</p>
                             </div>
                         </div>
                         <Progress
@@ -254,4 +253,3 @@ const Dashboard = () => {
 export default Dashboard;
 
 
-// Hỏi chỗ user ở mấy cái select 

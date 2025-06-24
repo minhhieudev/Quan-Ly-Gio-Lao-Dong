@@ -164,7 +164,7 @@ const Dashboard = () => {
                             <CheckCircleOutlined style={{ fontSize: "90px" }} className="mr-4 text-green-500" />
                             <div>
                                 <h2 className="text-xl font-bold mb-2">{dataCount.completed}/{dataCount.total}</h2>
-                                <p>Đã hoàn thành</p>
+                                <p>Đã thực hiện</p>
                             </div>
                         </div>
                         <Progress
@@ -180,7 +180,7 @@ const Dashboard = () => {
                             <CloseCircleOutlined style={{ fontSize: "90px" }} className="mr-4 text-red-500" />
                             <div>
                                 <h2 className="text-xl font-bold mb-2">{dataCount.notCompleted}/{dataCount.total}</h2>
-                                <p>Chưa hoàn thành</p>
+                                <p>Chưa thực hiện</p>
                             </div>
                         </div>
                         <Progress
@@ -253,4 +253,3 @@ const Dashboard = () => {
 export default Dashboard;
 
 
-// Hỏi chỗ user ở mấy cái select 

@@ -61,6 +61,10 @@ const TongHopLaoDongSchema = new mongoose.Schema({
   namHoc: {
     type: String,
   },
+  trangThai: {           // Thêm trường này
+    type: Number,
+    default: 0,
+  },
 },{
   timestamps: true,
 });

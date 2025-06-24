@@ -2,14 +2,28 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination, Modal, Card, Divider, Alert } from "antd";
+import { 
+    Button, 
+    Form, 
+    Input, 
+    Select, 
+    DatePicker, 
+    Table, 
+    Space, 
+    Popconfirm, 
+    Modal, 
+    Spin, 
+    Alert, 
+    Typography, 
+    Pagination,
+    Divider
+} from 'antd';
+import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
-import { SearchOutlined, UploadOutlined, FileExcelOutlined, SaveOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
-import { DatePicker } from 'antd';
-import dayjs from 'dayjs';
 import { exportPCKiemNhiem } from "@lib/fileExport";
+import { SaveOutlined, UploadOutlined, ExclamationCircleOutlined, SearchOutlined, FileExcelOutlined, CheckCircleOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -57,6 +71,11 @@ const KiemNhiemForm = () => {
     const [schoolYearStart, setSchoolYearStart] = useState(null);
     const [schoolYearEnd, setSchoolYearEnd] = useState(null);
 
+    // Add these state variables
+    const [dateRange, setDateRange] = useState([null, null]);
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+
     useEffect(() => {
         if (typeof window !== "undefined") {
             const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
@@ -79,14 +98,46 @@ const KiemNhiemForm = () => {
         else localStorage.removeItem(SCHOOL_YEAR_END_KEY);
     };
 
+    // Add this function to handle date range changes
+    const handleDateRangeChange = (dates) => {
+        if (dates) {
+            setStartDate(dates[0]);
+            setEndDate(dates[1]);
+            setDateRange(dates);
+            setCurrent(1); // Reset to first page
+        } else {
+            setStartDate(null);
+            setEndDate(null);
+            setDateRange([null, null]);
+        }
+    };
+
     // Thêm hàm xử lý filter data
     const getFilteredData = () => {
         return dataList.filter(item => {
             const matchName = item.user?.username?.toLowerCase().includes(searchName.toLowerCase());
             const matchKhoa = !selectedKhoa || item.user?.khoa === selectedKhoa;
             const matchChucVu = !selectedLoai || item.chucVu?.loaiCV === selectedLoai;
+            
+            // Add date range filtering
+            let matchDateRange = true;
+            if (startDate && endDate) {
+                const itemStartDate = dayjs(item.startTime);
+                const itemEndDate = dayjs(item.endTime);
+                
+                // Check if the item's date range overlaps with the selected date range
+                matchDateRange = (
+                    (itemStartDate.isAfter(startDate) || itemStartDate.isSame(startDate)) && 
+                    (itemStartDate.isBefore(endDate) || itemStartDate.isSame(endDate))
+                ) || (
+                    (itemEndDate.isAfter(startDate) || itemEndDate.isSame(startDate)) && 
+                    (itemEndDate.isBefore(endDate) || itemEndDate.isSame(endDate))
+                ) || (
+                    itemStartDate.isBefore(startDate) && itemEndDate.isAfter(endDate)
+                );
+            }
 
-            return matchName && matchKhoa && matchChucVu;
+            return matchName && matchKhoa && matchChucVu && matchDateRange;
         });
     };
 
@@ -849,6 +900,20 @@ const KiemNhiemForm = () => {
                                 </Option>
                             ))}
                         </Select>
+                    </div>
+                    
+                    {/* Add Date Range Picker */}
+                    <div className="flex gap-1">
+                        <div className="text-base-bold ml-2">Thời gian:</div>
+                        <DatePicker.RangePicker
+                            size="small"
+                            style={{ width: 250 }}
+                            value={dateRange}
+                            onChange={handleDateRangeChange}
+                            format="DD/MM/YYYY"
+                            placeholder={['Từ ngày', 'Đến ngày']}
+                            allowClear
+                        />
                     </div>
                 </div>
 

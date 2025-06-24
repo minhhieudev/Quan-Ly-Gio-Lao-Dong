@@ -7,6 +7,7 @@ export async function PUT(request) {
     await connectToDB();
     const body = await request.json();
     const { id, trangThai } = body;
+    console.log(id, trangThai)
 
     if (!id || typeof trangThai !== 'number' || trangThai < 0 || trangThai > 3) {
       return new Response("Thiếu id hoặc trạng thái không hợp lệ", { status: 400 });
@@ -17,6 +18,7 @@ export async function PUT(request) {
       { trangThai },
       { new: true }
     );
+    console.log('Updated:', updated);
 
     if (!updated) {
       return new Response("Không tìm thấy bản ghi", { status: 404 });
