@@ -1003,7 +1003,7 @@ const App = () => {
       <div className="mt-0 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={() => exportTongHopLaoDong(dataList, type, getType(), namHoc, selectedKhoa)}
+          onClick={() => exportTongHopLaoDong(filteredDataList, type, getType(), namHoc, selectedKhoa)}
         >
           <FileExcelOutlined />
           Xuất file Excel
