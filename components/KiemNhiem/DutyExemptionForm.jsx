@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { Button, Input, Form, Space, Typography, InputNumber, Spin, Select, Tabs, Table, Popconfirm } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -54,17 +54,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         }
     }, [editRecord, reset]);
 
-    useEffect(() => {
-        const value = watch("tyLeMienGiam")
-        let result;
-        if (value < 1) {
-            result = currentUser.maNgachInfo.GCGD * watch("tyLeMienGiam")
-        } else {
-            result = value;
-        }
-        setValue("soTietQC", result);
+    const tyLeMienGiam = useWatch({ control, name: "tyLeMienGiam" });
 
-    }, [watch("tyLeMienGiam"), setValue]);
+    useEffect(() => {
+        if (!currentUser?.maNgachInfo?.GCGD) return;
+        let result;
+        if (tyLeMienGiam < 1) {
+            result = currentUser.maNgachInfo.GCGD * tyLeMienGiam;
+        } else {
+            result = tyLeMienGiam;
+        }
+        // Chỉ setValue nếu giá trị thực sự thay đổi để tránh vòng lặp
+        setValue("soTietQC", result, { shouldValidate: false, shouldDirty: false });
+    }, [tyLeMienGiam, setValue, currentUser]);
 
     useEffect(() => {
         if (!currentUser?._id) return;
@@ -118,11 +120,22 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
     useEffect(() => {
-
-        handelKiemNhiem();
+        if (dataListSelect && dataListSelect.length > 0) {
+            handelKiemNhiem();
+        } else {
+            setResultsDisplay([]);
+            setDataTong([]);
+        }
     }, [dataListSelect]);
 
     const handelKiemNhiem = () => {
+        // Nếu không có dữ liệu thì return luôn, tránh xử lý tiếp
+        if (!dataListSelect || dataListSelect.length === 0) {
+            setResultsDisplay([]);
+            setDataTong([]);
+            return;
+        }
+
         // Lấy giá trị schoolYearStart và schoolYearEnd từ phần tử đầu tiên của dataListSelect (nếu có)
         let dau_nam, cuoi_nam;
 
@@ -163,6 +176,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     const weeks = diffDays / 7;
                     gValue = (weeks * GCGD) / 44;
                 }
+
+
                 else if (item.chucVu.soMien < 1) {
                     // Trường hợp < 1 (nhưng không phải -1 hoặc -2)
                     gValue = item.chucVu.soMien * GCGD;
@@ -631,12 +646,12 @@ return loading ? (
                     key="Phụ lục công việc"
                     className="text-center p-2"
                 >
-                    {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect} />}
+                    {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect || []} />}
                 </TabPane>
             </Tabs>
         </div>
 
-        {/* {resultsDisplay.length > 0 && (
+        {resultsDisplay.length > 0 && (
                 <div className="mt-4 bg-white rounded-lg p-4 shadow-lg border border-gray-100">
                     <div className="border-b border-blue-500 pb-2 mb-3">
                         <h3 className="text-lg font-semibold text-blue-600 text-center">Kết quả tính toán miễn giảm</h3>
@@ -664,7 +679,7 @@ return loading ? (
                         </table>
                     </div>
                 </div>
-            )} */}
+            )}
 
     </div>
 );
