@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
 import { useRouter, useParams } from "next/navigation";
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const { Option } = Select;
 
@@ -41,6 +42,9 @@ const TeachingAssignmentForm = () => {
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Get academic year configuration
+  const { options: namHocOptions } = getAcademicYearConfig();
 
   useEffect(() => {
     if (id) {
@@ -112,8 +116,9 @@ const TeachingAssignmentForm = () => {
                 rules={{ required: "Vui lòng chọn năm học" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn năm học" {...field}>
-                    <Option value="2023-2024">2023-2024</Option>
-                    <Option value="2024-2025">2024-2025</Option>
+                    {namHocOptions.map(option => (
+                      <Option key={option.value} value={option.value}>{option.label}</Option>
+                    ))}
                   </Select>
                 )}
               />

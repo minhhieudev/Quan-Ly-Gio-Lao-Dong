@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 import dayjs from 'dayjs'; // Import dayjs for date handling
 
 const { Option } = Select;
@@ -43,6 +44,9 @@ const TeachingAssignmentForm = () => {
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Get academic year configuration
+  const { options: namHocOptions } = getAcademicYearConfig();
 
   const onSubmit = async (data) => {
 
@@ -221,10 +225,9 @@ const TeachingAssignmentForm = () => {
             onChange={(value) => setNamHocs(value)}
             className="w-[50%]"
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
         <div className="flex gap-2">

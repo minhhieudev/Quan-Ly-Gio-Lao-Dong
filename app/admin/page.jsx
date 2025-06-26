@@ -7,11 +7,14 @@ import {
     CloseCircleOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const { Option } = Select;
 const { Search } = Input;
 
 const Dashboard = () => {
+    // Get academic year configuration
+    const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
 
     const columns = [
         { title: "Họ tên giảng viên", dataIndex: "username", key: "username", className: 'text-blue-500 font-bold' },
@@ -135,10 +138,10 @@ const Dashboard = () => {
                             <div className="flex gap-3 ">
                                 <p>Năm học: </p>
                                 <h2 className="text-xl font-bold mb-0 flex-grow">
-                                    <Select onChange={(value) => setNamHoc(value)} defaultValue={"2024-2025"} style={{ width: 120 }} allowClear>
-                                        {["2021-2022", "2022-2023", "2023-2024", "2024-2025"].map((nam, index) => (
-                                            <Option key={index} value={nam}>
-                                                {nam}
+                                    <Select onChange={(value) => setNamHoc(value)} defaultValue={defaultNamHoc} style={{ width: 120 }} allowClear>
+                                        {namHocOptions.map((option, index) => (
+                                            <Option key={index} value={option.value}>
+                                                {option.label}
                                             </Option>
                                         ))}
                                     </Select>

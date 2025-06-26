@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined,FileExcelOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
 import { exportTongHopLaoDongForUser } from '@lib/fileExport';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 
 const Pages = () => {
@@ -36,7 +37,6 @@ const Pages = () => {
     tong: 0,
   });
   const [kiemNhiem, setKiemNhiem] = useState(0);
-  const [namHoc, setNamHoc] = useState("2025-2026");
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -47,14 +47,9 @@ const Pages = () => {
   // Thêm state để lưu trạng thái
   const [recordStatus, setRecordStatus] = useState(null);
 
-  // Option lists
-  const namHocOptions = [
-    { value: '2021-2022', label: '2021 - 2022' },
-    { value: '2022-2023', label: '2022 - 2023' },
-    { value: '2023-2024', label: '2023 - 2024' },
-    { value: '2024-2025', label: '2024 - 2025' },
-    { value: '2025-2026', label: '2025 - 2026' },
-  ];
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
 
   const kyHocOptions = [
     { value: '1', label: '1' },
@@ -310,7 +305,7 @@ const Pages = () => {
     switch (recordStatus) {
       case 10:
         statusText = "Chưa hoàn thành";
-        statusColor = "text-green-600";
+        statusColor = "text-blue-500";
         statusIcon = <ClockCircleOutlined style={{ marginRight: 5 }} />;
         break;
       case 0:

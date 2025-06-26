@@ -5,6 +5,7 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } fro
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 
 const { Option } = Select;
@@ -12,14 +13,17 @@ const { Option } = Select;
 const TeachingAssignmentTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("2024-2025");
-  const [kiHoc, setKiHoc] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [loai, setLoai] = useState("Chính quy");
+
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
+  const [kiHoc, setKiHoc] = useState("");
 
 
   const router = useRouter();
@@ -225,11 +229,9 @@ const TeachingAssignmentTable = () => {
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
-            <Option value="2025-2026">2025-2026</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 

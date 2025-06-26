@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
 import { exportChamThi } from '@/lib/fileExport';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 
 const { Option } = Select;
@@ -13,7 +14,6 @@ const { Option } = Select;
 const PcChamThiTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("2024-2025");
   const [loaiKyThi, setLoaiKyThi] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,10 @@ const PcChamThiTable = () => {
   const [pageSize, setPageSize] = useState(10);
 
   const [hocKy, setHocKy] = useState("1");
+
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
 
 
   const router = useRouter();
@@ -223,10 +227,9 @@ const PcChamThiTable = () => {
             className="w-[50%]"
             value={namHoc}
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 

@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 import { exportTongHopLaoDong } from '@lib/fileExport';
 import { useSession } from "next-auth/react";
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const App = () => {
   const [dataList, setDataList] = useState([]);
@@ -30,23 +31,18 @@ const App = () => {
   const { data: session } = useSession();
   const currentUser = session?.user;
 
-  const [namHoc, setNamHoc] = useState("2024-2025");
   const [kiHoc, setKiHoc] = useState("1");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
+
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
+
   // Add state for delete modal
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteYear, setDeleteYear] = useState(namHoc);
-  
-  // Define namHocOptions array
-  const namHocOptions = [
-    { value: '2021-2022', label: '2021-2022' },
-    { value: '2022-2023', label: '2022-2023' },
-    { value: '2023-2024', label: '2023-2024' },
-    { value: '2024-2025', label: '2024-2025' },
-    { value: '2025-2026', label: '2025-2026' }
-  ];
 
   const [currentPageData, setCurrentPageData] = useState([]);
   const fetchData = async () => {
@@ -920,10 +916,9 @@ const App = () => {
             className="w-[50%]"
             value={namHoc}
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 

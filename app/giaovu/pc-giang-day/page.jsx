@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
 import { exportPCGD } from "@lib/fileExport";
+import { getAcademicYearConfig } from "@lib/academicYearUtils";
 
 
 const { Option } = Select;
@@ -13,17 +14,57 @@ const { Option } = Select;
 const TeachingAssignmentTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("2024-2025");
-  const [kiHoc, setKiHoc] = useState("1");
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchLecturer, setSearchLecturer] = useState("");
+  const [selectedKhoa, setSelectedKhoa] = useState("");
   const [loading, setLoading] = useState(false);
+  const [khoaOptions, setKhoaOptions] = useState([]);
+  const [userList, setUserList] = useState([]);
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [loai, setLoai] = useState("Chính quy");
 
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
+  const [kiHoc, setKiHoc] = useState("1");
 
   const router = useRouter();
+
+  // Load khoa options
+  useEffect(() => {
+    const fetchKhoaOptions = async () => {
+      try {
+        const res = await fetch('/api/admin/khoa');
+        if (res.ok) {
+          const data = await res.json();
+          setKhoaOptions(data);
+        }
+      } catch (err) {
+        console.error("Error fetching khoa options:", err);
+      }
+    };
+
+    fetchKhoaOptions();
+  }, []);
+
+  // Load user list to map lecturers to departments
+  useEffect(() => {
+    const fetchUserList = async () => {
+      try {
+        const res = await fetch('/api/admin/user');
+        if (res.ok) {
+          const data = await res.json();
+          setUserList(data);
+        }
+      } catch (err) {
+        console.error("Error fetching user list:", err);
+      }
+    };
+
+    fetchUserList();
+  }, []);
 
   useEffect(() => {
     if (!namHoc && !kiHoc) return;
@@ -52,13 +93,40 @@ const TeachingAssignmentTable = () => {
     fetchData();
   }, [namHoc, kiHoc, loai]);
 
+  // Helper function to get lecturer's department
+  const getLecturerDepartment = (lecturerName) => {
+    const user = userList.find(u => u.username === lecturerName);
+    return user ? user.khoa : '';
+  };
+
   useEffect(() => {
-    const filtered = dataList.filter((item) =>
-      item.maMH.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.tenMH.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = dataList;
+
+    // Filter by subject (môn học)
+    if (searchTerm) {
+      filtered = filtered.filter((item) =>
+        item.maMH.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.tenMH.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by lecturer name (giảng viên)
+    if (searchLecturer) {
+      filtered = filtered.filter((item) =>
+        item.gvGiangDay.toLowerCase().includes(searchLecturer.toLowerCase())
+      );
+    }
+
+    // Filter by department (khoa)
+    if (selectedKhoa) {
+      filtered = filtered.filter((item) => {
+        const lecturerDepartment = getLecturerDepartment(item.gvGiangDay);
+        return lecturerDepartment === selectedKhoa;
+      });
+    }
+
     setFilteredData(filtered);
-  }, [searchTerm, dataList]);
+  }, [searchTerm, searchLecturer, selectedKhoa, dataList, userList]);
 
   const handleDelete = async (id) => {
     try {
@@ -218,28 +286,26 @@ const TeachingAssignmentTable = () => {
           TẠO MỚI
         </Button>
       </div>
-      <div className="flex justify-between items-center mb-0 text-small-bold">
-        <div className="w-[25%] flex items-center gap-2">
+      <div className="flex justify-between items-center mb-2 text-small-bold">
+        <div className="w-[20%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
           <Select size="small" value={namHoc}
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
-            className="w-[50%]"
+            className="w-[70%]"
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
-            <Option value="2025-2026">2025-2026</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 
-        <div className="w-[25%] flex items-center gap-2">
+        <div className="w-[15%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
           <Select size="small" allowClear value={kiHoc}
             placeholder="Chọn học kỳ"
             onChange={(value) => setKiHoc(value)}
-            className="w-[50%]"
+            className="w-[60%]"
           >
             <Option value="1"> 1</Option>
             <Option value="2"> 2</Option>
@@ -247,11 +313,33 @@ const TeachingAssignmentTable = () => {
           </Select>
         </div>
 
-        <div className="w-[20%]">
+        <div className="w-[20%] flex items-center gap-2">
+          <label className="block text-sm font-semibold mb-1">Khoa:</label>
+          <Select size="small" allowClear value={selectedKhoa}
+            placeholder="Chọn khoa"
+            onChange={(value) => setSelectedKhoa(value)}
+            className="w-[70%]"
+          >
+            {khoaOptions.map(khoa => (
+              <Option key={khoa._id} value={khoa.tenKhoa}>{khoa.tenKhoa}</Option>
+            ))}
+          </Select>
+        </div>
+        <div className="">
           <Input.Search size="small"
             placeholder="Tìm kiếm môn học..."
             allowClear
+            value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className="">
+          <Input.Search size="small"
+            placeholder="Tìm kiếm giảng viên..."
+            allowClear
+            value={searchLecturer}
+            onChange={(e) => setSearchLecturer(e.target.value)}
           />
         </div>
       </div>
@@ -274,7 +362,7 @@ const TeachingAssignmentTable = () => {
       <div className="mt-2 flex justify-between">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md "
-          onClick={() => exportPCGD(dataList, kiHoc , namHoc)}
+          onClick={() => exportPCGD(filteredData, kiHoc, namHoc, selectedKhoa)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>

@@ -150,6 +150,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         // }
 
         const events = [];
+        let flat = false
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {

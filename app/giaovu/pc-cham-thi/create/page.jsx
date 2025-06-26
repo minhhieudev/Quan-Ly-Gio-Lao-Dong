@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -41,6 +42,9 @@ const TeachingAssignmentForm = () => {
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
   const [listOptions, setListOptions] = useState([]);
+
+  // Get academic year configuration
+  const { options: namHocOptions } = getAcademicYearConfig();
 
 
   useEffect(() => {
@@ -234,10 +238,9 @@ const TeachingAssignmentForm = () => {
                   placeholder="Chọn năm học"
                   {...field}
                 >
-                  <Option value="2021-2022">2021-2022</Option>
-                  <Option value="2022-2023">2022-2023</Option>
-                  <Option value="2023-2024">2023-2024</Option>
-                  <Option value="2024-2025">2024-2025</Option>
+                  {namHocOptions.map(option => (
+                    <Option key={option.value} value={option.value}>{option.label}</Option>
+                  ))}
                 </Select>
               )}
             />

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { exportToExcelChiTiet, exportTongHopLaoDongDetail } from '../../../../../../lib/fileExport'
 import { CldUploadButton } from "next-cloudinary";
 import { useSession } from "next-auth/react";
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 import toast from "react-hot-toast";
 
 const Pages = () => {
@@ -30,10 +31,13 @@ const Pages = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
 
-  const [namHoc, setNamHoc] = useState("2024-2025");
   const [kiHoc, setKiHoc] = useState("1");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
+
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
 
 
   const { data: session } = useSession();
@@ -891,11 +895,9 @@ const Pages = () => {
             className="w-[50%]"
             value={namHoc}
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
-            <Option value="2025-2026">2025-2026</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 

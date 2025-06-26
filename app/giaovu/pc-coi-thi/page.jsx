@@ -5,7 +5,8 @@ import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination, Moda
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { FileExcelOutlined } from '@ant-design/icons';
-import { exportLichThi } from '../../../lib/fileExport'
+import { exportLichThi } from '../../../lib/fileExport';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 
 const { Option } = Select;
@@ -13,7 +14,6 @@ const { Option } = Select;
 const PcCoiThiTable = () => {
   const [dataList, setDataList] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [namHoc, setNamHoc] = useState("2024-2025");
   const [hocKy, setHocKy] = useState("1");
   const [loaiKyThi, setLoaiKyThi] = useState("1");
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,6 +23,10 @@ const PcCoiThiTable = () => {
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Get academic year configuration
+  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const [namHoc, setNamHoc] = useState(defaultNamHoc);
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentList, setCurrentList] = useState([]);
@@ -263,10 +267,9 @@ const PcCoiThiTable = () => {
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
           >
-            <Option value="2021-2022">2021-2022</Option>
-            <Option value="2022-2023">2022-2023</Option>
-            <Option value="2023-2024">2023-2024</Option>
-            <Option value="2024-2025">2024-2025</Option>
+            {namHocOptions.map(option => (
+              <Option key={option.value} value={option.value}>{option.label}</Option>
+            ))}
           </Select>
         </div>
 

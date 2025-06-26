@@ -167,6 +167,7 @@ export const GET = async (req, { params }) => {
         data.map(item => {
           kiemNhiem.push({
             chucVuCongViec: item.chucVu.tenCV,
+            maCV: item.chucVu.maCV,
             thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
             tyLeMienGiam: item.chucVu.soMien,
             soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
@@ -220,6 +221,7 @@ export const GET = async (req, { params }) => {
         data.map(item => {
           kiemNhiem.push({
             chucVuCongViec: item.chucVu.tenCV,
+            maCV: item.chucVu.maCV,
             thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
             tyLeMienGiam: item.chucVu.soMien,
             soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,

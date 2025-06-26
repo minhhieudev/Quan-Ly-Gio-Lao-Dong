@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
 import { useRouter } from "next/navigation";
 import * as XLSX from 'xlsx';
+import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const { Option } = Select;
 
@@ -41,6 +42,9 @@ const TeachingAssignmentForm = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [loai, setLoai] = useState("Chính quy");
+
+  // Get academic year configuration
+  const { options: namHocOptions } = getAcademicYearConfig();
 
 
   const onSubmit = async (data) => {
@@ -212,10 +216,9 @@ const TeachingAssignmentForm = () => {
                 rules={{ required: "Năm học là bắt buộc" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn năm học" {...field}>
-                    <Option value="2021-2022">2021-2022</Option>
-                    <Option value="2022-2023">2022-2023</Option>
-                    <Option value="2023-2024">2023-2024</Option>
-                    <Option value="2024-2025">2024-2025</Option>
+                    {namHocOptions.map(option => (
+                      <Option key={option.value} value={option.value}>{option.label}</Option>
+                    ))}
                   </Select>
                 )}
               />
