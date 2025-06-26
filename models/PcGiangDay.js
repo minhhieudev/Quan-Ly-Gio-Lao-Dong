@@ -15,6 +15,9 @@ const PcGiangDaySchema = new mongoose.Schema({
   gvGiangDay: {
     type: String,
   },
+  maGV: {
+    type: String,
+  },
   nhom: {
     type: Number,
   },

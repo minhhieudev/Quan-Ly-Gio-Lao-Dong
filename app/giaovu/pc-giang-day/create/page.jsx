@@ -217,6 +217,7 @@ const TeachingAssignmentForm = () => {
                     <Option value="2022-2023">2022-2023</Option>
                     <Option value="2023-2024">2023-2024</Option>
                     <Option value="2024-2025">2024-2025</Option>
+                    <Option value="2025-2026">2025-2026</Option>
                   </Select>
                 )}
               />
