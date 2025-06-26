@@ -63,7 +63,7 @@ const TongHopLaoDongSchema = new mongoose.Schema({
   },
   trangThai: {           // Thêm trường này
     type: Number,
-    default: 0,
+    default: 10,
   },
 },{
   timestamps: true,

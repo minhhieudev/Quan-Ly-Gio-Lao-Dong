@@ -21,7 +21,7 @@ export async function GET(req) {
     });
     
     if (!record) {
-      return new Response(JSON.stringify({ trangThai: 0 }), { status: 200 });
+      return new Response(JSON.stringify({ trangThai: 10 }), { status: 200 });
     }
     
     return new Response(JSON.stringify({ trangThai: record.trangThai }), { status: 200 });

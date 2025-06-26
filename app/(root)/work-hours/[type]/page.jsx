@@ -36,7 +36,7 @@ const Pages = () => {
     tong: 0,
   });
   const [kiemNhiem, setKiemNhiem] = useState(0);
-  const [namHoc, setNamHoc] = useState("2024-2025");
+  const [namHoc, setNamHoc] = useState("2025-2026");
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -53,6 +53,7 @@ const Pages = () => {
     { value: '2022-2023', label: '2022 - 2023' },
     { value: '2023-2024', label: '2023 - 2024' },
     { value: '2024-2025', label: '2024 - 2025' },
+    { value: '2025-2026', label: '2025 - 2026' },
   ];
 
   const kyHocOptions = [
@@ -307,6 +308,11 @@ const Pages = () => {
     let statusIcon = null;
 
     switch (recordStatus) {
+      case 10:
+        statusText = "Chưa hoàn thành";
+        statusColor = "text-green-600";
+        statusIcon = <ClockCircleOutlined style={{ marginRight: 5 }} />;
+        break;
       case 0:
         statusText = "Chờ duyệt";
         statusColor = "text-orange-600";
@@ -328,8 +334,9 @@ const Pages = () => {
         statusIcon = <ExclamationCircleOutlined style={{ marginRight: 5 }} />;
         break;
       default:
-        statusText = "Không xác định";
-        statusColor = "text-gray-600";
+        statusText = "Chưa hoàn thành";
+        statusColor = "text-green-600";
+        statusIcon = <ClockCircleOutlined style={{ marginRight: 5 }} />;
     }
 
     return (

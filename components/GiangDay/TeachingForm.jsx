@@ -104,100 +104,59 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   }, [soTietLT, setValue]);
 
   useEffect(() => {
-    if (soTietTH && /^\d+\s*giờ$/.test(soTietTH)) {
+    // Nếu không có học phần hoặc không có tiết thực hành thì THQC = 0
+    if (!currentHocPhan || !soTietTH || isNaN(Number(soTietTH)) || Number(soTietTH) === 0) {
+      setValue("soTietQCTH", 0);
+      return;
+    }
 
-      const match = soTietTH.match(/(\d+)/); // Tìm số trong chuỗi
+    // Nếu là chuỗi dạng "xx giờ"
+    if (typeof soTietTH === "string" && /^\d+\s*giờ$/.test(soTietTH)) {
+      const match = soTietTH.match(/(\d+)/);
       if (match) {
         const numericValue = parseInt(match[0], 10);
-
         if (currentHocPhan?.diaDiem?.toLowerCase() === "dhpy") {
-          const result = (numericValue / 45) * 10
-          setValue("soTietQCTH", result);
-        }
-        else {
-          const result = (numericValue / 45) * 15
-          setValue("soTietQCTH", result);
+          setValue("soTietQCTH", (numericValue / 45) * 10);
+        } else {
+          setValue("soTietQCTH", (numericValue / 45) * 15);
         }
       } else {
-        console.log("Không tìm thấy giá trị số trong soTietTH");
+        setValue("soTietQCTH", 0);
       }
+      return;
     }
 
-    else {
-
-
-      if (currentHocPhan) {
-
-        let result;
-
-        // Tách giá trị từ currentHocPhan.soLuong
-        let soLuongValues = [];
-        // Tách giá trị từ currentHocPhan.heSo
-        let heSoValues = [];
-        if (typeof currentHocPhan.record?.heSo === "string" && currentHocPhan.record?.heSo.includes("-")) {
-
-          const cleanedHeSo = currentHocPhan.record.heSo.replace(/[–—]/g, "-").trim();
-
-          ///////////////////////
-          heSoValues = cleanedHeSo
-            .split("-")
-            .map(value => parseFloat(value.trim()))
-            .filter(value => !isNaN(value));
-
-          if (typeof currentHocPhan.record?.soLuong === "string" && currentHocPhan.record?.soLuong.includes("-")) {
-
-            const cleanedSoLuong = currentHocPhan.record.soLuong.replace(/[–—]/g, "-").trim();
-
-            soLuongValues = cleanedSoLuong
-              .split("-")
-              .map(value => parseFloat(value.trim()))
-              .filter(value => !isNaN(value));
-          } else {
-            soLuongValues = [parseFloat(currentHocPhan.record?.soLuong)];
-          }
-          /////////////////
-
-          // Gán giá trị vào các biến
-          const heSoMin = soLuongValues[0] || 1;
-          const heSoMax = soLuongValues[1] || heSoMin;
-
-          // Xác định hệ số dựa vào khoảng
-          let heSo = 0;
-          if (currentHocPhan.soSVDK <= heSoMin) {
-            heSo = heSoValues[0];
-          } else if (currentHocPhan.soSVDK > heSoMin && currentHocPhan.soSVDK <= heSoMax) {
-            heSo = heSoValues[1];
-          }
-          else {
-            heSo = heSoValues[heSoValues.length - 1]
-          }
-
-          // Tính toán kết quả
-          if (currentHocPhan.tenMH && soTietTH != 0) {
-            result = soTietTH * heSo;
-          }
-
-          // Cập nhật giá trị
-          setValue("soTietQCTH", result);
-
+    // Nếu là số thực hành, thực hiện tính toán hệ số
+    let result = 0;
+    let heSo = 1;
+    if (currentHocPhan.record?.heSo) {
+      if (typeof currentHocPhan.record.heSo === "string" && currentHocPhan.record.heSo.includes("-")) {
+        const heSoValues = currentHocPhan.record.heSo
+          .replace(/[–—]/g, "-")
+          .split("-")
+          .map(v => parseFloat(v.trim()))
+          .filter(v => !isNaN(v));
+        const soLuongValues = (currentHocPhan.record.soLuong || "")
+          .replace(/[–—]/g, "-")
+          .split("-")
+          .map(v => parseFloat(v.trim()))
+          .filter(v => !isNaN(v));
+        const heSoMin = soLuongValues[0] || 1;
+        const heSoMax = soLuongValues[1] || heSoMin;
+        if (currentHocPhan.soSVDK <= heSoMin) {
+          heSo = heSoValues[0];
+        } else if (currentHocPhan.soSVDK > heSoMin && currentHocPhan.soSVDK <= heSoMax) {
+          heSo = heSoValues[1];
         } else {
-
-          if (!currentHocPhan.record?.heSo && soTietTH != 0) {
-            toast.error("Chưa có dữ liệu TH cho học phần này nên không thể tính số tiết QC!.");
-          } else {
-            heSoValues = [parseFloat(currentHocPhan.record?.heSo)];
-            result = soTietTH * heSoValues[0];
-            setValue("soTietQCTH", result);
-          }
-
+          heSo = heSoValues[heSoValues.length - 1];
         }
-
+      } else {
+        heSo = parseFloat(currentHocPhan.record.heSo) || 1;
       }
     }
-    if (!currentHocPhan) {
-      setValue("soTietQCTH", 0);
-    }
-  }, [setValue, currentHocPhan, soTietTH, soSVDK],);
+    result = Number(soTietTH) * heSo;
+    setValue("soTietQCTH", isNaN(result) ? 0 : result);
+  }, [setValue, currentHocPhan, soTietTH, soSVDK]);
 
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
