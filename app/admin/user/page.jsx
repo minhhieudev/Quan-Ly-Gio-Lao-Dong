@@ -17,7 +17,7 @@ const { Option } = Select;
 const formSchema = {
     username: "",
     email: "",
-    khoa: "",
+    maKhoa: "",
     role: "",
     donViQuanLy: '',
     maNgach: '',
@@ -105,8 +105,8 @@ const UserForm = () => {
             if (res.ok) {
                 const data = await res.json();
                 // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
-                const tenKhoaList = data.map(khoa => khoa.tenKhoa);
-                setKhoaOptions(tenKhoaList);
+                //const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+                setKhoaOptions(data);
             } else {
                 toast.error("Failed to get khoa");
             }
@@ -436,18 +436,18 @@ const UserForm = () => {
                                     <div className="w-[55%]">
                                         <Form.Item
                                             label={<span className="font-bold text-xl">Khoa <span className="text-red-600 ">*</span></span>}
-                                            validateStatus={errors.khoa ? 'error' : ''}
-                                            help={errors.khoa?.message}
+                                            validateStatus={errors.maKhoa ? 'error' : ''}
+                                            help={errors.maKhoa?.message}
                                         >
                                             <Controller
-                                                name="khoa"
+                                                name="maKhoa"
                                                 control={control}
                                                 rules={{ required: "Khoa là bắt buộc" }}
                                                 render={({ field }) => (
                                                     <Select className="w-full" placeholder="Chọn khoa" {...field}>
                                                         {khoaOptions.map((khoa, index) => (
-                                                            <Option key={index} value={khoa}>
-                                                                {khoa}
+                                                            <Option key={index} value={khoa.maKhoa}>
+                                                                {khoa.tenKhoa}
                                                             </Option>
                                                         ))}
                                                     </Select>

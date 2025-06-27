@@ -21,7 +21,7 @@ export const GET = async (req, res) => {
 export const POST = async (req, res) => {
   try {
     await connectToDB();
-    const { username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
+    const { username, email, maKhoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
     const hashedPassword = await hash("123456@", 10);
 
     // Kiểm tra email đã tồn tại
@@ -29,7 +29,7 @@ export const POST = async (req, res) => {
 
     if (newUser) {
       // Nếu tồn tại, cập nhật thông tin
-      newUser = { username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV }
+      newUser = { username, email, maKhoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV }
       await newUser.save();
 
       return new Response(JSON.stringify(newUser), { status: 200 });
@@ -39,7 +39,7 @@ export const POST = async (req, res) => {
         username,
         password: hashedPassword,
         email,
-        khoa,
+        maKhoa,
         role,
         maNgach, hocHamHocVi, donViQuanLy,  maGV
       });
@@ -58,7 +58,7 @@ export const POST = async (req, res) => {
 export const PUT = async (req, res) => {
   try {
     await connectToDB();
-    const { id, username, email, khoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
+    const { id, username, email, maKhoa, role, maNgach, hocHamHocVi, donViQuanLy, maGV } = await req.json();
 
     let userToUpdate = await User.findById(id);
 
@@ -68,7 +68,7 @@ export const PUT = async (req, res) => {
 
     userToUpdate.username = username;
     userToUpdate.email = email;
-    userToUpdate.khoa = khoa;
+    userToUpdate.maKhoa = maKhoa;
     userToUpdate.role = role;
     userToUpdate.maNgach = maNgach;
     userToUpdate.hocHamHocVi = hocHamHocVi;

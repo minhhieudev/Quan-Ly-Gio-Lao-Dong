@@ -1,6 +1,4 @@
 import User from "@models/User";
-import ChucVu from "@models/ChucVu";
-import MaNgach from "@models/MaNgach";
 import { connectToDB } from "@mongodb";
 import { hash } from 'bcryptjs';
 
@@ -19,51 +17,22 @@ export const POST = async (req) => {
     const processedUsers = await Promise.all(
       users.map(async (user) => {
         const maGV = user[0];
-        const maNgach = user[3];
+        const maNgach = user[4];
         //const maCV = user[3];
-        const maCV = user[3];
 
         // Tạo email mặc định
-        const email = `${maGV}@gmail.com`;
-
-        // Lấy thông tin từ bảng MaNgach dựa trên maNgach
-        const maNgachData = await MaNgach.findOne({ maNgach });
-
-        // Tính toán giá trị dinhMucGioChuan dựa trên dữ liệu MaNgach
-        const dinhMucGioChuan = maNgachData 
-          ? maNgachData.GCGD + maNgachData.GCNCKH + maNgachData.GCPVCD
-          : 0;
-
-        // Cập nhật các mảng chucVuChinhQuyen, chucVuKiemNhiem, chucVuDoanTheXH
-        let chucVuChinhQuyen = [];
-        let chucVuKiemNhiem = [];
-        let chucVuDoanTheXH = [];
-
-        if (user[5] === "Chính quyền") {
-          chucVuChinhQuyen.push(user[4]);
-        }
-
-        if (user[5] === "Cố vấn học tập" || user[5] === "Giáo vụ khoa") {
-          chucVuKiemNhiem.push(user[4]);
-        }
-
-        if (["Công đoàn", "Đảng", "Đoàn Hội"].includes(user[5])) {
-          chucVuDoanTheXH.push(user[4]);
-        }
+        const email = `${maGV}@pyu.edu.vn`;
 
         // Tìm và cập nhật nếu người dùng tồn tại, nếu không thì tạo mới
         const updatedUser = await User.findOneAndUpdate(
           { maGV },
           {
             username: user[1], // Cập nhật các trường thông tin
+            maKhoa: user[2],
             email,
             password: hashedPassword,
             maNgach, // để lấy giờ chuẩn giảng dạy và 2 cái nữa
-            maCV, // để lấy miễn giảm GD  và nhân với gcgd để lấy số giờ miễn giảm   ví dụ 0.15 * 270
-            dinhMucGioChuan, // Gán giá trị dinhMucGioChuan đã tính toán
-            chucVuChinhQuyen: chucVuChinhQuyen.length ? chucVuChinhQuyen : ["Không"],
-            chucVuKiemNhiem: chucVuKiemNhiem.length ? chucVuKiemNhiem : ["Không"],
-            chucVuDoanTheXH: chucVuDoanTheXH.length ? chucVuDoanTheXH : ["Không"],
+
           },
           { new: true, upsert: true } // Nếu không tìm thấy thì tạo mới
         );
