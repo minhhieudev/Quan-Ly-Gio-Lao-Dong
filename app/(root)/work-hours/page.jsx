@@ -12,7 +12,7 @@ const WorkHours = () => {
   };
 
   return (
-    <div className='p-4 bg-white rounded-xl w-[90%] h-[70vh] mx-auto flex items-center mt-6 max-sm:h-[70vh] shadow-xl'>
+    <div className='p-4 bg-white rounded-xl w-[100%] h-[70vh] mx-auto flex items-center mt-6 max-sm:h-[70vh] shadow-xl'>
         <Space size="middle" className='flex flex-1 justify-around items-center max-md:flex-col'>
           <Button
             className={`custom-button-1 button-chinh-quy`}

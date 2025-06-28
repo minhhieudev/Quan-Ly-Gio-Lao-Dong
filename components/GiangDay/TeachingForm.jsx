@@ -484,7 +484,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             className="bg-blue-500 hover:bg-blue-600"
             icon={<span className="mr-1">✎</span>}
           >
-            Sửa
           </Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -498,12 +497,10 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
               danger
               icon={<span className="mr-1">✕</span>}
             >
-              Xoá
             </Button>
           </Popconfirm>
         </Space>
       ),
-      width: '15%',
       align: 'center'
     },
   ];

@@ -7,7 +7,13 @@ export const POST = async (req) => {
   try {
     await connectToDB();
 
-    const { data } = await req.json();
+    const { data, loai } = await req.json();
+    console.log('loai:',loai)
+
+    // Xóa tất cả PhanCongKiemNhiem có chucVu.loaiCV === loai
+    const chucVuList = await ChucVu.find({ loaiCV: loai }).select('_id');
+    const chucVuIds = chucVuList.map(cv => cv._id);
+    await PhanCongKiemNhiem.deleteMany({ chucVu: { $in: chucVuIds } });
 
     if (!data || !Array.isArray(data)) {
       return new Response(JSON.stringify({ message: "Invalid data format" }), { status: 400 });
