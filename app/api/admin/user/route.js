@@ -1,4 +1,5 @@
 import User from "@models/User";
+import Khoa from "@models/Khoa";
 import { connectToDB } from "@mongodb";
 import { hash } from 'bcryptjs';
 
@@ -8,7 +9,27 @@ export const GET = async (req, res) => {
   try {
     await connectToDB();
 
-    const allUsers = await User.find();
+    // Lấy tất cả users và populate thông tin khoa
+    const allUsers = await User.aggregate([
+      {
+        $lookup: {
+          from: "khoas", // Tên collection của Khoa model
+          localField: "maKhoa",
+          foreignField: "maKhoa",
+          as: "khoaInfo"
+        }
+      },
+      {
+        $addFields: {
+          khoa: { $arrayElemAt: ["$khoaInfo.tenKhoa", 0] } // Lấy tên khoa từ kết quả lookup
+        }
+      },
+      {
+        $project: {
+          khoaInfo: 0 // Loại bỏ field khoaInfo khỏi kết quả
+        }
+      }
+    ]);
 
     return new Response(JSON.stringify(allUsers), { status: 200 });
   } catch (err) {

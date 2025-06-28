@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { connectToDB } from "@mongodb";
 import User from "@models/User";
 import MaNgach from "@models/MaNgach";
+import Khoa from "@models/Khoa";
 
 const handler = NextAuth({
   providers: [
@@ -48,7 +49,7 @@ const handler = NextAuth({
 
       if (mongodbUser) {
         session.user._id = mongodbUser._id.toString();
-        
+
         // Create a new object without the password
         const { password, ...userWithoutPassword } = mongodbUser._doc;
         session.user = { ...session.user, ...userWithoutPassword };
@@ -57,6 +58,14 @@ const handler = NextAuth({
         const maNgachInfo = await MaNgach.findOne({ maNgach: mongodbUser.maNgach });
         if (maNgachInfo) {
           session.user.maNgachInfo = maNgachInfo;
+        }
+
+        // Lấy thông tin khoa cho người dùng
+        if (mongodbUser.maKhoa) {
+          const khoaInfo = await Khoa.findOne({ maKhoa: mongodbUser.maKhoa });
+          if (khoaInfo) {
+            session.user.khoa = khoaInfo.tenKhoa;
+          }
         }
       }
 
