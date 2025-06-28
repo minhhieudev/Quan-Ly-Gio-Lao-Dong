@@ -508,7 +508,7 @@ const Pages = () => {
       </div>
 
       {type !== 'boi-duong' &&
-        <div className="p-2 bg-white w-[98%] rounded-xl shadow-md">
+        <div className="p-2 bg-white w-[100%] rounded-xl shadow-md">
           <div className="flex justify-around w-full flex-wrap">
             <div className="flex gap-2 justify-center">
               <div className="font-bold">

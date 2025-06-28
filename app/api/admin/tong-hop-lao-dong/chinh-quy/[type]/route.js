@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { connectToDB } from "@mongodb";
 import TongHopLaoDong from "@models/TongHopLaoDong";
+import Khoa from "@models/Khoa"; // Thêm dòng này ở đầu file nếu chưa có
 
 export async function POST(request, { params }) {
   try {
@@ -65,7 +66,6 @@ export const GET = async (req, { params }) => {
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     const namHoc = url.searchParams.get('namHoc');
-    //const ky = url.searchParams.get('ky'); 
     const query = {};
 
     if (namHoc && namHoc !== 'undefined') {
@@ -76,31 +76,38 @@ export const GET = async (req, { params }) => {
       query.loai = type
     }
 
-    // if (ky && ky !== 'undefined') {
-    //   query.ky = ky;
-    // }
-
-    // Lấy records và populate user để có maNgach
-    const records = await TongHopLaoDong.find(query).populate('user', 'username khoa maNgach');
+    // Lấy records và populate user để có maNgach và maKhoa
+    const records = await TongHopLaoDong.find(query).populate('user', 'username maKhoa maNgach');
 
     // Import model MaNgach
     const MaNgach = (await import("@models/MaNgach")).default;
 
-    // Thêm trường gioChuan cho từng record
+    // Thêm trường gioChuan và khoa cho từng record
     const recordsWithGioChuan = await Promise.all(records.map(async (record) => {
       let gioChuan = null;
+      let tenKhoa = null;
       if (record.user && record.user.maNgach) {
         const maNgachDoc = await MaNgach.findOne({ maNgach: record.user.maNgach });
         if (maNgachDoc) {
           gioChuan = maNgachDoc.GCGD || 0;
         }
       }
-      // Chuyển record sang object và thêm trường gioChuan
+      if (record.user && record.user.maKhoa) {
+        const khoaDoc = await Khoa.findOne({ maKhoa: record.user.maKhoa });
+        if (khoaDoc) {
+          tenKhoa = khoaDoc.tenKhoa;
+        }
+      }
+      // Chuyển record sang object và thêm trường gioChuan, khoa
       const recordObj = record.toObject();
       recordObj.gioChuan = gioChuan;
+      // Gán tên khoa vào user
+      if (recordObj.user) {
+        recordObj.user.khoa = tenKhoa;
+      }
       return recordObj;
     }));
-
+console.log(recordsWithGioChuan)
     return new Response(JSON.stringify(recordsWithGioChuan), { status: 200 });
   } catch (err) {
     console.log(err);
