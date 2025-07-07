@@ -58,7 +58,194 @@ const Pages = () => {
   // Thêm state mới để quản lý trạng thái loading của nút xuất Excel
   const [exportLoading, setExportLoading] = useState(false);
 
+  const handelKiemNhiem = (dataListSelect, dataListSelect2, GCGD) => {
+    if (!dataListSelect || dataListSelect.length === 0) {
+      return;
+    }
+    // Nếu không có dữ liệu thì return luôn, tránh xử lý tiếp
+    if (!dataListSelect || dataListSelect.length === 0) {
+      setResultsDisplay([]);
+      setDataTong([]);
+      return;
+    }
+
+    // Lấy giá trị schoolYearStart và schoolYearEnd từ phần tử đầu tiên của dataListSelect (nếu có)
+    let dau_nam, cuoi_nam;
+
+    if (dataListSelect && dataListSelect.length > 0 && dataListSelect[0].schoolYearStart && dataListSelect[0].schoolYearEnd) {
+      dau_nam = new Date(dataListSelect[0].schoolYearStart);
+      cuoi_nam = new Date(dataListSelect[0].schoolYearEnd);
+    }
+    // else {
+    //     // Giá trị mặc định nếu không tìm thấy trong dữ liệu
+    //     dau_nam = new Date('2025-10'); // Tháng bắt đầu (tháng 10 năm 2024)
+    //     cuoi_nam = new Date('2026-5'); // Tháng kết thúc (tháng 5 năm 2025)
+    // }
+
+    const events = [];
+
+    // Tạo danh sách sự kiện từ dataListSelect
+    dataListSelect.forEach((item) => {
+      if (item.startTime && item.chucVu?.soMien !== undefined) {
+        //if (item.loai === 'bo-qua') return;
+
+        const dateStart = new Date(item.startTime);
+        // Nếu không có endTime thì lấy schoolYearEnd
+        const dateEnd = item.endTime ? new Date(item.endTime) : new Date(dataListSelect[0].schoolYearEnd);
+
+        const yearMonthStart = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}`;
+        const yearMonthEnd = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}`;
+
+        let gValue;
+
+
+        // else if (item.chucVu.soMien === -2) {
+        //     // Trường hợp -2: Tính bằng số tuần * GCGD / 44
+        //     const diffTime = Math.abs(dateEnd - dateStart);
+        //     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        //     const weeks = diffDays / 7;
+        //     gValue = (weeks * GCGD) / 44;
+        // }
+
+
+        if (item.chucVu.soMien < 1) {
+          // Trường hợp < 1 (nhưng không phải -1 hoặc -2)
+          gValue = item.chucVu.soMien * GCGD;
+        }
+        else {
+          // Trường hợp >= 1
+          gValue = item.chucVu.soMien;
+        }
+
+        if (dateStart.getMonth() < dau_nam.getMonth() && dateStart.getFullYear() == dau_nam.getFullYear()) {
+          const yearMonthStart = `${dateStart.getFullYear()}-${(dau_nam.getMonth() + 1).toString().padStart(2, '0')}`;
+          events.push({ time: yearMonthStart, type: "start", gValue });
+        }
+        else {
+          events.push({ time: yearMonthStart, type: "start", gValue });
+        }
+
+        if (dateEnd.getMonth() > cuoi_nam.getMonth() && dateEnd.getFullYear() === cuoi_nam.getFullYear()) {
+          const yearMonthEnd = `${dateStart.getFullYear()}-${(cuoi_nam.getMonth() + 1).toString().padStart(2, '0')}`;
+          events.push({ time: yearMonthEnd, type: "end", gValue });
+        }
+        else {
+          events.push({ time: yearMonthEnd, type: "end", gValue });
+        }
+
+
+      }
+    });
+    // Sắp xếp dựa trên giá trị thời gian
+    events.sort((a, b) => {
+      const dateA = new Date(a.time);
+      const dateB = new Date(b.time);
+      return dateA - dateB;
+    });
+
+    console.log(events);
+
+    let previousTime = null;
+    let currentMax = 0;
+    const activeValues = [];
+    const results = [];
+
+    // Duyệt qua các sự kiện
+    events.forEach((event) => {
+      const { time, type, gValue } = event;
+
+      // Lưu kết quả nếu có khoảng thời gian trước đó
+      if (previousTime !== null && time > previousTime) {
+        results.push({ from: previousTime, to: time, max: currentMax });
+      }
+
+      // Cập nhật thời gian trước đó
+      previousTime = time;
+
+      // Xử lý sự kiện
+      if (type === "start") {
+        activeValues.push(gValue);
+      } else if (type === "end") {
+        const index = activeValues.indexOf(gValue);
+        if (index > -1) activeValues.splice(index, 1);
+      }
+
+      // Cập nhật giá trị gmax
+      currentMax = activeValues.length ? Math.max(...activeValues) : 0;
+    });
+
+
+    // Tính tổng max
+    let totalMax = results.reduce((sum, r) => sum + (Number(r.max) || 0), 0);
+
+    if (dataListSelect2 && dataListSelect2.length > 0) {
+      dataListSelect2.forEach(item => {
+        const dateStart = new Date(item.startTime);
+        const dateEnd = item.endTime ? new Date(item.endTime) : new Date(dataListSelect[0].schoolYearEnd);
+
+        // Nếu là -1: Tính bằng số tuần * GCGD / 44
+        if (item.chucVu?.soMien === -1) {
+          const diffTime = Math.abs(dateEnd - dateStart);
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const weeks = diffDays / 7;
+          const gValue = (weeks * GCGD) / 44;
+          totalMax += gValue;
+          // Xử lý kết quả gValue ở đây (ví dụ: cộng vào tổng, push vào mảng, ...)
+        }
+        // Nếu là NGHIDH1 hoặc NGHIDH2
+        else if (item.chucVu?.maCV === 'NGHIDH1') {
+          totalMax = (GCGD - totalMax) * item.chucVu?.soMien;
+        }
+        else if (item.chucVu?.maCV === 'NGHIDH2') {
+          totalMax = (GCGD - totalMax) * item.chucVu?.soMien;
+        }
+
+        // Xử lý tiếp với gValue nếu cần (ví dụ: push vào results, cộng tổng, ...)
+      });
+    }
+
+
+    return totalMax;
+  };
+
+
+  const tinhKiemNhiem = async (GCGD) => {
+    console.log('err:99999999999999999', currentUser);
+
+    try {
+      const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(UserID)}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+
+        // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
+        const listNghiDH = data.filter(
+          item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
+        );
+        // Các item còn lại
+        const listKhac = data.filter(
+          item => !(item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH'))
+        );
+
+        const totalMax = handelKiemNhiem(listKhac, listNghiDH, GCGD);
+
+        return totalMax;
+
+      } else {
+        toast.error("Có lỗi xảy ra 22222");
+        console.log('err:555555555',);
+
+      }
+    } catch (err) {
+      console.log('err:', err);
+      toast.error("Có lỗi xảy ra", err);
+    }
+  };
+
   const fetchAllData = async () => {
+
     setExportLoading(true); // Bắt đầu loading
     try {
       const res = await fetch(`/api/admin/tong-hop-lao-dong/get-all/?user=${encodeURIComponent(UserID)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(ki)}`, {
@@ -69,10 +256,14 @@ const Pages = () => {
       if (res.ok) {
         const data = await res.json();
         setAllData(data);
+      console.log('data?.info?.userInfo:', data?.info?.maNgachInfo?.GCGD);
+
         // Lấy thông tin khoa từ dữ liệu user, nếu không có thì để trống
-        const khoaGiangVien = data?.info?.userInfo?.khoa || '';
+        const khoaGiangVien = data?.info?.userInfo?.tenKhoa || '';
+        const GCGD = data?.info?.maNgachInfo?.GCGD || 0;
         // Gọi export với data vừa fetch được, không dùng allData
-        exportTongHopLaoDongForUser(data, khoaGiangVien, namHoc);
+        const kiemNhiem = await tinhKiemNhiem(GCGD);
+        exportTongHopLaoDongForUser(data, khoaGiangVien, namHoc, kiemNhiem);
         toast.success("Xuất Excel thành công!");
       } else {
         toast.error("Không thể xuất Excel. Vui lòng thử lại!");
@@ -99,7 +290,7 @@ const Pages = () => {
         }
 
         const res = await fetch(url, {
-          method: "GET", 
+          method: "GET",
           headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {

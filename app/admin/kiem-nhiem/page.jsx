@@ -183,7 +183,7 @@ const KiemNhiemForm = () => {
 
     const fetchData3 = async () => {
         try {
-            const res = await fetch(`/api/admin/user`, {
+            const res = await fetch(`/api/admin/user/user-select`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
             });

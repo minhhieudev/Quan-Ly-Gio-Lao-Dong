@@ -4,6 +4,7 @@ import { compare } from "bcryptjs";
 import { connectToDB } from "@mongodb";
 import User from "@models/User";
 import MaNgach from "@models/MaNgach";
+import Khoa from "@models/Khoa";
 
 const handler = NextAuth({
   providers: [
@@ -57,6 +58,14 @@ const handler = NextAuth({
         const maNgachInfo = await MaNgach.findOne({ maNgach: mongodbUser.maNgach });
         if (maNgachInfo) {
           session.user.maNgachInfo = maNgachInfo;
+        }
+
+        // Lấy tên khoa từ bảng Khoa thông qua maKhoa
+        if (mongodbUser.maKhoa) {
+          const khoaInfo = await Khoa.findOne({ maKhoa: mongodbUser.maKhoa });
+          if (khoaInfo) {
+            session.user.tenKhoa = khoaInfo.tenKhoa;
+          }
         }
       }
 

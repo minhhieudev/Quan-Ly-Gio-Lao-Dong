@@ -231,36 +231,34 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         if (res.ok) {
           const data = await res.json();
           setDataList(data);
-          setLoading(false)
-          setLoadings(false)
         } else {
           toast.error("Failed to fetch data");
         }
       } catch (err) {
         toast.error("An error occurred while fetching data");
+      } finally {
+        setLoading(false);
+        setLoadings(false);
       }
     };
 
     fetchData();
-  }, [namHoc, ky]);
+  }, [namHoc, ky, currentUser, type]);
 
   useEffect(() => {
-    if (!namHoc && !ky) return;
+    if (!namHoc || !ky || !currentUser?.username) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
-
         const res = await fetch(`/api/giaovu/pc-giang-day/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
 
-
         if (res.ok) {
           const data = await res.json();
           setListSelect(data);
-          //setFilteredData(data);
         } else {
           toast.error("Không thể tải dữ liệu");
         }
@@ -273,7 +271,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [namHoc, ky]);
+  }, [namHoc, ky, currentUser]);
 
 
   const calculateTotals = () => {
@@ -484,7 +482,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             className="bg-blue-500 hover:bg-blue-600"
             icon={<span className="mr-1">✎</span>}
           >
-            Sửa
           </Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
@@ -498,7 +495,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
               danger
               icon={<span className="mr-1">✕</span>}
             >
-              Xoá
             </Button>
           </Popconfirm>
         </Space>

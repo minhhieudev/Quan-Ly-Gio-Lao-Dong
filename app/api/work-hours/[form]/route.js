@@ -162,21 +162,52 @@ export const GET = async (req, { params }) => {
       const data = await PhanCongKiemNhiem.find({ user })
         .populate('user', 'username khoa')
         .populate('chucVu');
-
       if (data) {
-        data.map(item => {
-          kiemNhiem.push({
-            chucVuCongViec: item.chucVu.tenCV,
-            maCV: item.chucVu.maCV,
-            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
-            tyLeMienGiam: item.chucVu.soMien,
-            soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
-            ghiChu: item.ghiChu,
-            namHoc: namHoc,
-            user: item.user
-          });
+        // Parse namHoc to get start and end year
+        let namHocStart = null, namHocEnd = null;
+        if (namHoc && namHoc.includes('-')) {
+          const [start, end] = namHoc.split('-');
+          namHocStart = parseInt(start);
+          namHocEnd = parseInt(end);
+        }
+        data.forEach(item => {
+          // Chỉ tạo khi có đủ thông tin năm học và năm học khớp
+          if (item.schoolYearStart && item.schoolYearEnd && namHocStart && namHocEnd) {
+            const schoolYearStartYear = new Date(item.schoolYearStart).getFullYear();
+            const schoolYearEndYear = new Date(item.schoolYearEnd).getFullYear();
+            if (schoolYearStartYear === namHocStart && schoolYearEndYear === namHocEnd) {
+              kiemNhiem.push({
+                chucVuCongViec: item.chucVu.tenCV,
+                maCV: item.chucVu.maCV,
+                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+                tyLeMienGiam: item.chucVu.soMien,
+                soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
+                ghiChu: item.ghiChu,
+                namHoc: namHoc,
+                user: item.user
+              });
+             
+            } else {
+              console.log('[KiemNhiem] BỎ QUA: Năm học không khớp', {
+                chucVu: item.chucVu.tenCV,
+                schoolYearStartYear,
+                schoolYearEndYear,
+                namHocStart,
+                namHocEnd
+              });
+            }
+          } else {
+            console.log('[KiemNhiem] BỎ QUA: Thiếu thông tin năm học', {
+              chucVu: item.chucVu?.tenCV,
+              schoolYearStart: item.schoolYearStart,
+              schoolYearEnd: item.schoolYearEnd,
+              namHocStart,
+              namHocEnd
+            });
+          }
         });
       }
+
       if (kiemNhiem) {
         for (const item of kiemNhiem) {
           const existingRecord = await CongTacKiemNhiem.findOne({
@@ -218,17 +249,47 @@ export const GET = async (req, { params }) => {
         .populate('chucVu');
 
       if (data) {
-        data.map(item => {
-          kiemNhiem.push({
-            chucVuCongViec: item.chucVu.tenCV,
-            maCV: item.chucVu.maCV,
-            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
-            tyLeMienGiam: item.chucVu.soMien,
-            soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
-            ghiChu: item.ghiChu,
-            namHoc: namHoc,
-            user: item.user
-          });
+        // Parse namHoc to get start and end year
+        let namHocStart = null, namHocEnd = null;
+        if (namHoc && namHoc.includes('-')) {
+          const [start, end] = namHoc.split('-');
+          namHocStart = parseInt(start);
+          namHocEnd = parseInt(end);
+        }
+        data.forEach(item => {
+          if (item.schoolYearStart && item.schoolYearEnd && namHocStart && namHocEnd) {
+            const schoolYearStartYear = new Date(item.schoolYearStart).getFullYear();
+            const schoolYearEndYear = new Date(item.schoolYearEnd).getFullYear();
+            if (schoolYearStartYear === namHocStart && schoolYearEndYear === namHocEnd) {
+              kiemNhiem.push({
+                chucVuCongViec: item.chucVu.tenCV,
+                maCV: item.chucVu.maCV,
+                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+                tyLeMienGiam: item.chucVu.soMien,
+                soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
+                ghiChu: item.ghiChu,
+                namHoc: namHoc,
+                user: item.user
+              });
+             
+            } else {
+              console.log('[KiemNhiem][ELSE] BỎ QUA: Năm học không khớp', {
+                chucVu: item.chucVu.tenCV,
+                schoolYearStartYear,
+                schoolYearEndYear,
+                namHocStart,
+                namHocEnd
+              });
+            }
+          } else {
+            console.log('[KiemNhiem][ELSE] BỎ QUA: Thiếu thông tin năm học', {
+              chucVu: item.chucVu?.tenCV,
+              schoolYearStart: item.schoolYearStart,
+              schoolYearEnd: item.schoolYearEnd,
+              namHocStart,
+              namHocEnd
+            });
+          }
         });
       }
 

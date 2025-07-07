@@ -12,7 +12,7 @@ import TrainingTypeForm from "@components/TrainingTypeForm";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined,FileExcelOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, ClockCircleOutlined, CheckCircleOutlined, ExclamationCircleOutlined, FileExcelOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
 import { exportTongHopLaoDongForUser } from '@lib/fileExport';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
@@ -81,8 +81,8 @@ const Pages = () => {
       if (res.ok) {
         const data = await res.json();
         setAllData(data);
-        if (allData) {
-          exportTongHopLaoDongForUser(allData, currentUser.khoa, namHoc)
+        if (data) {
+          exportTongHopLaoDongForUser(data, currentUser.tenKhoa, namHoc, kiemNhiem)
         }
         toast.success("Xuất Excel thành công!");
       } else {
@@ -117,12 +117,13 @@ const Pages = () => {
         return ['Công tác giảng dạy bồi dưỡng'];
       case 'chinh-quy':
         return [
+          'Công tác kiêm nhiệm',
           'Công tác giảng dạy',
           'Công tác chấm thi',
           'Công tác hướng dẫn',
           'Công tác coi thi',
           'Công tác ra đề thi',
-          'Công tác kiêm nhiệm'
+          
         ];
       default:
         return [
@@ -179,6 +180,8 @@ const Pages = () => {
 
   const renderForm = () => {
     switch (selectedForm) {
+      case 'Công tác kiêm nhiệm':
+        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác giảng dạy':
         return <TeachingForm onUpdateCongTacGiangDay={updateCongTacGiangDay} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác chấm thi':
@@ -189,8 +192,6 @@ const Pages = () => {
         return <ExamMonitoringForm onUpdateCongTacCoiThi={updateCongTacCoiThi} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác ra đề thi':
         return <ExamPreparationForm onUpdateCongTacRaDe={updateCongTacRaDe} namHoc={namHoc || ''} ky={kyHoc || ''} />;
-      case 'Công tác kiêm nhiệm':
-        return <DutyExemptionForm onUpdateCongTacKiemNhiem={updateCongTacKiemNhiem} namHoc={namHoc || ''} ky={kyHoc || ''} />;
       case 'Công tác giảng dạy bồi dưỡng':
         return <TrainingTypeForm namHoc={namHoc || ''} ky={kyHoc || ''} />;
       default:
@@ -235,6 +236,11 @@ const Pages = () => {
   }, []);
 
   const submitResult = async () => {
+    // Chỉ cho phép khi recordStatus là 10 (Chưa hoàn thành) hoặc 3 (Yêu cầu chỉnh sửa)
+    if (recordStatus !== 10 && recordStatus !== 3) {
+      toast.error("Chỉ được phép lưu khi trạng thái là 'Chưa hoàn thành' hoặc 'Yêu cầu chỉnh sửa'.");
+      return;
+    }
     Modal.confirm({
       title: "Xác nhận",
       content: "Kết quả sẽ được gửi đi. Bạn có chắc chắn không?",
@@ -345,7 +351,7 @@ const Pages = () => {
   // Thêm useEffect để tải tất cả dữ liệu khi component mount
   useEffect(() => {
     if (!currentUser?._id || !namHoc) return;
-    
+
     const fetchAllDataOnLoad = async () => {
       try {
         // Tải dữ liệu giảng dạy
@@ -353,7 +359,7 @@ const Pages = () => {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         if (resGiangDay.ok) {
           const dataGiangDay = await resGiangDay.json();
           const totalsGiangDay = dataGiangDay.reduce((acc, item) => {
@@ -362,74 +368,74 @@ const Pages = () => {
           }, { tong: 0 });
           setCongTacGiangDay(totalsGiangDay);
         }
-        
+
         // Tải dữ liệu chấm thi
         const resChamThi = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         if (resChamThi.ok) {
           const dataChamThi = await resChamThi.json();
           const totalChamThi = dataChamThi.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
           setCongTacKhac(prev => ({ ...prev, chamThi: totalChamThi }));
         }
-        
+
         // Tải dữ liệu hướng dẫn
         const resHuongDan = await fetch(`/api/work-hours/CongTacHuongDan/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         if (resHuongDan.ok) {
           const dataHuongDan = await resHuongDan.json();
           const totalHuongDan = dataHuongDan.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
           setCongTacKhac(prev => ({ ...prev, ngoaiKhoa: totalHuongDan }));
         }
-        
+
         // Tải dữ liệu coi thi
         const resCoiThi = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         if (resCoiThi.ok) {
           const dataCoiThi = await resCoiThi.json();
           const totalCoiThi = dataCoiThi.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
           setCongTacKhac(prev => ({ ...prev, coiThi: totalCoiThi }));
         }
-        
+
         // Tải dữ liệu ra đề
         const resRaDe = await fetch(`/api/work-hours/CongTacRaDe/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
-        
+
         if (resRaDe.ok) {
           const dataRaDe = await resRaDe.json();
           const totalRaDe = dataRaDe.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
           setCongTacKhac(prev => ({ ...prev, deThi: totalRaDe }));
         }
-        
-        // Nếu là chính quy, tải dữ liệu kiêm nhiệm
-        if (type === 'chinh-quy') {
-          const resKiemNhiem = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&namHoc=${namHoc}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-          });
-          
-          if (resKiemNhiem.ok) {
-            const dataKiemNhiem = await resKiemNhiem.json();
-            const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
-            setKiemNhiem(totalKiemNhiem);
-          }
-        }
-        
+
+        // // Nếu là chính quy, tải dữ liệu kiêm nhiệm
+        // if (type === 'chinh-quy') {
+        //   const resKiemNhiem = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&namHoc=${namHoc}`, {
+        //     method: "GET",
+        //     headers: { "Content-Type": "application/json" },
+        //   });
+
+        //   if (resKiemNhiem.ok) {
+        //     const dataKiemNhiem = await resKiemNhiem.json();
+        //     const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+        //     setKiemNhiem(totalKiemNhiem);
+        //   }
+        // }
+
       } catch (error) {
         console.error("Error fetching all data:", error);
       }
     };
-    
+
     fetchAllDataOnLoad();
   }, [currentUser, namHoc, kyHoc, type]);
 
@@ -510,6 +516,14 @@ const Pages = () => {
       {type !== 'boi-duong' &&
         <div className="p-2 bg-white w-[98%] rounded-xl shadow-md">
           <div className="flex justify-around w-full flex-wrap">
+            {type == 'chinh-quy' && (
+              <div className="flex gap-2 justify-center">
+                <div className="font-bold">
+                  KIÊM NHIỆM:
+                </div>
+                <p className="font-bold text-red-500">{kiemNhiem}</p>
+              </div>
+            )}
             <div className="flex gap-2 justify-center">
               <div className="font-bold">
                 GIẢNG DẠY:
@@ -545,14 +559,7 @@ const Pages = () => {
               <p className="font-bold text-red-500">{congTacKhac.deThi}</p>
             </div>
 
-            {type == 'chinh-quy' && (
-              <div className="flex gap-2 justify-center">
-                <div className="font-bold">
-                  KIÊM NHIỆM:
-                </div>
-                <p className="font-bold text-red-500">{kiemNhiem}</p>
-              </div>
-            )}
+
           </div>
           <div className="text-center m-auto mt-3 ">
             <Button type="primary" htmlType="submit" onClick={submitResult} >
