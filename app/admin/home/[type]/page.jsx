@@ -272,7 +272,7 @@ const App = () => {
         <Button
           type="link"
           className="text-blue-500 font-bold"
-          onClick={() => router.push(`/admin/work-hours/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
+          onClick={() => router.push(`/admin/home/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
         >
           {record?.user?.username}
         </Button>
@@ -527,7 +527,7 @@ const App = () => {
         <Button
           type="link"
           className="text-blue-500 font-bold"
-          onClick={() => router.push(`/admin/work-hours/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
+          onClick={() => router.push(`/admin/home/${type}/${record.user._id}?ki=${kiHoc}&namHoc=${namHoc}`)}
         >
           {record.user.username}
         </Button>
@@ -879,7 +879,7 @@ const App = () => {
       <div className="flex items-center justify-center mb-0">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
-          onClick={() => router.push(`/admin/work-hours`)}
+          onClick={() => router.push(`/admin/home`)}
         >
           <ArrowLeftOutlined
             style={{

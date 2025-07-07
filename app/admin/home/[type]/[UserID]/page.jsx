@@ -1116,7 +1116,7 @@ const Pages = () => {
         <div className="flex items-center justify-center mb-3">
           <Button
             className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
-            onClick={() => router.push(`/admin/work-hours/${type}`)}
+            onClick={() => router.push(`/admin/home/${type}`)}
           >
             <ArrowLeftOutlined
               style={{

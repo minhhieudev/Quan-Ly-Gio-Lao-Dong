@@ -11,7 +11,7 @@ const WorkHours = () => {
     const router = useRouter();
 
     const handlePage = (type) => {
-        router.push(`/work-hours/${type}`);
+        router.push(`/home/${type}`);
     };
 
     const getButtonList = () => {
@@ -78,7 +78,7 @@ const WorkHours = () => {
         <div className='m-auto w-[99%] h-[80vh] max-sm:h-fit shadow-xl bg-white mt-4 rounded-md p-2'>
             <Button
                 className="button-kiem-nhiem text-white font-bold shadow-md mr-2"
-                onClick={() => router.push(`/admin/work-hours/${type}`)}
+                onClick={() => router.push(`/admin/home/${type}`)}
             >
                 <ArrowLeftOutlined
                     style={{

@@ -50,7 +50,7 @@ const Form = ({ type }) => {
         });
 
         if (res.ok) {
-          router.push("/work-hours");
+          router.push("/home");
         } else {
           toast.error("Invalid email or password");
         }

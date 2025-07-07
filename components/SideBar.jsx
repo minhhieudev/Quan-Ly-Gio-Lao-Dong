@@ -67,9 +67,9 @@ const SideBar = () => {
         <DashboardOutlined style={{ fontSize: "20px" }} className="text-blue-600"/>
         <span style={getIconStyle(["/admin/dashboard"])}>Dashboard</span>
       </Link>
-      <Link href="/admin/work-hours" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
+      <Link href="/admin/home" className={`flex items-center gap-3 p-3 rounded-lg transition border-b-2`}>
         <ClockCircleOutlined style={{ fontSize: "20px" }} className="text-green-600"/>
-        <span style={getIconStyle(["/admin/work-hours"])}>Thống kê lao động</span>
+        <span style={getIconStyle(["/admin/home"])}>Thống kê lao động</span>
       </Link>
 
       {/* Nhóm Phân công */}

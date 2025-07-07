@@ -75,7 +75,7 @@ const Profile = () => {
         if (user.role === "admin") {
           window.location.href = "/admin";
         } else {
-          window.location.href = "/work-hours";
+          window.location.href = "/home";
         }
       } else {
         toast.error("Cập nhật thất bại!");

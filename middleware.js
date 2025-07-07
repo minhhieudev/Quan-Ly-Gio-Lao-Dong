@@ -6,8 +6,8 @@ export default withAuth(
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
 
-    // Ngăn admin truy cập vào /work-hours
-    if (path === '/work-hours' && token?.role === 'admin') {
+    // Ngăn admin truy cập vào /home
+    if (path === '/home' && token?.role === 'admin') {
       return NextResponse.redirect(new URL('/admin', req.url)); // Chuyển hướng admin đến /admin
     }
 
@@ -18,7 +18,7 @@ export default withAuth(
 
     // Nếu người dùng cố gắng truy cập /admin nhưng không phải admin hoặc khoa
     if (path.startsWith('/admin') && token?.role !== 'admin' && token?.role !== 'khoa') {
-      return NextResponse.redirect(new URL('/work-hours', req.url));
+      return NextResponse.redirect(new URL('/home', req.url));
     }
 
     return NextResponse.next();
@@ -37,7 +37,6 @@ export const config = {
   matcher: [
     "/",
     "/home/:path*",
-    "/work-hours/:path*",
     "/profile/:path*",
     "/admin/:path*",
     "/giaovu/:path*"  // Thêm matcher cho routes giaovu

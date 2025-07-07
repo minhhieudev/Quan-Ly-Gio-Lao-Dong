@@ -445,7 +445,7 @@ const Pages = () => {
         <div className="w-[50%] flex bg-white items-center justify-between rounded-md">
           <Button
             className="button-kiem-nhiem text-white font-bold shadow-md ml-1"
-            onClick={() => router.push(`/work-hours`)}
+            onClick={() => router.push(`/home`)}
             size="small"
           >
             <div className="hover:color-blue">
