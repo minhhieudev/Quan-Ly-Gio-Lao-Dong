@@ -132,7 +132,7 @@ const PcCoiThiForm = () => {
       <div className="flex items-between justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
-          onClick={() => router.push(`/giaovu/pc-coi-thi`)}
+          onClick={() => router.push(`/admin/pc-coi-thi`)}
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>

@@ -86,7 +86,7 @@ const PcCoiThiForm = () => {
   const onSubmit = async (data) => {
 
     try {
-      const url = `/api/giaovu/pc-cham-thi`;
+      const url = `/api/admin/pc-cham-thi`;
 
       const res = await fetch(url, {
         method: "PUT",
@@ -96,7 +96,7 @@ const PcCoiThiForm = () => {
 
       if (res.ok) {
         toast.success("Cập nhật thành công!");
-        router.push("/giaovu/pc-cham-thi");
+        router.push("/admin/pc-cham-thi");
       } else {
         toast.error("Cập nhật thất bại!");
       }
@@ -115,7 +115,7 @@ const PcCoiThiForm = () => {
       <div className="flex items-between justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
-          onClick={() => router.push(`/giaovu/pc-cham-thi`)}
+          onClick={() => router.push(`/admin/pc-cham-thi`)}
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>

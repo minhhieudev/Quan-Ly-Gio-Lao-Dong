@@ -247,7 +247,7 @@ const TeachingAssignmentTable = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size="small" onClick={() => router.push(`/giaovu/pc-giang-day/edit/${record._id}`)} type="primary">Sửa</Button>
+          <Button size="small" onClick={() => router.push(`/admin/pc-giang-day/edit/${record._id}`)} type="primary">Sửa</Button>
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -281,7 +281,7 @@ const TeachingAssignmentTable = () => {
         <h2 className="font-bold  flex-grow text-center text-[18px] text-green-500">DANH SÁCH PHÂN CÔNG GIẢNG DẠY</h2>
         <Button
           className="button-dang-day text-white font-bold shadow-md mb-0"
-          onClick={() => router.push(`/giaovu/pc-giang-day/create`)}
+          onClick={() => router.push(`/admin/pc-giang-day/create`)}
         >
           TẠO MỚI
         </Button>

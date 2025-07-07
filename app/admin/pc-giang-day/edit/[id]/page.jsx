@@ -80,7 +80,7 @@ const TeachingAssignmentForm = () => {
 
       if (res.ok) {
         toast.success("Cập nhật thành công!");
-        router.push("/giaovu/pc-giang-day");
+        router.push("/admin/pc-giang-day");
       } else {
         toast.error("Cập nhật thất bại!");
       }
@@ -99,7 +99,7 @@ const TeachingAssignmentForm = () => {
       <div className="flex items-center justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
-          onClick={() => router.push(`/giaovu/pc-giang-day`)}
+          onClick={() => router.push(`/admin/pc-giang-day`)}
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>

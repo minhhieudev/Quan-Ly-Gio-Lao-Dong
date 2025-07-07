@@ -1,12 +1,12 @@
-"use client";
-
+'use client'
 import { useState, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Select, InputNumber, Row, Col, Spin } from "antd";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
-import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
-import { useRouter, useParams } from "next/navigation";
+import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons';
+import { useRouter } from "next/navigation";
+import * as XLSX from 'xlsx';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const { Option } = Select;
@@ -25,8 +25,7 @@ const formSchema = {
   lop: "",
   namHoc: "",
   ky: "",
-  tuanHoc:"",
-  diaDiem:''
+  tuanHoc: ""
 };
 
 const TeachingAssignmentForm = () => {
@@ -38,51 +37,32 @@ const TeachingAssignmentForm = () => {
   const { data: session } = useSession();
   const currentUser = session?.user;
   const router = useRouter();
-  const { id } = useParams(); // Lấy ID từ param URL
 
   const fileInputRef = useRef(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [khoaOptions, setKhoaOptions] = useState([]);
+  const [loai, setLoai] = useState("Chính quy");
 
   // Get academic year configuration
   const { options: namHocOptions } = getAcademicYearConfig();
 
-  useEffect(() => {
-    if (id) {
-      // Gọi API để lấy dữ liệu theo ID
-      const fetchRecord = async () => {
-        try {
-          const res = await fetch(`/api/giaovu/pc-giang-day/edit?id=${id}`);
-          if (res.ok) {
-            const data = await res.json();
-            setEditRecord(data); // Lưu dữ liệu record
-            reset(data); // Cập nhật form với dữ liệu từ API
-          } else {
-            toast.error("Không thể tải dữ liệu!");
-          }
-        } catch (error) {
-          toast.error("Có lỗi xảy ra khi tải dữ liệu!");
-        }
-      };
-
-      fetchRecord();
-    }
-  }, [id, reset]);
 
   const onSubmit = async (data) => {
     try {
-      const url = `/api/giaovu/pc-giang-day`;
-
-      const res = await fetch(url, {
-        method: "PUT",  // PUT để cập nhật record hiện tại
-        body: JSON.stringify({ ...data, id: id }),
+      const method = editRecord ? "PUT" : "POST";
+      const res = await fetch(`/api/giaovu/pc-giang-day`, {
+        method,
+        body: JSON.stringify({ ...data, user: currentUser?._id, id: editRecord?._id, loai: loai }),
         headers: { "Content-Type": "application/json" },
       });
 
       if (res.ok) {
-        toast.success("Cập nhật thành công!");
-        router.push("/giaovu/pc-giang-day");
+        const newData = await res.json();
+        toast.success("Thành công!");
+        resetForm();
+        fileInputRef.current.value = "";
       } else {
-        toast.error("Cập nhật thất bại!");
+        toast.error("Thất bại!");
       }
     } catch (err) {
       toast.error("Có lỗi xảy ra!");
@@ -94,26 +74,147 @@ const TeachingAssignmentForm = () => {
     setEditRecord(null);
   };
 
+  useEffect(() => {
+    getListKhoa()
+  }, []);
+
+  const getListKhoa = async () => {
+    try {
+      const res = await fetch(`/api/admin/khoa`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+
+        // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
+        const tenKhoaList = data.map(khoa => khoa.tenKhoa);
+
+        setKhoaOptions(tenKhoaList);
+      } else {
+        toast.error("Failed to get khoa");
+      }
+    } catch (err) {
+      toast.error("An error occurred while fetching data khoa");
+    }
+  };
+
+  const createMany = async (ListData) => {
+    setIsUploading(true); // Bắt đầu hiển thị hiệu ứng xoay
+    try {
+      const method = "POST";
+      const res = await fetch("/api/giaovu/pc-giang-day/create", {
+        method,
+        body: JSON.stringify({ data: ListData, loai: loai }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        toast.success("Thêm mới thành công");
+      } else {
+        toast.error("Failed to save record");
+      }
+    } catch (err) {
+      toast.error("An error occurred while saving data:", err);
+      console.log('Lỗi:', err);
+    } finally {
+      fileInputRef.current.value = ""; // Luôn luôn reset input file
+      setIsUploading(false); // Ẩn hiệu ứng xoay khi hoàn thành
+    }
+  };
+
+
+  const handleFileUpload = (e) => {
+    // Lấy giá trị năm học và kỳ từ form
+    const formValues = control._formValues;
+    const namHoc = formValues.namHoc;
+    const ky = formValues.ky;
+
+    // Kiểm tra xem đã chọn năm học và kỳ chưa
+    if (!namHoc || !ky) {
+      toast.error("Vui lòng chọn năm học và học kỳ trước khi import từ file Excel!");
+      fileInputRef.current.value = ""; // Reset input file
+      return;
+    }
+
+    const file = e.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const data = event.target.result;
+      const workbook = XLSX.read(data, { type: "binary" });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rawData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+      // Không cần đọc namHoc và ky từ file nữa
+      // Sử dụng giá trị từ form đã lấy ở trên
+
+      // Lọc và định dạng dữ liệu theo cấu trúc mong muốn
+      let ListData = rawData
+        .filter((row) => row[1] && row[2] && row[3]) // Lọc các dòng có dữ liệu cần thiết
+        .map((row) => {
+          const maMH = row[1] || ""; // Mã môn học
+          const tenMH = row[2] || ""; // Tên môn học
+          const soTC = row[3] || ""; // Số tín chỉ
+          const soSVDK = row[4] || ""; // Số sinh viên đăng ký
+          const maGV = row[5] || ""; 
+          const gvGiangDay = row[6] || ""; // Giảng viên giảng dạy
+          const nhom = row[7] || ""; // Nhóm
+          const thu = row[8] || ""; // Thứ
+          const tietBD = row[9] || ""; // Tiết bắt đầu
+          const soTiet = row[10] || ""; // Số tiết
+          const phong = row[11] || ""; // Phòng học
+          const lop = row[12] || ""; // Lớp
+          const tuanHoc = row[13] || ""
+          const diaDiem = row[14] || ''
+
+          // Sử dụng namHoc và ky từ form
+          return [maMH, tenMH, soTC, soSVDK, maGV, gvGiangDay, nhom, thu, tietBD, soTiet, phong, lop, tuanHoc, namHoc, ky, diaDiem];
+        });
+      ListData.shift();
+
+      if (ListData.length > 0) {
+        createMany(ListData);
+      } else {
+        toast.error("No data found in file.");
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error("Đã xảy ra lỗi khi đọc file Excel");
+    };
+
+    reader.readAsBinaryString(file);
+  };
+
   return (
     <div className="p-4 bg-white shadow-lg rounded-lg mt-3 w-[70%] mx-auto">
       <div className="flex items-center justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
-          onClick={() => router.push(`/giaovu/pc-giang-day`)}
+          onClick={() => router.push(`/admin/pc-giang-day`)}
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>
-        <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">CHỈNH SỬA PHÂN CÔNG GIẢNG DẠY</h2>
+        <h2 className="font-bold text-heading3-bold flex-grow text-center text-green-500">PHÂN CÔNG GIẢNG DẠY</h2>
+      </div>
+
+      <div className="flex gap-2 w-[900px] mb-2">
+        <div className="text-[14px] font-bold">LOẠI:</div>
+        <Select className="w-[200px]" value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)} allowClear >
+          <Option value="Chính quy">Chính quy</Option>
+          <Option value="Liên thông vlvh">Liên thông vlvh</Option>
+        </Select>
       </div>
 
       <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 font-bold">
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Năm học" validateStatus={errors.namHoc ? 'error' : ''} help={errors.namHoc?.message}>
+            <Form.Item label="Năm học:" validateStatus={errors.namHoc ? 'error' : ''} help={errors.namHoc?.message}>
               <Controller
                 name="namHoc"
                 control={control}
-                rules={{ required: "Vui lòng chọn năm học" }}
+                rules={{ required: "Năm học là bắt buộc" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn năm học" {...field}>
                     {namHocOptions.map(option => (
@@ -125,15 +226,16 @@ const TeachingAssignmentForm = () => {
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Kì" validateStatus={errors.ky ? 'error' : ''} help={errors.ky?.message}>
+            <Form.Item label="Học Kỳ:" validateStatus={errors.ky ? 'error' : ''} help={errors.ky?.message}>
               <Controller
                 name="ky"
                 control={control}
-                rules={{ required: "Vui lòng chọn kì" }}
+                rules={{ required: "Kì là bắt buộc" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn kì" {...field}>
-                    <Option value="1">Kì 1</Option>
-                    <Option value="2">Kì 2</Option>
+                    <Option value="1">1</Option>
+                    <Option value="2">2</Option>
+                    <Option value="he">Hè</Option>
                   </Select>
                 )}
               />
@@ -146,7 +248,7 @@ const TeachingAssignmentForm = () => {
               <Controller
                 name="maMH"
                 control={control}
-                rules={{ required: "Vui lòng nhập mã môn học" }}
+                rules={{ required: "Mã môn học là bắt buộc" }}
                 render={({ field }) => <Input placeholder="Nhập mã môn học..." {...field} />}
               />
             </Form.Item>
@@ -156,7 +258,7 @@ const TeachingAssignmentForm = () => {
               <Controller
                 name="tenMH"
                 control={control}
-                rules={{ required: "Vui lòng nhập tên môn học" }}
+                rules={{ required: "Tên môn học là bắt buộc" }}
                 render={({ field }) => <Input placeholder="Nhập tên môn học..." {...field} />}
               />
             </Form.Item>
@@ -168,17 +270,16 @@ const TeachingAssignmentForm = () => {
               <Controller
                 name="soTC"
                 control={control}
-                rules={{ required: "Vui lòng nhập số tín chỉ", min: { value: 1, message: "Số tín chỉ phải lớn hơn 0" } }}
+                rules={{ required: "Số tín chỉ là bắt buộc" }}
                 render={({ field }) => <InputNumber min={0} placeholder="Nhập số tín chỉ..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label="Số SV đăng ký" validateStatus={errors.soSVDK ? 'error' : ''} help={errors.soSVDK?.message}>
+            <Form.Item label="Số SV đăng ký">
               <Controller
                 name="soSVDK"
                 control={control}
-                rules={{ required: "Vui lòng nhập số SV đăng ký", min: { value: 0, message: "Số SV không thể âm" } }}
                 render={({ field }) => <InputNumber min={0} placeholder="Nhập số SV đăng ký..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
@@ -188,36 +289,28 @@ const TeachingAssignmentForm = () => {
               <Controller
                 name="gvGiangDay"
                 control={control}
-                rules={{ required: "Vui lòng nhập giảng viên" }}
+                rules={{ required: "Giảng viên là bắt buộc" }}
                 render={({ field }) => <Input placeholder="Nhập giảng viên..." {...field} />}
               />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
-          <Col span={6}>
-            <Form.Item label="Nhóm" validateStatus={errors.nhom ? 'error' : ''} help={errors.nhom?.message}>
+          <Col span={4}>
+            <Form.Item label="Nhóm">
               <Controller
                 name="nhom"
                 control={control}
-                rules={{ min: { value: 1, message: "Nhóm phải lớn hơn 0" } }}
-                render={({ field }) => (
-                  <InputNumber
-                    min={0}
-                    placeholder="Nhập nhóm..."
-                    style={{ width: '100%' }}
-                    {...field}
-                  />
-                )}
+                render={({ field }) => <InputNumber min={0} placeholder="Nhập nhóm..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Thứ" validateStatus={errors.thu ? 'error' : ''} help={errors.thu?.message}>
               <Controller
                 name="thu"
                 control={control}
-                rules={{ required: "Vui lòng chọn thứ" }}
+                rules={{ required: "Thứ là bắt buộc" }}
                 render={({ field }) => (
                   <Select placeholder="Chọn thứ" {...field}>
                     <Option value="2">Thứ 2</Option>
@@ -232,22 +325,22 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Tiết bắt đầu" validateStatus={errors.tietBD ? 'error' : ''} help={errors.tietBD?.message}>
               <Controller
                 name="tietBD"
                 control={control}
-                rules={{ required: "Vui lòng nhập tiết bắt đầu", min: { value: 1, message: "Tiết bắt đầu phải lớn hơn 0" } }}
+                rules={{ required: "Tiết bắt đầu là bắt buộc" }}
                 render={({ field }) => <InputNumber min={0} placeholder="Nhập tiết bắt đầu..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
           </Col>
-          <Col span={6}>
+          <Col span={4}>
             <Form.Item label="Số tiết" validateStatus={errors.soTiet ? 'error' : ''} help={errors.soTiet?.message}>
               <Controller
                 name="soTiet"
                 control={control}
-                rules={{ required: "Vui lòng nhập số tiết", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
+                rules={{ required: "Số tiết là bắt buộc" }}
                 render={({ field }) => <InputNumber min={0} placeholder="Nhập số tiết..." style={{ width: '100%' }} {...field} />}
               />
             </Form.Item>
@@ -258,22 +351,20 @@ const TeachingAssignmentForm = () => {
               <Controller
                 name="phong"
                 control={control}
-                rules={{ required: "Vui lòng nhập phòng" }}
+                rules={{ required: "Phòng là bắt buộc" }}
                 render={({ field }) => <Input placeholder="Nhập phòng..." {...field} />}
               />
             </Form.Item>
           </Col>
-
         </Row>
         <Row gutter={16}>
 
-          
           <Col span={8}>
             <Form.Item label="Lớp" validateStatus={errors.lop ? 'error' : ''} help={errors.lop?.message}>
               <Controller
                 name="lop"
                 control={control}
-                rules={{ required: "Vui lòng nhập lớp" }}
+                rules={{ required: "Lớp là bắt buộc" }}
                 render={({ field }) => <Input placeholder="Nhập lớp..." {...field} />}
               />
             </Form.Item>
@@ -287,13 +378,11 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-
           <Col span={8}>
             <Form.Item label="Địa điểm" validateStatus={errors.diaDiem ? 'error' : ''} help={errors.diaDiem?.message}>
               <Controller
                 name="diaDiem"
                 control={control}
-                rules={{ required: "Vui lòng nhập địa điểm" }}
                 render={({ field }) => (
                   <Select allowClear placeholder="Chọn địa điểm" {...field}>
                     <Option value="DHPY">DHPY</Option>
@@ -303,16 +392,44 @@ const TeachingAssignmentForm = () => {
               />
             </Form.Item>
           </Col>
-
         </Row>
 
         <div className="flex justify-between mt-4">
           <Button type="primary" htmlType="submit" loading={isSubmitting}>
-            Cập nhật
+            {editRecord ? "Cập nhật" : "Thêm mới"}
           </Button>
+          <div className="text-center">
+            <Spin spinning={isUploading}>
+              <label htmlFor="excelUpload">
+                <Button
+                  className="mt-3 button-lien-thong-vlvh"
+                  type="primary"
+                  icon={<UploadOutlined />}
+                  onClick={() => fileInputRef.current.click()}
+                  disabled={isUploading}
+                >
+                  {isUploading ? 'Đang tải lên...' : 'Import từ file Excel'}
+                </Button>
+              </label>
+            </Spin>
+
+            <div className="hidden">
+              <input
+                type="file"
+                accept=".xlsx, .xls"
+                onChange={handleFileUpload}
+                className="hidden"
+                id="excelUpload"
+                ref={fileInputRef}
+              />
+            </div>
+          </div>
           <Button onClick={resetForm} danger>Reset Form</Button>
         </div>
       </Form>
+
+
+
     </div>
   );
 };

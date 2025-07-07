@@ -203,7 +203,7 @@ const TeachingAssignmentForm = () => {
       <div className="flex items-center justify-center mb-3">
         <Button
           className="button-kiem-nhiem text-white font-bold shadow-md mb-2"
-          onClick={() => router.push(`/giaovu/pc-cham-thi`)}
+          onClick={() => router.push(`/admin/pc-cham-thi`)}
         >
           <ArrowLeftOutlined style={{ color: 'white', fontSize: '18px' }} /> QUAY LẠI
         </Button>
