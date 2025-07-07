@@ -235,8 +235,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             return dateA - dateB;
         });
 
-        console.log(events);
-
         let previousTime = null;
         let currentMax = 0;
         const activeValues = [];

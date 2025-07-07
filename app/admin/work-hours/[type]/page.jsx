@@ -874,12 +874,6 @@ const App = () => {
     ? currentPageData
     : filteredDataList.slice(start, end);
 
-  console.log("Trạng thái của các mục:", filteredDataList.map(item => ({
-    id: item._id,
-    trangThai: item.trangThai,
-    type: typeof item.trangThai
-  })));
-
   return (
     <div className='p-2 font-bold text-center bg-white rounded-md shadow-md m-auto my-3'>
       <div className="flex items-center justify-center mb-0">

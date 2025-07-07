@@ -143,8 +143,6 @@ const Pages = () => {
       return dateA - dateB;
     });
 
-    console.log(events);
-
     let previousTime = null;
     let currentMax = 0;
     const activeValues = [];
@@ -210,8 +208,6 @@ const Pages = () => {
 
 
   const tinhKiemNhiem = async (GCGD) => {
-    console.log('err:99999999999999999', currentUser);
-
     try {
       const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(UserID)}`, {
         method: "GET",
@@ -234,9 +230,7 @@ const Pages = () => {
         return totalMax;
 
       } else {
-        toast.error("Có lỗi xảy ra 22222");
-        console.log('err:555555555',);
-
+        toast.error("Có lỗi xảy ra");
       }
     } catch (err) {
       console.log('err:', err);
@@ -256,8 +250,6 @@ const Pages = () => {
       if (res.ok) {
         const data = await res.json();
         setAllData(data);
-      console.log('data?.info?.userInfo:', data?.info?.maNgachInfo?.GCGD);
-
         // Lấy thông tin khoa từ dữ liệu user, nếu không có thì để trống
         const khoaGiangVien = data?.info?.userInfo?.tenKhoa || '';
         const GCGD = data?.info?.maNgachInfo?.GCGD || 0;

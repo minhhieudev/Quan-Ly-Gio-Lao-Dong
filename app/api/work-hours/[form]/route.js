@@ -28,7 +28,7 @@ const models = {
 export const POST = async (req, { params }) => {
   try {
     const { form } = params;
-    
+
 
     if (!models[form]) {
       return new Response("Invalid form name", { status: 400 });
@@ -36,7 +36,6 @@ export const POST = async (req, { params }) => {
 
     await connectToDB();
     const body = await req.json();
-    console.log('body',body)
 
     const model = models[form];
 
@@ -158,7 +157,7 @@ export const GET = async (req, { params }) => {
       if (currentUser) {
         maNgachInfo = await MaNgach.findOne({ maNgach: currentUser[0].maNgach }, 'GCGD');
       }
- 
+
       const data = await PhanCongKiemNhiem.find({ user })
         .populate('user', 'username khoa')
         .populate('chucVu');
@@ -186,24 +185,8 @@ export const GET = async (req, { params }) => {
                 namHoc: namHoc,
                 user: item.user
               });
-             
-            } else {
-              console.log('[KiemNhiem] BỎ QUA: Năm học không khớp', {
-                chucVu: item.chucVu.tenCV,
-                schoolYearStartYear,
-                schoolYearEndYear,
-                namHocStart,
-                namHocEnd
-              });
+
             }
-          } else {
-            console.log('[KiemNhiem] BỎ QUA: Thiếu thông tin năm học', {
-              chucVu: item.chucVu?.tenCV,
-              schoolYearStart: item.schoolYearStart,
-              schoolYearEnd: item.schoolYearEnd,
-              namHocStart,
-              namHocEnd
-            });
           }
         });
       }
@@ -271,24 +254,7 @@ export const GET = async (req, { params }) => {
                 namHoc: namHoc,
                 user: item.user
               });
-             
-            } else {
-              console.log('[KiemNhiem][ELSE] BỎ QUA: Năm học không khớp', {
-                chucVu: item.chucVu.tenCV,
-                schoolYearStartYear,
-                schoolYearEndYear,
-                namHocStart,
-                namHocEnd
-              });
             }
-          } else {
-            console.log('[KiemNhiem][ELSE] BỎ QUA: Thiếu thông tin năm học', {
-              chucVu: item.chucVu?.tenCV,
-              schoolYearStart: item.schoolYearStart,
-              schoolYearEnd: item.schoolYearEnd,
-              namHocStart,
-              namHocEnd
-            });
           }
         });
       }
