@@ -9,7 +9,6 @@ import User from "@models/User";
 import Khoa from "@models/Khoa";
 import MaNgach from "@models/MaNgach";
 import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
-import Khoa from "@models/Khoa"; // Thêm dòng này nếu chưa import
 
 export const GET = async (request) => {
   try {
@@ -40,10 +39,10 @@ export const GET = async (request) => {
       };
       info.userInfo = userInfoWithKhoa;
       // Lấy thông tin ngạch cho người dùng
-      const maNgachInfo = await MaNgach.findOne({ maNgach: userObj.maNgach });
-      info.maNgachInfo = maNgachInfo;
+      const maNgachInfo = await MaNgach.findOne({ maNgach: userInfo.maNgach });
+      info.maNgachInfo = maNgachInfo
 
-      const kiemNhiemInfo = await PhanCongKiemNhiem.find({ user: userObj._id }).populate('chucVu', 'tenCV');
+      const kiemNhiemInfo = await PhanCongKiemNhiem.find({ user: userInfo._id }).populate('chucVu', 'tenCV');
       info.kiemNhiemInfo = kiemNhiemInfo.map(info => info.chucVu.tenCV);
     }
 
@@ -75,8 +74,6 @@ export const GET = async (request) => {
         CongTacRaDe: raDe
       }
     };
-
-    console.log('responseData:', responseData)
 
     return new Response(JSON.stringify(responseData), { status: 200 });
   } catch (error) {
