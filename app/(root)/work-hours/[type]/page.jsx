@@ -440,8 +440,8 @@ const Pages = () => {
   }, [currentUser, namHoc, kyHoc, type]);
 
   return (
-    <div className="container mx-auto p-4 overflow-x-hidden">
-      <div className="mb-1 w-[98%] flex justify-between gap-3">
+    <div className=" mx-auto px-2 py-2">
+      <div className="mb-1 w-[100%] flex justify-between gap-3">
         <div className="w-[50%] flex bg-white items-center justify-between rounded-md">
           <Button
             className="button-kiem-nhiem text-white font-bold shadow-md ml-1"
@@ -494,7 +494,7 @@ const Pages = () => {
       </div>
 
       {type !== 'boi-duong' && (
-        <div className="px-2 py-1 bg-white w-[98%] rounded-xl shadow-md">
+        <div className="px-2 py-1 bg-white w-[100%] rounded-xl shadow-md">
           <div className="flex space-x-4 justify-around items-center max-sm:flex-col max-sm:gap-4">
             {getButtonList().map((buttonText) => (
               <Button
@@ -509,12 +509,12 @@ const Pages = () => {
         </div>
       )}
 
-      <div className="py-1 w-full max-w-[98%] h-[67vh] overflow-auto max-sm:hidden">
+      <div className="py-1 w-full max-w-[100%] h-[67vh] overflow-auto max-sm:hidden">
         {renderForm()}
       </div>
 
       {type !== 'boi-duong' &&
-        <div className="p-2 bg-white w-[98%] rounded-xl shadow-md">
+        <div className="p-2 bg-white w-[100%] rounded-xl shadow-md">
           <div className="flex justify-around w-full flex-wrap">
             {type == 'chinh-quy' && (
               <div className="flex gap-2 justify-center">

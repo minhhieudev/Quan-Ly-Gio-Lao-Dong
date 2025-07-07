@@ -2,19 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { 
-    Button, 
-    Form, 
-    Input, 
-    Select, 
-    DatePicker, 
-    Table, 
-    Space, 
-    Popconfirm, 
-    Modal, 
-    Spin, 
-    Alert, 
-    Typography, 
+import {
+    Button,
+    Form,
+    Input,
+    Select,
+    DatePicker,
+    Table,
+    Space,
+    Popconfirm,
+    Modal as AntdModal,
+    Spin,
+    Alert,
+    Typography,
     Pagination,
     Divider,
     Drawer
@@ -89,6 +89,8 @@ const KiemNhiemForm = () => {
     // Thêm state đơn giản
     // const [simpleModalVisible, setSimpleModalVisible] = useState(false);
 
+    const [confirmImportVisible, setConfirmImportVisible] = useState(false);
+
     useEffect(() => {
         if (typeof window !== "undefined") {
             const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
@@ -131,23 +133,23 @@ const KiemNhiemForm = () => {
             const matchName = item.user?.username?.toLowerCase().includes(searchName.toLowerCase());
             const matchKhoa = !selectedKhoa || item.user?.khoa === selectedKhoa;
             const matchChucVu = !selectedLoai || item.chucVu?.loaiCV === selectedLoai;
-            
+
             // Add date range filtering
             let matchDateRange = true;
             if (startDate && endDate) {
                 const itemStartDate = dayjs(item.startTime);
                 const itemEndDate = dayjs(item.endTime);
-                
+
                 // Check if the item's date range overlaps with the selected date range
                 matchDateRange = (
-                    (itemStartDate.isAfter(startDate) || itemStartDate.isSame(startDate)) && 
+                    (itemStartDate.isAfter(startDate) || itemStartDate.isSame(startDate)) &&
                     (itemStartDate.isBefore(endDate) || itemStartDate.isSame(endDate))
                 ) || (
-                    (itemEndDate.isAfter(startDate) || itemEndDate.isSame(startDate)) && 
-                    (itemEndDate.isBefore(endDate) || itemEndDate.isSame(endDate))
-                ) || (
-                    itemStartDate.isBefore(startDate) && itemEndDate.isAfter(endDate)
-                );
+                        (itemEndDate.isAfter(startDate) || itemEndDate.isSame(startDate)) &&
+                        (itemEndDate.isBefore(endDate) || itemEndDate.isSame(endDate))
+                    ) || (
+                        itemStartDate.isBefore(startDate) && itemEndDate.isAfter(endDate)
+                    );
             }
 
             return matchName && matchKhoa && matchChucVu && matchDateRange;
@@ -465,7 +467,7 @@ const KiemNhiemForm = () => {
         try {
             const res = await fetch("/api/admin/kiem-nhiem/create", {
                 method: "POST",
-                body: JSON.stringify({ data: ListDataUser }),
+                body: JSON.stringify({ data: ListDataUser, loai: selectedLoaiImport }),
                 headers: { "Content-Type": "application/json" },
             });
 
@@ -570,11 +572,11 @@ const KiemNhiemForm = () => {
 
                 const dataWithSchoolYear = dataRows.map(row => ({
                     stt: row[0],
-                    chucVu: row[1],
-                    user: row[2],
-                    startTime: parseDate(row[3]),
-                    endTime: parseDate(row[4]) || null,
-                    ghiChu: row[5],
+                    chucVu: row[3],
+                    user: row[1],
+                    startTime: parseDate(row[5]),
+                    endTime: parseDate(row[6]) || null,
+                    ghiChu: row[7],
                     schoolYearStart: schoolYearStart || null,
                     schoolYearEnd: schoolYearEnd || null
                 }));
@@ -614,7 +616,7 @@ const KiemNhiemForm = () => {
                 console.error("Error fetching loai chuc vu:", error);
             }
         };
-        
+
         fetchLoaiChucVu();
     }, []);
 
@@ -622,10 +624,10 @@ const KiemNhiemForm = () => {
     const showImportModal = () => {
         console.log("schoolYearStart:", schoolYearStart);
         console.log("schoolYearEnd:", schoolYearEnd);
-        
+
         // Tạm thời bỏ qua điều kiện kiểm tra để xem modal có hiển thị không
         setIsImportModalVisible(true);
-        
+
         // Sau khi xác nhận modal hiển thị, bạn có thể bỏ comment các điều kiện kiểm tra này
         /*
         if (!schoolYearStart) {
@@ -645,7 +647,7 @@ const KiemNhiemForm = () => {
             toast.error("Vui lòng chọn loại chức vụ!");
             return;
         }
-        
+
         setIsDeleting(true);
         try {
             // Gọi API để xóa các record có loại chức vụ đã chọn
@@ -658,11 +660,11 @@ const KiemNhiemForm = () => {
                     schoolYearEnd: schoolYearEnd?.toISOString()
                 })
             });
-            
+
             if (deleteRes.ok) {
                 const deleteData = await deleteRes.json();
                 toast.success(`Đã xóa ${deleteData.deletedCount} bản ghi cũ`);
-                
+
                 // Sau khi xóa thành công, mở file picker để import
                 setIsImportModalVisible(false);
                 fileInputRef.current.value = ""; // Reset input file
@@ -684,42 +686,39 @@ const KiemNhiemForm = () => {
     ) : (
         <div className="flex gap-2 max-sm:flex-col mt-2 h-[90vh]">
             {showForm && (
-                <div className="p-6 shadow-xl bg-white rounded-xl basis-1/3">
-                    <div className="flex justify-between items-center mb-2">
-                        <Title className="text-center m-0" level={4}>QUẢN LÝ PHÂN CÔNG KIỆM NHIỆM</Title>
-                        <Button
-                            type="text"
-                            onClick={() => setShowForm(false)}
-                            className="text-gray-500 hover:text-red-500"
-                        >
-                            ✕
-                        </Button>
-                    </div>
+                <AntdModal
+                    title="QUẢN LÝ PHÂN CÔNG KIÊM NHIỆM"
+                    open={showForm}
+                    onCancel={() => setShowForm(false)}
+                    footer={null}
+                    width={600}
+                    destroyOnClose
+                >
                     <Divider className="my-2" />
-                        <div className="flex gap-4 text-small-bold">
-                            <div className="w-1/2">
-                                <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
-                                <DatePicker
-                                    value={schoolYearStart}
-                                    onChange={handleSchoolYearStartChange}
-                                    placeholder="Chọn ngày bắt đầu năm học"
-                                    style={{ width: '100%' }}
-                                    className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
-                                />
-                                {!schoolYearStart && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
-                            </div>
-                            <div className="w-1/2">
-                                <div className="font-bold mb-1">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
-                                <DatePicker
-                                    value={schoolYearEnd}
-                                    onChange={handleSchoolYearEndChange}
-                                    placeholder="Chọn ngày kết thúc năm học"
-                                    style={{ width: '100%' }}
-                                    className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
-                                />
-                                {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
-                            </div>
+                    <div className="flex gap-4 text-small-bold">
+                        <div className="w-1/2">
+                            <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
+                            <DatePicker
+                                value={schoolYearStart}
+                                onChange={handleSchoolYearStartChange}
+                                placeholder="Chọn ngày bắt đầu năm học"
+                                style={{ width: '100%' }}
+                                className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
+                            />
+                            {!schoolYearStart && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
                         </div>
+                        <div className="w-1/2">
+                            <div className="font-bold mb-1">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
+                            <DatePicker
+                                value={schoolYearEnd}
+                                onChange={handleSchoolYearEndChange}
+                                placeholder="Chọn ngày kết thúc năm học"
+                                style={{ width: '100%' }}
+                                className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
+                            />
+                            {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
+                        </div>
+                    </div>
                     <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
                         <Form.Item
                             label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
@@ -809,57 +808,54 @@ const KiemNhiemForm = () => {
                             />
                         </Form.Item>
 
-                        <div className="flex justify-between items-center mt-8">
-                            <Space size="middle">
-                                <Button
-                                    className="bg-blue-500 hover:bg-blue-700"
-                                    loading={isSubmitting}
-                                    type="primary"
-                                    htmlType="submit"
-                                    icon={<SaveOutlined />}
-                                >
-                                    {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
-                                </Button>
-                                <Button onClick={onReset}>Hủy</Button>
-                                <div className="ml-2">
-                                    <Spin spinning={isUploading}>
-                                        <label htmlFor="excelUpload">
-                                            <Button
-                                                className="button-lien-thong-vlvh"
-                                                type="primary"
-                                                icon={<UploadOutlined />}
-                                                onClick={() => setImportDrawerVisible(true)}
-                                                disabled={isUploading}
-                                            >
-                                                {isUploading ? 'Đang tải lên...' : 'Import'}
-                                            </Button>
-                                        </label>
-                                        <input
-                                            type="file"
-                                            accept=".xlsx, .xls"
-                                            onChange={handleFileUpload}
-                                            style={{ display: 'none' }}
-                                            ref={fileInputRef}
-                                        />
-                                    </Spin>
-                                </div>
-                            </Space>
-
-                            {/* <Button
+                        <div className="flex justify-center items-center gap-4 mt-8">
+                            <Button
+                                className="bg-blue-500 hover:bg-blue-700"
+                                loading={isSubmitting}
                                 type="primary"
-                                className="bg-green-600 hover:bg-green-700"
-                                onClick={showCompletionConfirm}
-                                icon={<CheckCircleOutlined />}
+                                htmlType="submit"
+                                icon={<SaveOutlined />}
                             >
-                                Hoàn thành
-                            </Button> */}
+                                {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                            </Button>
+                            <Button onClick={onReset}>Hủy</Button>
+                            <Spin spinning={isUploading}>
+                                <label htmlFor="excelUpload">
+                                    <Button
+                                        className="button-lien-thong-vlvh"
+                                        type="primary"
+                                        icon={<UploadOutlined />}
+                                        onClick={() => {
+                                            if (!schoolYearStart) {
+                                                toast.error("Vui lòng chọn ngày bắt đầu năm học!");
+                                                return;
+                                            }
+                                            if (!schoolYearEnd) {
+                                                toast.error("Vui lòng chọn ngày kết thúc năm học!");
+                                                return;
+                                            }
+                                            setImportDrawerVisible(true);
+                                        }}
+                                        disabled={isUploading}
+                                    >
+                                        {isUploading ? 'Đang tải lên...' : 'Import'}
+                                    </Button>
+                                </label>
+                                <input
+                                    type="file"
+                                    accept=".xlsx, .xls"
+                                    onChange={handleFileUpload}
+                                    style={{ display: 'none' }}
+                                    ref={fileInputRef}
+                                />
+                            </Spin>
                         </div>
                     </Form>
-                </div>
+                </AntdModal>
             )}
 
             {/* Modal xác nhận hoàn thành */}
-            <Modal
+            <AntdModal
                 title={
                     <div className="flex items-center">
                         <ExclamationCircleOutlined className="text-yellow-500 mr-2" />
@@ -882,6 +878,7 @@ const KiemNhiemForm = () => {
                         Xác nhận chuyển
                     </Button>,
                 ]}
+                zIndex={10002} // Modal xác nhận chuyển dữ liệu
             >
                 <Alert
                     message="Cảnh báo!"
@@ -899,7 +896,7 @@ const KiemNhiemForm = () => {
                     type="warning"
                     showIcon
                 />
-            </Modal>
+            </AntdModal>
 
             <div className={`p-3 shadow-xl bg-white rounded-xl ${showForm ? 'basis-2/3' : 'w-full'}`}>
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
@@ -977,7 +974,7 @@ const KiemNhiemForm = () => {
                             ))}
                         </Select>
                     </div>
-                    
+
                     {/* Add Date Range Picker */}
                     <div className="flex gap-1">
                         <div className="text-base-bold ml-2">Thời gian:</div>
@@ -1010,7 +1007,7 @@ const KiemNhiemForm = () => {
                         setCurrent(page);
                         setPageSize(size);
                     }}
-                    pageSizeOptions={['10', '25', '50', '100', '200','500','1000']}
+                    pageSizeOptions={['10', '25', '50', '100', '200', '500', '1000']}
                     showSizeChanger
                     className="flex justify-end"
                 />
@@ -1057,6 +1054,7 @@ const KiemNhiemForm = () => {
                 onClose={() => setImportDrawerVisible(false)}
                 open={importDrawerVisible}
                 width={400}
+                zIndex={10000} // z-index rất cao
             >
                 <div className="mb-4">
                     <Alert
@@ -1066,7 +1064,7 @@ const KiemNhiemForm = () => {
                         showIcon
                         className="mb-4"
                     />
-                    
+
                     <Form.Item
                         label={<span className="font-bold">Chọn loại chức vụ</span>}
                         required
@@ -1084,7 +1082,7 @@ const KiemNhiemForm = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    
+
                     <Button
                         type="primary"
                         className="mt-4"
@@ -1093,14 +1091,42 @@ const KiemNhiemForm = () => {
                                 toast.error("Vui lòng chọn loại chức vụ!");
                                 return;
                             }
-                            setImportDrawerVisible(false);
-                            fileInputRef.current.click();
+                            if (!schoolYearStart) {
+                                toast.error("Vui lòng chọn ngày bắt đầu năm học!");
+                                return;
+                            }
+                            if (!schoolYearEnd) {
+                                toast.error("Vui lòng chọn ngày kết thúc năm học!");
+                                return;
+                            }
+                            setConfirmImportVisible(true); // Hiện modal xác nhận
                         }}
                     >
                         Tiếp tục import
                     </Button>
                 </div>
             </Drawer>
+
+            <AntdModal
+                open={confirmImportVisible}
+                onCancel={() => setConfirmImportVisible(false)}
+                onOk={async () => {
+                    setConfirmImportVisible(false);
+                    setImportDrawerVisible(false);
+                    // Thực hiện import như cũ
+                    fileInputRef.current.click();
+                }}
+                okText="Xác nhận"
+                cancelText="Hủy"
+                zIndex={10001} // Modal xác nhận import
+            >
+                <Alert
+                    message="Bạn có chắc chắn muốn import?"
+                    description="Import sẽ xóa toàn bộ dữ liệu của loại chức vụ này trong năm học đã chọn trước khi thêm mới. Hành động này không thể hoàn tác!"
+                    type="warning"
+                    showIcon
+                />
+            </AntdModal>
         </div >
     );
 };

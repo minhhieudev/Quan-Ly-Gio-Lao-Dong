@@ -49,7 +49,7 @@ const handler = NextAuth({
 
       if (mongodbUser) {
         session.user._id = mongodbUser._id.toString();
-        
+
         // Create a new object without the password
         const { password, ...userWithoutPassword } = mongodbUser._doc;
         session.user = { ...session.user, ...userWithoutPassword };

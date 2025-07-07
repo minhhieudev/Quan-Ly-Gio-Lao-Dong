@@ -41,7 +41,7 @@ const UserForm = () => {
     const [ngachOptions, setNgachOptions] = useState([]);
     const quyenOptions = [
         { label: "Giảng viên", value: "user" },
-        { label: "Giáo vụ", value: "giaoVu" },
+        { label: "Khoa", value: "khoa" },
         { label: "Admin", value: "admin" }
     ];
 
@@ -69,7 +69,7 @@ const UserForm = () => {
             filteredData = filteredData.filter(user => user.username.toLowerCase().includes(searchName.toLowerCase()));
         }
         if (selectedKhoa && selectedKhoa != null) {
-            filteredData = filteredData.filter(user => user.khoa === selectedKhoa);
+            filteredData = filteredData.filter(user => user.maKhoa === selectedKhoa);
         }
         if (selectedRole && selectedRole != null) {
             filteredData = filteredData.filter(user => user.role === selectedRole);
@@ -167,7 +167,7 @@ const UserForm = () => {
         // Sử dụng setValue để đổ dữ liệu vào form
         setValue("username", record.username);
         setValue("email", record.email);
-        setValue("khoa", record.khoa);
+        setValue("maKhoa", record.maKhoa);
         setValue("role", record.role);
 
         setValue("maNgach", record.maNgach);
@@ -575,8 +575,8 @@ const UserForm = () => {
                                 onChange={value => setSelectedKhoa(value)}
                             >
                                 {khoaOptions.map(khoa => (
-                                    <Option key={khoa} value={khoa}>
-                                        {khoa}
+                                    <Option key={khoa.maKhoa} value={khoa.maKhoa}>
+                                        {khoa.tenKhoa}
                                     </Option>
                                 ))}
                             </Select>

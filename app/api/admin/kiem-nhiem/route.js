@@ -1,15 +1,57 @@
 import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
 import ChucVu from "@models/ChucVu";
+import Khoa from "@models/Khoa"; // import model Khoa
 import { connectToDB } from "@mongodb";
 
 export const GET = async (req) => {
   try {
     await connectToDB();
 
-    // Lấy dữ liệu với điều kiện tìm kiếm và phân trang
-    const data = await PhanCongKiemNhiem.find()
-      .populate('chucVu', 'tenCV loaiCV maCV') // Populate trường chucVu
-      .populate('user', 'username khoa maGV') // Populate trường user
+    // Lấy dữ liệu với điều kiện tìm kiếm và phân trang sử dụng aggregate để join với khoa
+    const data = await PhanCongKiemNhiem.aggregate([
+      {
+        $lookup: {
+          from: "chucvus",
+          localField: "chucVu",
+          foreignField: "_id",
+          as: "chucVuInfo"
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "userInfo"
+        }
+      },
+      {
+        $lookup: {
+          from: "khoas",
+          localField: "userInfo.maKhoa",
+          foreignField: "maKhoa",
+          as: "khoaInfo"
+        }
+      },
+      {
+        $addFields: {
+          chucVu: { $arrayElemAt: ["$chucVuInfo", 0] },
+          user: {
+            $mergeObjects: [
+              { $arrayElemAt: ["$userInfo", 0] },
+              { khoa: { $arrayElemAt: ["$khoaInfo.tenKhoa", 0] } }
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          chucVuInfo: 0,
+          userInfo: 0,
+          khoaInfo: 0
+        }
+      }
+    ]);
     // Lấy tổng số bản ghi để tính toán phân trang
     return new Response(JSON.stringify(data ), { status: 200 });
 

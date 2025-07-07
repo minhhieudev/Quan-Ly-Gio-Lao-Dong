@@ -8,6 +8,7 @@ import CongTacRaDe from "@models/CongTacRaDe";
 import User from "@models/User";
 import MaNgach from "@models/MaNgach";
 import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
+import Khoa from "@models/Khoa"; // Thêm dòng này
 
 export const GET = async (request) => {
   try {
@@ -25,14 +26,17 @@ export const GET = async (request) => {
     const userInfo = await User.findById(user);
 
     if (userInfo) {
-      info.userInfo = userInfo
+      // Lấy tên khoa từ bảng Khoa
+      const khoaInfo = await Khoa.findOne({ maKhoa: userInfo.maKhoa });
+      userInfo.khoa = khoaInfo ? khoaInfo.tenKhoa : null;
+
+      info.userInfo = userInfo;
       // Lấy thông tin ngạch cho người dùng
       const maNgachInfo = await MaNgach.findOne({ maNgach: userInfo.maNgach });
-      info.maNgachInfo = maNgachInfo
+      info.maNgachInfo = maNgachInfo;
 
       const kiemNhiemInfo = await PhanCongKiemNhiem.find({ user: userInfo._id }).populate('chucVu', 'tenCV');
       info.kiemNhiemInfo = kiemNhiemInfo.map(info => info.chucVu.tenCV);
-
     }
 
     // Lấy dữ liệu từ tất cả các collection
@@ -63,7 +67,7 @@ export const GET = async (request) => {
         CongTacRaDe: raDe
       }
     };
-
+console.log('responseData',responseData)
     return new Response(JSON.stringify(responseData), { status: 200 });
   } catch (error) {
     return new Response("Failed to fetch all data", { status: 500 });

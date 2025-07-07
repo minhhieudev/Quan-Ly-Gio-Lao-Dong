@@ -499,7 +499,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           </Popconfirm>
         </Space>
       ),
-      width: '15%',
       align: 'center'
     },
   ];

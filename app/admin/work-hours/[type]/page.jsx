@@ -417,7 +417,11 @@ const App = () => {
       dataIndex: 'tongGioChinhQuy',
       className: 'text-red-500 font-bold text-center',
       align: 'center',
-
+      render: (text, record) => {
+        const tongGD = Number(record.congTacGiangDay?.tong) || 0;
+        const tongKhac = Number(record.congTacKhac?.tong) || 0;
+        return tongGD + tongKhac;
+      }
     },
     {
       title: 'Thừa/Thiếu',

@@ -14,8 +14,8 @@ export const GET = async (req) => {
       {
         $lookup: {
           from: "users", // Bảng User
-          localField: "tenKhoa", // Tên khoa từ Khoa
-          foreignField: "khoa", // Tên khoa trong User
+          localField: "maKhoa", // Mã khoa từ Khoa
+          foreignField: "maKhoa", // Mã khoa trong User
           as: "usersInKhoa", // Kết hợp danh sách user theo khoa
         },
       },
