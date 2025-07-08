@@ -30,7 +30,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
-    const [pageSize] = useState(6);
+    const [pageSize, setPageSize] = useState(6); // Sửa lại, không phải const
     const [loadings, setLoadings] = useState(true);
     const [dataListSelect, setDataListSelect] = useState([]);
     const [dataListSelect2, setDataListSelect2] = useState([]);
@@ -392,12 +392,30 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             width: '15%',
             ellipsis: true
         },
+        {
+            title: 'Hành động',
+            key: 'action',
+            align: 'center',
+            width: 80,
+            render: (_, record) => (
+                <Popconfirm
+                    title="Bạn có chắc chắn muốn xóa?"
+                    onConfirm={() => handleDelete(record._id)}
+                    okText="Xóa"
+                    cancelText="Hủy"
+                    getPopupContainer={trigger => trigger.parentNode} // Thêm dòng này
+                >
+                    <Button danger size="small">Xóa</Button>
+                </Popconfirm>
+            ),
+        },
     ];
 
 
 
     const handleTableChange = (pagination) => {
         setCurrent(pagination.current);
+        setPageSize(pagination.pageSize); // Thêm dòng này
     };
 
     const handleTabChange = (key) => {
@@ -542,7 +560,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
-            <div className="p-3 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100">
+            {/* Form bên trái */}
+            <div className="p-3 px-5 shadow-lg bg-white rounded-xl border border-gray-100 flex-shrink-0 " style={{width: '30%', maxHeight: 'calc(85vh - 90px)'}}>
                 <div className="flex justify-between items-center mb-2">
                     <Title className="text-center m-0" level={4}>PHÂN CÔNG KIỆM NHIỆM</Title>
                     <Button
@@ -553,7 +572,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         ✕
                     </Button>
                 </div>
-                <Divider className="my-2" />
+                <Divider className="my-1" />
                 <div className="flex gap-4 text-small-bold">
                     <div className="w-1/2">
                         <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
@@ -578,7 +597,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         {!schoolYearEnd && <div className="text-red-500 text-sm mt-1">Trường này là bắt buộc</div>}
                     </div>
                 </div>
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-6">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2 mt-3">
                     <Form.Item
                         label={<span className="font-bold text-xl">Công việc / Chức vụ <span className="text-red-600">*</span></span>}
                         validateStatus={errors.chucVu ? 'error' : ''}
@@ -667,7 +686,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         />
                     </Form.Item>
 
-                    <div className="flex justify-center items-center mt-8">
+                    <div className="flex justify-center items-center mt-4">
                         <Space size="middle">
                             <Button
                                 className="bg-blue-500 hover:bg-blue-700"
@@ -684,11 +703,11 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 </Form>
             </div>
 
-            <div className="px-3 py-4 shadow-lg bg-white rounded-xl flex-[65%] border border-gray-100" style={{ minWidth: 0, maxWidth: '65%', flexBasis: '65%', overflow: 'hidden' }}>
-                <div className="border-b border-blue-500 pb-2 mb-4">
+            {/* Table + Kết quả bên phải */}
+            <div className="flex flex-col px-3 py-2 shadow-lg bg-white rounded-xl border border-gray-100 min-w-0" style={{width: '70%'}}>
+                <div className="border-b border-blue-500 pb-2 mb-0">
                     <Title className="text-center text-blue-600" level={3}>QUẢN LÝ CÔNG TÁC KIÊM NHIỆM</Title>
                 </div>
-
                 <Tabs
                     activeKey={selectedTab}
                     onChange={handleTabChange}
@@ -709,7 +728,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     current,
                                     pageSize,
                                     total: dataList.length,
-                                    onChange: (page) => setCurrent(page),
+                                    onChange: (page, size) => {
+                                        setCurrent(page);
+                                        setPageSize(size);
+                                    },
                                     showSizeChanger: true,
                                     pageSizeOptions: ['5', '10', '20', '50'],
                                     showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`
@@ -718,7 +740,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 className="custom-table"
                                 bordered
                                 size="middle"
-                                scroll={{ x: 'max-content' }}
+                                scroll={{ x: 'max-content', y: 'calc(85vh - 380px)' }}
                                 summary={() => (
                                     <Table.Summary.Row>
                                         <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
@@ -735,45 +757,46 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         key="Phụ lục công việc"
                         className="text-center p-2"
                     >
-                        {loadings ? <Spin size="large" /> : <TableKiemNhiem data={dataListSelect} handleEdit={handleEdit} />}
-                    </TabPane>
+                        {loadings ? <Spin size="large" /> : (
+                          <>
+                            <TableKiemNhiem data={dataListSelect} handleEdit={handleEdit} />
+                            {/* Kết quả dưới Table */}
+                            {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
+                              <div className="border-b border-blue-500 pb-2 mb-2">
+                                <h3 className="text-base font-semibold text-blue-600 text-center">Kết quả</h3>
+                              </div>
+                              <div className="overflow-auto max-h-48">
+                                <table className="w-full border-collapse text-xs">
+                                  <thead>
+                                    <tr className="bg-gray-50 text-small-bold">
+                                      <th className="border border-gray-200 px-2 py-1 text-left">Từ</th>
+                                      <th className="border border-gray-200 px-2 py-1 text-left">Đến</th>
+                                      <th className="border border-gray-200 px-3 py-1 text-center">Miễn giảm</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {resultsDisplay.length > 0 ? (
+                                      resultsDisplay.map((result, index) => (
+                                        <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                          <td className="border border-gray-200 px-2 py-1 text-green-600 font-medium">{result.from}</td>
+                                          <td className="border border-gray-200 px-2 py-1 text-blue-600 font-medium">{result.to}</td>
+                                          <td className="border border-gray-200 px-3 py-1 text-center text-red-600 font-medium">{result.max}</td>
+                                        </tr>
+                                      ))
+                                    ) : (
+                                      <tr>
+                                        <td colSpan={3} className="text-center text-gray-400 py-2">Không có dữ liệu miễn giảm</td>
+                                      </tr>
+                                    )}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div> */}
+                          </>
+                        )}
+                      </TabPane>
                 </Tabs>
             </div>
-
-            <div className="mt-0 bg-white rounded-lg p-4 shadow-lg border border-gray-100">
-                <div className="border-b border-blue-500 pb-2 mb-3">
-                    <h3 className="text-lg font-semibold text-blue-600 text-center">Kết quả</h3>
-                </div>
-                <div className="overflow-auto max-h-60">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50 text-small-bold">
-                                {/* <th className="border border-gray-200 px-1 py-2 text-left">STT</th> */}
-                                <th className="border border-gray-200 px-3 py-2 text-left">Từ</th>
-                                <th className="border border-gray-200 px-3 py-2 text-left">Đến</th>
-                                <th className="border border-gray-200 px-5 py-2 text-center">Miễn giảm</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {resultsDisplay.length > 0 ? (
-                                resultsDisplay.map((result, index) => (
-                                    <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                        {/* <td className="border border-gray-200 px-3 py-2">{index + 1}</td> */}
-                                        <td className="border border-gray-200 px-3 py-2 text-green-600 font-medium">{result.from}</td>
-                                        <td className="border border-gray-200 px-3 py-2 text-blue-600 font-medium">{result.to}</td>
-                                        <td className="border border-gray-200 px-3 py-2 text-center text-red-600 font-medium">{result.max}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={4} className="text-center text-gray-400 py-4">Không có dữ liệu miễn giảm</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
     );
 };

@@ -170,22 +170,23 @@ export const GET = async (req, { params }) => {
           namHocEnd = parseInt(end);
         }
         data.forEach(item => {
-          // Chỉ tạo khi có đủ thông tin năm học và năm học khớp
-          if (item.schoolYearStart && item.schoolYearEnd && namHocStart && namHocEnd) {
+          if (item.schoolYearStart && namHocStart) {
             const schoolYearStartYear = new Date(item.schoolYearStart).getFullYear();
-            const schoolYearEndYear = new Date(item.schoolYearEnd).getFullYear();
-            if (schoolYearStartYear === namHocStart && schoolYearEndYear === namHocEnd) {
+            if (schoolYearStartYear === namHocStart) {
+              // Nếu không có endTime thì dùng schoolYearEnd
+              const endTime = item.endTime || item.schoolYearEnd;
               kiemNhiem.push({
                 chucVuCongViec: item.chucVu.tenCV,
                 maCV: item.chucVu.maCV,
-                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(endTime).toLocaleDateString('vi-VN')}`,
                 tyLeMienGiam: item.chucVu.soMien,
                 soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
                 ghiChu: item.ghiChu,
                 namHoc: namHoc,
-                user: item.user
+                user: item.user,
+                startTime: item.startTime,
+                endTime: endTime
               });
-
             }
           }
         });
@@ -202,7 +203,7 @@ export const GET = async (req, { params }) => {
           if (existingRecord) {
             // Update existing record
             await CongTacKiemNhiem.findByIdAndUpdate(existingRecord._id, {
-              thoiGianTinh: item.thoiGianTinh,
+              thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
               tyLeMienGiam: item.tyLeMienGiam,
               soTietQC: item.soTietQC,
               ghiChu: item.ghiChu
@@ -210,7 +211,13 @@ export const GET = async (req, { params }) => {
           } else {
             // Create new record
             await CongTacKiemNhiem.create({
-              ...item,
+              chucVuCongViec: item.chucVuCongViec,
+              maCV: item.maCV,
+              thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+              tyLeMienGiam: item.tyLeMienGiam,
+              soTietQC: item.soTietQC,
+              ghiChu: item.ghiChu,
+              namHoc: item.namHoc,
               user: item.user,
               type: type1
             });
@@ -240,19 +247,22 @@ export const GET = async (req, { params }) => {
           namHocEnd = parseInt(end);
         }
         data.forEach(item => {
-          if (item.schoolYearStart && item.schoolYearEnd && namHocStart && namHocEnd) {
+          if (item.schoolYearStart && namHocStart) {
             const schoolYearStartYear = new Date(item.schoolYearStart).getFullYear();
-            const schoolYearEndYear = new Date(item.schoolYearEnd).getFullYear();
-            if (schoolYearStartYear === namHocStart && schoolYearEndYear === namHocEnd) {
+            if (schoolYearStartYear === namHocStart) {
+              // Nếu không có endTime thì dùng schoolYearEnd
+              const endTime = item.endTime || item.schoolYearEnd;
               kiemNhiem.push({
                 chucVuCongViec: item.chucVu.tenCV,
                 maCV: item.chucVu.maCV,
-                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+                thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(endTime).toLocaleDateString('vi-VN')}`,
                 tyLeMienGiam: item.chucVu.soMien,
                 soTietQC: item.chucVu.soMien < 1 ? item.chucVu.soMien * maNgachInfo.GCGD : item.chucVu.soMien,
                 ghiChu: item.ghiChu,
                 namHoc: namHoc,
-                user: item.user
+                user: item.user,
+                startTime: item.startTime,
+                endTime: endTime
               });
             }
           }
@@ -264,7 +274,9 @@ export const GET = async (req, { params }) => {
           const existingRecord = await CongTacKiemNhiem.findOne({
             chucVuCongViec: item.chucVuCongViec,
             namHoc: item.namHoc,
-            user: item.user
+            user: item.user,
+            type: type1,
+            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`
           });
 
           if (!existingRecord) {
@@ -273,6 +285,15 @@ export const GET = async (req, { params }) => {
               ...item,
               user: item.user,
               type: type1
+            });
+          }
+          // THÊM ĐOẠN UPDATE NÀY
+          else {
+            await CongTacKiemNhiem.findByIdAndUpdate(existingRecord._id, {
+              thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(item.endTime).toLocaleDateString('vi-VN')}`,
+              tyLeMienGiam: item.tyLeMienGiam,
+              soTietQC: item.soTietQC,
+              ghiChu: item.ghiChu
             });
           }
         }

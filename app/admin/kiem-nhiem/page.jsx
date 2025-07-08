@@ -735,6 +735,10 @@ const KiemNhiemForm = () => {
                                         placeholder="Chọn công việc, chức vụ ..."
                                         {...field}
                                         options={listChucVu.map(item => ({ label: item.tenCV, value: item._id }))}
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            option.label.toLowerCase().includes(input.toLowerCase())
+                                        }
                                     />
                                 )}
                             />
@@ -898,7 +902,7 @@ const KiemNhiemForm = () => {
                 />
             </AntdModal>
 
-            <div className={`p-3 shadow-xl bg-white rounded-xl ${showForm ? 'basis-2/3' : 'w-full'}`}>
+            <div className={`p-3 shadow-xl bg-white rounded-xl w-full flex-1`}>
                 <div className="flex flex-col gap-2 justify-between items-center mb-2">
                     <div className="flex justify-between w-full items-center">
                         <div className="flex-1 text-center">

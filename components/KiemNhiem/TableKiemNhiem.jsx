@@ -72,7 +72,7 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
       title: 'Ghi chú',
       dataIndex: 'ghiChu',
       key: 'ghiChu',
-      width: '15%',
+      width: '8%',
       ellipsis: true,
     },
     {
@@ -142,7 +142,7 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
           <Spin size="large" />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 290px)' }}>
+        <div className="flex-grow overflow-auto" style={{ maxHeight: 'calc(85vh - 340px)' }}>
           <Table
             columns={columns}
             dataSource={paginatedData}
