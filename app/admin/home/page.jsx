@@ -11,7 +11,7 @@ const WorkHours = () => {
   const router = useRouter();
 
   const handlePage = (type) => {
-    router.push(`work-hours/${type}`);
+    router.push(`home/${type}`);
   };
 
   return (
