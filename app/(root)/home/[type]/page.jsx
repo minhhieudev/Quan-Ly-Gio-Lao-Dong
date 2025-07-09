@@ -529,7 +529,7 @@ const Pages = () => {
         {regulationRange.start && regulationRange.end && (
           <div className="w-[30%] px-2 bg-white rounded-md flex items-center justify-center">
              <span>
-              Từ <span className="font-semibold text-green-600">{regulationRange.start.format('DD/MM/YYYY')}</span> đến <span className="font-semibold text-red-600">{regulationRange.end.format('DD/MM/YYYY')}</span>
+              Hạn nộp -  <span className="font-semibold text-red-500">{regulationRange.end.format('DD/MM/YYYY')}</span>
             </span>
           </div>
         )}

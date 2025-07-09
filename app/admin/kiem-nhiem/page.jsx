@@ -328,6 +328,13 @@ const KiemNhiemForm = () => {
         setValue("endTime", dayjs(record.endTime));
         setValue("ghiChu", record.ghiChu);
     };
+
+    // Reset form when opening modal thêm mới (not edit)
+    useEffect(() => {
+        if (showForm && !editRecord) {
+            reset(formSchema);
+        }
+    }, [showForm, editRecord, reset]);
     const handleDelete = async (id) => {
         try {
             const res = await fetch("/api/admin/kiem-nhiem", {
@@ -418,7 +425,7 @@ const KiemNhiemForm = () => {
             title: 'Ngày kết thúc',
             dataIndex: 'endTime',
             key: 'endTime',
-            render: (text) => dayjs(text).format('DD/MM/YYYY'),
+            render: (text) => text ? dayjs(text).format('DD/MM/YYYY') : "—",
             className: 'text-blue-700 font-bold ',
         },
         {
@@ -699,7 +706,7 @@ const KiemNhiemForm = () => {
                 <AntdModal
                     title="QUẢN LÝ PHÂN CÔNG KIÊM NHIỆM"
                     open={showForm}
-                    onCancel={() => setShowForm(false)}
+                    onCancel={() => { setShowForm(false); onReset(); }}
                     footer={null}
                     width={600}
                     destroyOnClose
@@ -921,7 +928,7 @@ const KiemNhiemForm = () => {
                         {!showForm && (
                             <Button
                                 type="primary"
-                                onClick={() => setShowForm(true)}
+                                onClick={() => { onReset(); setShowForm(true); }}
                                 className="bg-blue-500"
                             >
                                 Thêm mới

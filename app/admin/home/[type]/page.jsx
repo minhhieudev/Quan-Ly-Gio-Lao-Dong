@@ -34,6 +34,8 @@ const App = () => {
   const [kiHoc, setKiHoc] = useState("1");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
+  // State for updating status
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
 
   // Get academic year configuration
   const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
@@ -457,7 +459,7 @@ const App = () => {
             color = 'green';
             text = 'Trường duyệt';
             break;
-          case 2:
+          case 3:
             color = 'red';
             text = 'Yêu cầu chỉnh sửa';
             break;
@@ -472,6 +474,8 @@ const App = () => {
             style={{ width: 140 }}
             onChange={val => handleUpdateTrangThai(record._id, val)}
             dropdownMatchSelectWidth={false}
+            disabled={updatingStatusId === record._id}
+            loading={updatingStatusId === record._id}
           >
             <Select.Option value={0}>
               <Tag color="orange">Chờ duyệt</Tag>
@@ -816,6 +820,7 @@ const App = () => {
   }, [dataList, selectedKhoa]);
 
   const handleUpdateTrangThai = async (id, newStatus) => {
+    setUpdatingStatusId(id);
     try {
       const res = await fetch('/api/admin/tong-hop-lao-dong/update-status', {
         method: "PUT",
@@ -834,6 +839,8 @@ const App = () => {
       }
     } catch (err) {
       toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+    } finally {
+      setUpdatingStatusId(null);
     }
   };
 
