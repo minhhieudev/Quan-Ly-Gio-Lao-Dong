@@ -435,14 +435,28 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         setValue("soTietQC", value?.soTietQC);
     };
 
-    // ======================================================================
-    const SCHOOL_YEAR_START_KEY = "schoolYearStart";
-    const SCHOOL_YEAR_END_KEY = "schoolYearEnd";
-    const [schoolYearEnd, setSchoolYearEnd] = useState(null);
 
-    const [listChucVu, setListChucVu] = useState([]);
-    const [listUser, setListUser] = useState([]);
-    const [schoolYearStart, setSchoolYearStart] = useState(null);
+// Lấy schoolYearStart, schoolYearEnd từ Setting (chỉ hiển thị, không cho chọn)
+const [schoolYearStart, setSchoolYearStart] = useState(null);
+const [schoolYearEnd, setSchoolYearEnd] = useState(null);
+const [listChucVu, setListChucVu] = useState([]);
+const [listUser, setListUser] = useState([]);
+
+useEffect(() => {
+    const fetchSchoolYear = async () => {
+        try {
+            const res = await fetch('/api/admin/setting');
+            const data = await res.json();
+            if (data && data.length > 0) {
+                setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
+                setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+            }
+        } catch (err) {
+            // Có thể show message lỗi nếu cần
+        }
+    };
+    fetchSchoolYear();
+}, []);
 
     const fetchData5 = async () => {
         try {
@@ -483,27 +497,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         fetchData5();
         fetchData6();
 
-        if (typeof window !== "undefined") {
-            const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
-            setSchoolYearStart(valStart ? dayjs(valStart) : null);
-
-            const valEnd = localStorage.getItem(SCHOOL_YEAR_END_KEY);
-            setSchoolYearEnd(valEnd ? dayjs(valEnd) : null);
-        }
+        // Đã chuyển sang lấy từ Setting, không dùng localStorage nữa
     }, []);
 
-    // Khi thay đổi, lưu vào localStorage
-    const handleSchoolYearEndChange = (date) => {
-        // date có thể là null hoặc đối tượng dayjs
-        setSchoolYearEnd(date);
-        if (date && dayjs.isDayjs(date)) localStorage.setItem(SCHOOL_YEAR_END_KEY, date.toISOString());
-        else localStorage.removeItem(SCHOOL_YEAR_END_KEY);
-    };
-    const handleSchoolYearStartChange = (date) => {
-        setSchoolYearStart(date);
-        if (date && dayjs.isDayjs(date)) localStorage.setItem(SCHOOL_YEAR_START_KEY, date.toISOString());
-        else localStorage.removeItem(SCHOOL_YEAR_START_KEY);
-    };
+// Không cho phép thay đổi schoolYearStart, schoolYearEnd nữa
+// const handleSchoolYearEndChange = (date) => {...}
+// const handleSchoolYearStartChange = (date) => {...}
 
     const onSubmit = async (data) => {
         try {
@@ -578,7 +577,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
                         <DatePicker
                             value={schoolYearStart}
-                            onChange={handleSchoolYearStartChange}
+                            disabled
                             placeholder="Chọn ngày bắt đầu năm học"
                             style={{ width: '100%' }}
                             className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
@@ -589,7 +588,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         <div className="font-bold mb-1">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
                         <DatePicker
                             value={schoolYearEnd}
-                            onChange={handleSchoolYearEndChange}
+                            disabled
                             placeholder="Chọn ngày kết thúc năm học"
                             style={{ width: '100%' }}
                             className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}

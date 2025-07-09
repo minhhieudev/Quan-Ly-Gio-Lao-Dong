@@ -20,6 +20,7 @@ import {
   QuestionCircleOutlined,
   ApartmentOutlined,
   FileDoneOutlined,
+  SettingOutlined,
   CaretDownOutlined,
   CaretRightOutlined,
   HistoryOutlined
@@ -172,6 +173,10 @@ const SideBar = () => {
             <Link href="/admin/bieu-mau" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <FileDoneOutlined style={{ fontSize: "20px" }} className="text-pink-500"/>
               <span style={getIconStyle(["/admin/bieu-mau"])}>Biểu mẫu</span>
+            </Link>
+            <Link href="/admin/setting" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
+              <SettingOutlined style={{ fontSize: "20px" }} className="text-gray-700"/>
+              <span style={getIconStyle(["/admin/setting"])}>Cài đặt hệ thống</span>
             </Link>
             <Link href="/admin/send-email" className={`flex items-center gap-3 p-2 rounded-lg transition`}>
               <MailFilled style={{ fontSize: "20px" }} className="text-cyan-600"/>

@@ -68,9 +68,26 @@ const KiemNhiemForm = () => {
     const [isCompletionModalVisible, setIsCompletionModalVisible] = useState(false);
     const [isTransferring, setIsTransferring] = useState(false);
 
-    // Thêm state cho ngày bắt đầu/kết thúc năm học
+    // Thêm state cho ngày bắt đầu/kết thúc năm học (lấy từ Setting, chỉ hiển thị, không cho chọn)
     const [schoolYearStart, setSchoolYearStart] = useState(null);
     const [schoolYearEnd, setSchoolYearEnd] = useState(null);
+
+    // Lấy schoolYearStart, schoolYearEnd từ Setting khi load trang
+    useEffect(() => {
+        const fetchSchoolYear = async () => {
+            try {
+                const res = await fetch('/api/admin/setting');
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
+                    setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+                }
+            } catch (err) {
+                // Có thể show message lỗi nếu cần
+            }
+        };
+        fetchSchoolYear();
+    }, []);
 
     // Add these state variables
     const [dateRange, setDateRange] = useState([null, null]);
@@ -91,27 +108,20 @@ const KiemNhiemForm = () => {
 
     const [confirmImportVisible, setConfirmImportVisible] = useState(false);
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
-            setSchoolYearStart(valStart ? dayjs(valStart) : null);
-
-            const valEnd = localStorage.getItem(SCHOOL_YEAR_END_KEY);
-            setSchoolYearEnd(valEnd ? dayjs(valEnd) : null);
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (typeof window !== "undefined") {
+    //         const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
+    //         setSchoolYearStart(valStart ? dayjs(valStart) : null);
+    //
+    //         const valEnd = localStorage.getItem(SCHOOL_YEAR_END_KEY);
+    //         setSchoolYearEnd(valEnd ? dayjs(valEnd) : null);
+    //     }
+    // }, []);
 
     // Khi thay đổi, lưu vào localStorage
-    const handleSchoolYearStartChange = (date) => {
-        setSchoolYearStart(date);
-        if (date) localStorage.setItem(SCHOOL_YEAR_START_KEY, date.toISOString());
-        else localStorage.removeItem(SCHOOL_YEAR_START_KEY);
-    };
-    const handleSchoolYearEndChange = (date) => {
-        setSchoolYearEnd(date);
-        if (date) localStorage.setItem(SCHOOL_YEAR_END_KEY, date.toISOString());
-        else localStorage.removeItem(SCHOOL_YEAR_END_KEY);
-    };
+    // Không cho phép thay đổi schoolYearStart, schoolYearEnd nữa
+    // const handleSchoolYearStartChange = (date) => {...}
+    // const handleSchoolYearEndChange = (date) => {...}
 
     // Add this function to handle date range changes
     const handleDateRangeChange = (dates) => {
@@ -700,7 +710,7 @@ const KiemNhiemForm = () => {
                             <div className="font-bold mb-1">Ngày bắt đầu năm học <span className="text-red-600">*</span></div>
                             <DatePicker
                                 value={schoolYearStart}
-                                onChange={handleSchoolYearStartChange}
+                                disabled
                                 placeholder="Chọn ngày bắt đầu năm học"
                                 style={{ width: '100%' }}
                                 className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
@@ -711,7 +721,7 @@ const KiemNhiemForm = () => {
                             <div className="font-bold mb-1">Ngày kết thúc năm học <span className="text-red-600">*</span></div>
                             <DatePicker
                                 value={schoolYearEnd}
-                                onChange={handleSchoolYearEndChange}
+                                disabled
                                 placeholder="Chọn ngày kết thúc năm học"
                                 style={{ width: '100%' }}
                                 className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}

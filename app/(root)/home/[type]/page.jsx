@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Row, Col, Button, Input, Tabs, Spin, Select, Modal } from "antd";
+import { Row, Col, Button, Input, Tabs, Spin, Select, Modal, Alert } from "antd";
+import dayjs from "dayjs";
 import TeachingForm from '@components/GiangDay/TeachingForm';
 import EvaluationForm from "@components/ChamThi/EvaluationForm";
 import DutyExemptionForm from "@components/KiemNhiem/DutyExemptionForm";
@@ -56,6 +57,28 @@ const Pages = () => {
     { value: '2', label: '2' },
     // Thêm các kỳ khác nếu cần
   ];
+
+  // State để lưu hạn nộp
+  const [regulationRange, setRegulationRange] = useState({ start: null, end: null });
+
+  // Lấy hạn nộp từ Setting
+  useEffect(() => {
+    const fetchRegulation = async () => {
+      try {
+        const res = await fetch("/api/admin/setting");
+        const data = await res.json();
+        if (data && data.length > 0) {
+          setRegulationRange({
+            start: data[0].startRegulation ? dayjs(data[0].startRegulation) : null,
+            end: data[0].endRegulation ? dayjs(data[0].endRegulation) : null,
+          });
+        }
+      } catch (err) {
+        // Có thể show message lỗi nếu cần
+      }
+    };
+    fetchRegulation();
+  }, []);
 
   const [exportLoading, setExportLoading] = useState(false);
   const [allData, setAllData] = useState({
@@ -123,7 +146,7 @@ const Pages = () => {
           'Công tác hướng dẫn',
           'Công tác coi thi',
           'Công tác ra đề thi',
-          
+
         ];
       default:
         return [
@@ -239,6 +262,32 @@ const Pages = () => {
     // Chỉ cho phép khi recordStatus là 10 (Chưa hoàn thành) hoặc 3 (Yêu cầu chỉnh sửa)
     if (recordStatus !== 10 && recordStatus !== 3) {
       toast.error("Chỉ được phép lưu khi trạng thái là 'Chưa hoàn thành' hoặc 'Yêu cầu chỉnh sửa'.");
+      return;
+    }
+    // Kiểm tra hạn nộp
+    const now = dayjs();
+    if (regulationRange.end && now.isAfter(regulationRange.end, 'day')) {
+      Modal.error({
+        title: 'Quá hạn nộp!',
+        content: (
+          <div style={{ textAlign: 'center' }}>
+            <Alert
+              message="Đã quá hạn nộp kết quả!"
+              description={
+                <div>
+                  <div>Hạn cuối: <span className="font-bold text-red-600">{regulationRange.end.format('DD/MM/YYYY')}</span></div>
+                  <div>Vui lòng liên hệ quản trị viên để được hỗ trợ.</div>
+                </div>
+              }
+              type="error"
+              showIcon
+              style={{ marginTop: 10 }}
+            />
+          </div>
+        ),
+        okText: 'Đã hiểu',
+        centered: true,
+      });
       return;
     }
     Modal.confirm({
@@ -476,6 +525,14 @@ const Pages = () => {
             placeholder="Chọn học kỳ"
           />
         </div>
+        {/* Hiển thị hạn nộp nếu có */}
+        {regulationRange.start && regulationRange.end && (
+          <div className="w-[30%] px-2 bg-white rounded-md flex items-center justify-center">
+             <span>
+              Từ <span className="font-semibold text-green-600">{regulationRange.start.format('DD/MM/YYYY')}</span> đến <span className="font-semibold text-red-600">{regulationRange.end.format('DD/MM/YYYY')}</span>
+            </span>
+          </div>
+        )}
         {/* Thêm trạng thái vào đây */}
         {recordStatus !== null && (
           <div className="w-[30%] px-2 bg-white rounded-md flex items-center justify-center">
