@@ -270,7 +270,7 @@ const Pages = () => {
         <Space size="small">
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title="Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
@@ -338,7 +338,7 @@ const Pages = () => {
         <Space size="small">
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title="Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
@@ -411,7 +411,7 @@ const Pages = () => {
         <Space size="small">
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title="Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
@@ -508,7 +508,7 @@ const Pages = () => {
         <Space size="small">
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title=" Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
@@ -596,7 +596,7 @@ const Pages = () => {
         <Space size="small">
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title="Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
@@ -711,7 +711,7 @@ const Pages = () => {
 
           {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
-            title="Bạn có chắc chắn muốn xoá?"
+            title="Xoá ?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"

@@ -209,7 +209,7 @@ export const GET = async (req, { params }) => {
               ghiChu: item.ghiChu
             });
           } else {
-            // Create new record
+            // Nếu chưa có thì tạo mới
             await CongTacKiemNhiem.create({
               chucVuCongViec: item.chucVuCongViec,
               maCV: item.maCV,

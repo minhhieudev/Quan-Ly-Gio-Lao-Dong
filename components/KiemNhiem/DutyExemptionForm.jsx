@@ -222,7 +222,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 GCGD2 = GCGD - gValue2;
             }
         }
-        if (dataListSelect.length === 1 && dataListSelect[0].chucVu?.soMien === -1) return gValue2;
+        if (dataListSelect.length === 1 && dataListSelect[0].chucVu?.soMien === -1) return Math.round(gValue2 * 100) / 100;
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {
