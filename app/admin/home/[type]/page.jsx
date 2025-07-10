@@ -431,11 +431,11 @@ const App = () => {
       className: 'text-center',
       align: 'center',
       render: (text, record) => {
-        const tongGioChinhQuy = Number(record.tongGioChinhQuy) || 0;
+        const tongGioChinhQuy = Number(record.congTacGiangDay?.tong) + Number(record.congTacKhac?.tong);
         const gioChuan = Number(record.gioChuan) || 0;
         const kiemNhiem = Number(record.kiemNhiem) || 0;
         const chuanNamHoc = gioChuan - kiemNhiem;
-        return tongGioChinhQuy - chuanNamHoc;
+        return chuanNamHoc - tongGioChinhQuy;
       }
     },
     {
@@ -1008,7 +1008,7 @@ const App = () => {
           <FileExcelOutlined />
           Xuất file Excel
         </Button>
-        
+
         {/* Add Delete Button */}
         <Button
           className="bg-red-500 hover:bg-red-600 text-white font-bold shadow-md mr-2"
