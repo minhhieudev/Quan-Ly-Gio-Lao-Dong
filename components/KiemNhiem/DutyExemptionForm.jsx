@@ -190,16 +190,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 const GCGD = Number(currentUser.maNgachInfo.GCGD);
                 let gValue;
 
-
-                // else if (item.chucVu.soMien === -2) {
-                //     // Trường hợp -2: Tính bằng số tuần * GCGD / 44
-                //     const diffTime = Math.abs(dateEnd - dateStart);
-                //     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                //     const weeks = diffDays / 7;
-                //     gValue = (weeks * GCGD) / 44;
-                // }
-
-
                 if (item.chucVu.soMien < 1) {
                     // Trường hợp < 1 (nhưng không phải -1 hoặc -2)
                     gValue = item.chucVu.soMien * GCGD;
@@ -372,7 +362,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             dataIndex: 'tyLeMienGiam',
             key: 'tyLeMienGiam',
             align: 'center',
-            render: (text) => <span>{text}%</span>,
+            render: (text) => <span>{text}</span>,
             sorter: (a, b) => a.tyLeMienGiam - b.tyLeMienGiam
         },
         {
