@@ -9,7 +9,7 @@ import { Button, Popconfirm } from "antd";
 import dayjs from 'dayjs';
 
 
-const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
+const TableKiemNhiem = ({ data, handleEdit }) => {
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -83,14 +83,7 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
       align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <Button
-            size="small"
-            onClick={() => handleEdit(record)}
-            type="primary"
-            className="bg-blue-500 hover:bg-blue-600 flex items-center"
-            icon={<span className="mr-1">✏️</span>}
-          >
-          </Button>
+
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
@@ -106,6 +99,14 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
             >
             </Button>
           </Popconfirm>
+          <Button
+            size="small"
+            onClick={() => handleEdit(record)}
+            type="primary"
+            className="bg-blue-500 hover:bg-blue-600 flex items-center"
+            icon={<span className="mr-1">✏️</span>}
+          >
+          </Button>
         </Space>
       )
     },
@@ -116,9 +117,8 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
     current * pageSize
   );
 
-  // Nhận callback xóa từ cha, TableKiemNhiem không tự set state dataList
   const handleDelete = async (id) => {
-    setLoading(true);
+    alert(1)
     try {
       const res = await fetch("/api/users/kiem-nhiem-user", {
         method: "DELETE",
@@ -128,15 +128,13 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
 
       if (res.ok) {
         toast.success("Đã xóa chức vụ !");
-        if (onDelete) onDelete(id);
+        setDataList(prevData => prevData.filter(item => item._id !== id));
       } else {
         toast.error("Xóa thất bại");
       }
     } catch (err) {
-      console.log(err)
       toast.error("An error occurred while deleting data");
     }
-    setLoading(false);
   };
 
   return (

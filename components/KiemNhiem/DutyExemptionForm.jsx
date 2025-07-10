@@ -50,6 +50,27 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
     const [loading, setLoading] = useState(false);
 
+    const [schoolYearStart, setSchoolYearStart] = useState(null);
+    const [schoolYearEnd, setSchoolYearEnd] = useState(null);
+    const [listChucVu, setListChucVu] = useState([]);
+    const [listUser, setListUser] = useState([]);
+
+    useEffect(() => {
+        const fetchSchoolYear = async () => {
+            try {
+                const res = await fetch('/api/admin/setting');
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
+                    setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+                }
+            } catch (err) {
+                // Có thể show message lỗi nếu cần
+            }
+        };
+        fetchSchoolYear();
+    }, []);
+
     useEffect(() => {
         if (editRecord) {
             reset(editRecord);
@@ -81,20 +102,20 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log('DATA:',data)
+                console.log('DATA:', data)
 
                 // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
                 const listNghiDH = data.filter(
                     item => item.chucVu?.soMien === -1
                     // item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
                 );
-                // Các item còn lại
-                const listKhac = data.filter(
-                    item => !(item.chucVu?.soMien === -1)
-                    // item => !(item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH'))
-                );
+                // // Các item còn lại
+                // const listKhac = data.filter(
+                //     item => !(item.chucVu?.soMien === -1)
+                //     // item => !(item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH'))
+                // );
 
-                setDataListSelect(listKhac);
+                setDataListSelect(data);
                 setDataListSelect2(listNghiDH);
 
             } else {
@@ -163,13 +184,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             return;
         }
 
-        // Lấy giá trị schoolYearStart và schoolYearEnd từ phần tử đầu tiên của dataListSelect (nếu có)
-        let dau_nam, cuoi_nam;
 
-        if (dataListSelect && dataListSelect.length > 0 && dataListSelect[0].schoolYearStart && dataListSelect[0].schoolYearEnd) {
-            dau_nam = new Date(dataListSelect[0].schoolYearStart);
-            cuoi_nam = new Date(dataListSelect[0].schoolYearEnd);
-        }
+        // Lấy giá trị schoolYearStart và schoolYearEnd từ state (lấy từ DB)
+        let dau_nam = schoolYearStart ? new Date(schoolYearStart) : null;
+        let cuoi_nam = schoolYearEnd ? new Date(schoolYearEnd) : null;
+        let flat = false;
+
+        dataListSelect.forEach((item) => {
+            if (item.chucVu?.soMien === -1) {
+                flat = true;
+            };
+        })
 
         const events = [];
         const GCGD = Number(currentUser.maNgachInfo.GCGD);
@@ -182,7 +207,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
 
         if (dataListSelect2 && dataListSelect2.length > 0) {
-            schoolYearEndDate2 = new Date(dataListSelect2[0].schoolYearEnd);
+            // Lấy schoolYearEnd từ state thay vì dataListSelect2[0]
+            schoolYearEndDate2 = schoolYearEnd ? new Date(schoolYearEnd) : null;
             dateStart2 = new Date(dataListSelect2[0].startTime);
             const itemEndDate = dataListSelect2[0].endTime ? new Date(dataListSelect2[0].endTime) : schoolYearEndDate2;
             dateEnd2 = (itemEndDate > schoolYearEndDate2) ? schoolYearEndDate2 : itemEndDate;
@@ -193,15 +219,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 const weeks = diffDays / 7;
                 gValue2 = (weeks * GCGD) / 44;
-                GCGD2 = GCGD2 - gValue2;
+                GCGD2 = GCGD - gValue2;
             }
         }
-        if (dataListSelect.length < 1) return gValue2;
+        if (dataListSelect.length === 1 && dataListSelect[0].chucVu?.soMien === -1) return gValue2;
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {
+            if (item.chucVu?.soMien === -1) return;
             if (item.startTime && item.chucVu?.soMien !== undefined) {
-                const schoolYearEndDate = new Date(dataListSelect[0].schoolYearEnd);
+                // Lấy schoolYearEnd từ state thay vì dataListSelect[0]
+                const schoolYearEndDate = schoolYearEnd ? new Date(schoolYearEnd) : null;
                 const dateStart = new Date(item.startTime);
                 const itemEndDate = item.endTime ? new Date(item.endTime) : schoolYearEndDate;
                 const dateEnd = (itemEndDate > schoolYearEndDate) ? schoolYearEndDate : itemEndDate;
@@ -223,7 +251,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     gValue = item.chucVu.soMien;
                 }
 
-                if (dateStart.getMonth() < dau_nam.getMonth() && dateStart.getFullYear() == dau_nam.getFullYear()) {
+                if (dau_nam && dateStart.getMonth() < dau_nam.getMonth() && dateStart.getFullYear() == dau_nam.getFullYear()) {
                     const yearMonthStart = `${dateStart.getFullYear()}-${(dau_nam.getMonth() + 1).toString().padStart(2, '0')}`;
                     events.push({ time: yearMonthStart, type: "start", gValue });
                 }
@@ -231,7 +259,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     events.push({ time: yearMonthStart, type: "start", gValue });
                 }
 
-                if (dateEnd.getMonth() > cuoi_nam.getMonth() && dateEnd.getFullYear() === cuoi_nam.getFullYear()) {
+                if (cuoi_nam && dateEnd.getMonth() > cuoi_nam.getMonth() && dateEnd.getFullYear() === cuoi_nam.getFullYear()) {
                     const yearMonthEnd = `${dateStart.getFullYear()}-${(cuoi_nam.getMonth() + 1).toString().padStart(2, '0')}`;
                     events.push({ time: yearMonthEnd, type: "end", gValue });
                 }
@@ -286,9 +314,9 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
         setDataTong(results)
 
-        // Tính tổng max
+        // Tính tổng max, làm tròn 2 chữ số
         let totalMax = results.reduce((sum, r) => sum + (Number(r.max) || 0), 0);
-
+        totalMax = Math.round(totalMax * 100) / 100;
         return totalMax;
     };
 
@@ -341,6 +369,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             dataIndex: 'chucVuCongViec',
             key: 'chucVuCongViec',
             className: 'text-blue-600 font-medium',
+            width: '24%',
             render: (text) => <span className="text-blue-600 font-medium">{text}</span>,
             sorter: (a, b) => a.chucVuCongViec.localeCompare(b.chucVuCongViec),
         },
@@ -348,6 +377,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             title: 'Thời gian tính',
             dataIndex: 'thoiGianTinh',
             key: 'thoiGianTinh',
+            width: '18%',
             render: (text) => <span className="text-gray-700">{text}</span>,
             sorter: (a, b) => a.thoiGianTinh.localeCompare(b.thoiGianTinh)
         },
@@ -356,6 +386,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             dataIndex: 'tyLeMienGiam',
             key: 'tyLeMienGiam',
             align: 'center',
+            width: '12%',
             render: (text) => <span>{text}</span>,
             sorter: (a, b) => a.tyLeMienGiam - b.tyLeMienGiam
         },
@@ -421,26 +452,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
 
     // Lấy schoolYearStart, schoolYearEnd từ Setting (chỉ hiển thị, không cho chọn)
-    const [schoolYearStart, setSchoolYearStart] = useState(null);
-    const [schoolYearEnd, setSchoolYearEnd] = useState(null);
-    const [listChucVu, setListChucVu] = useState([]);
-    const [listUser, setListUser] = useState([]);
 
-    useEffect(() => {
-        const fetchSchoolYear = async () => {
-            try {
-                const res = await fetch('/api/admin/setting');
-                const data = await res.json();
-                if (data && data.length > 0) {
-                    setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
-                    setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
-                }
-            } catch (err) {
-                // Có thể show message lỗi nếu cần
-            }
-        };
-        fetchSchoolYear();
-    }, []);
 
     const fetchData5 = async () => {
         try {
@@ -742,14 +754,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     >
                         {loadings ? <Spin size="large" /> : (
                             <>
-                               <TableKiemNhiem 
-                                 data={[...dataListSelect, ...dataListSelect2]} 
-                                 handleEdit={handleEdit}
-                                 onDelete={(id) => {
-                                   setDataListSelect(prev => prev.filter(item => item._id !== id));
-                                   setDataListSelect2(prev => prev.filter(item => item._id !== id));
-                                 }}
-                               />
+                                <TableKiemNhiem data={dataListSelect} handleEdit={handleEdit} />
                                 {/* Kết quả dưới Table */}
                                 {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
                               <div className="border-b border-blue-500 pb-2 mb-2">
