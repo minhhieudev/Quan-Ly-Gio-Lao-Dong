@@ -9,7 +9,7 @@ import { Button, Popconfirm } from "antd";
 import dayjs from 'dayjs';
 
 
-const TableKiemNhiem = ({ data, handleEdit }) => {
+const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -116,7 +116,9 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
     current * pageSize
   );
 
+  // Nhận callback xóa từ cha, TableKiemNhiem không tự set state dataList
   const handleDelete = async (id) => {
+    setLoading(true);
     try {
       const res = await fetch("/api/users/kiem-nhiem-user", {
         method: "DELETE",
@@ -126,13 +128,15 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
 
       if (res.ok) {
         toast.success("Đã xóa chức vụ !");
-        setDataList(prevData => prevData.filter(item => item._id !== id));
+        if (onDelete) onDelete(id);
       } else {
         toast.error("Xóa thất bại");
       }
     } catch (err) {
+      console.log(err)
       toast.error("An error occurred while deleting data");
     }
+    setLoading(false);
   };
 
   return (

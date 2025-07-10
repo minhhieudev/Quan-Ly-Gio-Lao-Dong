@@ -81,14 +81,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             });
             if (res.ok) {
                 const data = await res.json();
+                console.log('DATA:',data)
 
                 // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
                 const listNghiDH = data.filter(
-                    item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
+                    item => item.chucVu?.soMien === -1
+                    // item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
                 );
                 // Các item còn lại
                 const listKhac = data.filter(
-                    item => !(item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH'))
+                    item => !(item.chucVu?.soMien === -1)
+                    // item => !(item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH'))
                 );
 
                 setDataListSelect(listKhac);
@@ -167,35 +170,56 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             dau_nam = new Date(dataListSelect[0].schoolYearStart);
             cuoi_nam = new Date(dataListSelect[0].schoolYearEnd);
         }
-        // else {
-        //     // Giá trị mặc định nếu không tìm thấy trong dữ liệu
-        //     dau_nam = new Date('2025-10'); // Tháng bắt đầu (tháng 10 năm 2024)
-        //     cuoi_nam = new Date('2026-5'); // Tháng kết thúc (tháng 5 năm 2025)
-        // }
 
         const events = [];
+        const GCGD = Number(currentUser.maNgachInfo.GCGD);
+
+        let GCGD2 = 0;
+        let schoolYearEndDate2;
+        let dateStart2;
+        let dateEnd2;
+        let gValue2 = 0;
+
+
+        if (dataListSelect2 && dataListSelect2.length > 0) {
+            schoolYearEndDate2 = new Date(dataListSelect2[0].schoolYearEnd);
+            dateStart2 = new Date(dataListSelect2[0].startTime);
+            const itemEndDate = dataListSelect2[0].endTime ? new Date(dataListSelect2[0].endTime) : schoolYearEndDate2;
+            dateEnd2 = (itemEndDate > schoolYearEndDate2) ? schoolYearEndDate2 : itemEndDate;
+
+            // Nếu là -1: Tính bằng số tuần * GCGD / 44
+            if (dataListSelect2[0].chucVu?.soMien === -1) {
+                const diffTime = Math.abs(dateEnd2 - dateStart2);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const weeks = diffDays / 7;
+                gValue2 = (weeks * GCGD) / 44;
+                GCGD2 = GCGD2 - gValue2;
+            }
+        }
+        if (dataListSelect.length < 1) return gValue2;
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {
             if (item.startTime && item.chucVu?.soMien !== undefined) {
-                //if (item.loai === 'bo-qua') return;
-
+                const schoolYearEndDate = new Date(dataListSelect[0].schoolYearEnd);
                 const dateStart = new Date(item.startTime);
-                // Nếu không có endTime thì lấy schoolYearEnd
-                const dateEnd = item.endTime ? new Date(item.endTime) : new Date(dataListSelect[0].schoolYearEnd);
+                const itemEndDate = item.endTime ? new Date(item.endTime) : schoolYearEndDate;
+                const dateEnd = (itemEndDate > schoolYearEndDate) ? schoolYearEndDate : itemEndDate;
 
                 const yearMonthStart = `${dateStart.getFullYear()}-${(dateStart.getMonth() + 1).toString().padStart(2, '0')}`;
                 const yearMonthEnd = `${dateEnd.getFullYear()}-${(dateEnd.getMonth() + 1).toString().padStart(2, '0')}`;
 
-                const GCGD = Number(currentUser.maNgachInfo.GCGD);
                 let gValue;
 
                 if (item.chucVu.soMien < 1) {
-                    // Trường hợp < 1 (nhưng không phải -1 hoặc -2)
-                    gValue = item.chucVu.soMien * GCGD;
+                    // Nếu trong TH -1
+                    if (dataListSelect2.length > 0) {
+                        gValue = item.chucVu.soMien * GCGD2;
+                    } else {
+                        gValue = item.chucVu.soMien * GCGD;
+                    }
                 }
                 else {
-                    // Trường hợp >= 1
                     gValue = item.chucVu.soMien;
                 }
 
@@ -214,8 +238,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 else {
                     events.push({ time: yearMonthEnd, type: "end", gValue });
                 }
-
-
             }
         });
         // Sắp xếp dựa trên giá trị thời gian
@@ -266,34 +288,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
         // Tính tổng max
         let totalMax = results.reduce((sum, r) => sum + (Number(r.max) || 0), 0);
-
-        if (dataListSelect2 && dataListSelect2.length > 0) {
-            dataListSelect2.forEach(item => {
-                const dateStart = new Date(item.startTime);
-                const dateEnd = item.endTime ? new Date(item.endTime) : new Date(dataListSelect[0].schoolYearEnd);
-                const GCGD = Number(currentUser.maNgachInfo.GCGD);
-
-                // Nếu là -1: Tính bằng số tuần * GCGD / 44
-                if (item.chucVu?.soMien === -1) {
-                    const diffTime = Math.abs(dateEnd - dateStart);
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    const weeks = diffDays / 7;
-                    const gValue = (weeks * GCGD) / 44;
-                    totalMax += gValue;
-                    // Xử lý kết quả gValue ở đây (ví dụ: cộng vào tổng, push vào mảng, ...)
-                }
-                // Nếu là NGHIDH1 hoặc NGHIDH2
-                else if (item.chucVu?.maCV === 'NGHIDH1') {
-                    totalMax= (GCGD - totalMax) * item.chucVu?.soMien;
-                }
-                else if (item.chucVu?.maCV === 'NGHIDH2') {
-                   totalMax= (GCGD - totalMax) * item.chucVu?.soMien;
-                }
-
-                // Xử lý tiếp với gValue nếu cần (ví dụ: push vào results, cộng tổng, ...)
-            });
-        }
-        
 
         return totalMax;
     };
@@ -426,27 +420,27 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
 
-// Lấy schoolYearStart, schoolYearEnd từ Setting (chỉ hiển thị, không cho chọn)
-const [schoolYearStart, setSchoolYearStart] = useState(null);
-const [schoolYearEnd, setSchoolYearEnd] = useState(null);
-const [listChucVu, setListChucVu] = useState([]);
-const [listUser, setListUser] = useState([]);
+    // Lấy schoolYearStart, schoolYearEnd từ Setting (chỉ hiển thị, không cho chọn)
+    const [schoolYearStart, setSchoolYearStart] = useState(null);
+    const [schoolYearEnd, setSchoolYearEnd] = useState(null);
+    const [listChucVu, setListChucVu] = useState([]);
+    const [listUser, setListUser] = useState([]);
 
-useEffect(() => {
-    const fetchSchoolYear = async () => {
-        try {
-            const res = await fetch('/api/admin/setting');
-            const data = await res.json();
-            if (data && data.length > 0) {
-                setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
-                setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+    useEffect(() => {
+        const fetchSchoolYear = async () => {
+            try {
+                const res = await fetch('/api/admin/setting');
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
+                    setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+                }
+            } catch (err) {
+                // Có thể show message lỗi nếu cần
             }
-        } catch (err) {
-            // Có thể show message lỗi nếu cần
-        }
-    };
-    fetchSchoolYear();
-}, []);
+        };
+        fetchSchoolYear();
+    }, []);
 
     const fetchData5 = async () => {
         try {
@@ -490,9 +484,9 @@ useEffect(() => {
         // Đã chuyển sang lấy từ Setting, không dùng localStorage nữa
     }, []);
 
-// Không cho phép thay đổi schoolYearStart, schoolYearEnd nữa
-// const handleSchoolYearEndChange = (date) => {...}
-// const handleSchoolYearStartChange = (date) => {...}
+    // Không cho phép thay đổi schoolYearStart, schoolYearEnd nữa
+    // const handleSchoolYearEndChange = (date) => {...}
+    // const handleSchoolYearStartChange = (date) => {...}
 
     const onSubmit = async (data) => {
         try {
@@ -550,7 +544,7 @@ useEffect(() => {
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full">
             {/* Form bên trái */}
-            <div className="p-3 px-5 shadow-lg bg-white rounded-xl border border-gray-100 flex-shrink-0 " style={{width: '30%', maxHeight: 'calc(85vh - 90px)'}}>
+            <div className="p-3 px-5 shadow-lg bg-white rounded-xl border border-gray-100 flex-shrink-0 " style={{ width: '30%', maxHeight: 'calc(85vh - 90px)' }}>
                 <div className="flex justify-between items-center mb-2">
                     <Title className="text-center m-0" level={4}>PHÂN CÔNG KIỆM NHIỆM</Title>
                     <Button
@@ -693,7 +687,7 @@ useEffect(() => {
             </div>
 
             {/* Table + Kết quả bên phải */}
-            <div className="flex flex-col px-3 py-2 shadow-lg bg-white rounded-xl border border-gray-100 min-w-0" style={{width: '70%'}}>
+            <div className="flex flex-col px-3 py-2 shadow-lg bg-white rounded-xl border border-gray-100 min-w-0" style={{ width: '70%' }}>
                 <div className="border-b border-blue-500 pb-2 mb-0">
                     <Title className="text-center text-blue-600" level={3}>QUẢN LÝ CÔNG TÁC KIÊM NHIỆM</Title>
                 </div>
@@ -747,10 +741,17 @@ useEffect(() => {
                         className="text-center p-2"
                     >
                         {loadings ? <Spin size="large" /> : (
-                          <>
-                            <TableKiemNhiem data={dataListSelect} handleEdit={handleEdit} />
-                            {/* Kết quả dưới Table */}
-                            {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
+                            <>
+                               <TableKiemNhiem 
+                                 data={[...dataListSelect, ...dataListSelect2]} 
+                                 handleEdit={handleEdit}
+                                 onDelete={(id) => {
+                                   setDataListSelect(prev => prev.filter(item => item._id !== id));
+                                   setDataListSelect2(prev => prev.filter(item => item._id !== id));
+                                 }}
+                               />
+                                {/* Kết quả dưới Table */}
+                                {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
                               <div className="border-b border-blue-500 pb-2 mb-2">
                                 <h3 className="text-base font-semibold text-blue-600 text-center">Kết quả</h3>
                               </div>
@@ -781,9 +782,9 @@ useEffect(() => {
                                 </table>
                               </div>
                             </div> */}
-                          </>
+                            </>
                         )}
-                      </TabPane>
+                    </TabPane>
                 </Tabs>
             </div>
         </div>
