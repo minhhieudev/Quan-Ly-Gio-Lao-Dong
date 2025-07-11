@@ -39,6 +39,11 @@ const CongTacKiemNhiemSchema = new mongoose.Schema({
   timestamps: true,
 });
 
+CongTacKiemNhiemSchema.index(
+  { user: 1, chucVuCongViec: 1, thoiGianTinh: 1, namHoc: 1, type: 1 },
+  { unique: true }
+);
+
 const CongTacKiemNhiem = mongoose.models.CongTacKiemNhiem || mongoose.model('CongTacKiemNhiem', CongTacKiemNhiemSchema);
 
 export default CongTacKiemNhiem;
