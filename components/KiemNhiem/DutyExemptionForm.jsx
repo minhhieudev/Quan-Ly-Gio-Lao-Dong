@@ -277,12 +277,13 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             // Nếu là -1: Tính bằng số tuần * GCGD / 44
             if (dataListSelect2[0].chucVu?.soMien === -1) {
                 const diffTime = Math.abs(dateEnd2 - dateStart2);
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 const weeks = diffDays / 7;
                 gValue2 = (weeks * GCGD) / 44;
                 GCGD2 = GCGD - gValue2;
                 setMienGiam2(gValue2);
                 onSubmitMienGiam(dataListSelect2[0], gValue2);
+
             }
         }
 
@@ -298,10 +299,11 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             const dateEnd = (itemEndDate > schoolYearEndDate) ? schoolYearEndDate : itemEndDate;
 
             const diffTime = Math.abs(dateEnd - dateStart);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
             const weeks = diffDays / 7;
 
-            
+
 
             const gvalue = GCGD * dataListSelect3[0].chucVu.soMien;
 
@@ -352,9 +354,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         const gValueT = item.chucVu.soMien * GCGD2;
 
                         const diffTime = Math.abs(dateEnd - dateStart);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                         const weeks = diffDays / 7;
-                        gValue = (weeks * (GCGD2 - gValueT)) / 44;
+
+                        gValue = (weeks * gValueT) / 44;
+
+                        console.log('gValue:', gValue)
+                        console.log('weeks:', weeks)
+                       
+
+                        console.log('diffDays[0]:', GCGD2)
+
 
                         // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
                         const endTime = item.endTime || schoolYearEnd;
@@ -532,7 +542,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             setMienGiam(gValue);
             onSubmitMienGiam(dataListSelect3[0], gValue);
         }
-        const resultFinal = totalMax + mienGiam2 + mienGiam;
+        const resultFinal = Math.round((totalMax + mienGiam2 + mienGiam) * 100) / 100;
         return resultFinal;
     };
 
