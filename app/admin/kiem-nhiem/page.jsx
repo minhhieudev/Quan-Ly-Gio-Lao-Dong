@@ -319,6 +319,15 @@ const KiemNhiemForm = () => {
         reset(formSchema);
         setEditRecord(null);
     };
+    const onReset2 = () => {
+        reset({
+            ...formSchema,
+            startTime: schoolYearStart,
+            endTime: schoolYearEnd,
+        });
+        setEditRecord(null);
+        setEditSource(null);
+    };
     const handleEdit = (record) => {
         setEditRecord(record);
         setShowForm(true);
@@ -335,6 +344,18 @@ const KiemNhiemForm = () => {
             reset(formSchema);
         }
     }, [showForm, editRecord, reset]);
+
+    useEffect(() => {
+        if (schoolYearStart && schoolYearEnd) {
+            reset({
+                ...formSchema,
+                startTime: schoolYearStart,
+                endTime: schoolYearEnd,
+            });
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [schoolYearStart, schoolYearEnd]);
+
     const handleDelete = async (id) => {
         try {
             const res = await fetch("/api/admin/kiem-nhiem", {
@@ -797,7 +818,7 @@ const KiemNhiemForm = () => {
                                     control={control}
                                     rules={{ required: "Ngày bắt đầu là bắt buộc" }}
                                     render={({ field }) => (
-                                        <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày bắt đầu" />
                                     )}
                                 />
                             </Form.Item>
@@ -811,7 +832,7 @@ const KiemNhiemForm = () => {
                                     name="endTime"
                                     control={control}
                                     render={({ field }) => (
-                                        <DatePicker {...field} placeholder="Chọn ngày kết thúc" />
+                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày kết thúc" />
                                     )}
                                 />
                             </Form.Item>
@@ -839,7 +860,7 @@ const KiemNhiemForm = () => {
                             >
                                 {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
                             </Button>
-                            <Button onClick={onReset}>Hủy</Button>
+                            <Button onClick={onReset()}>Hủy</Button>
                             <Spin spinning={isUploading}>
                                 <label htmlFor="excelUpload">
                                     <Button

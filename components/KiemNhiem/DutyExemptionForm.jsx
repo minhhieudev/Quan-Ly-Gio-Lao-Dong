@@ -236,6 +236,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
     const handelKiemNhiem = () => {
+
         if (!dataListSelect || dataListSelect.length === 0) {
             return;
         }
@@ -278,8 +279,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             if (dataListSelect2[0].chucVu?.soMien === -1) {
                 const diffTime = Math.abs(dateEnd2 - dateStart2);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                const weeks = diffDays / 7;
-                gValue2 = (weeks * GCGD) / 44;
+                const weeks = Math.round((diffDays / 7) * 10) / 10;
+                gValue2 = Math.round(((weeks * GCGD) / 44) * 10) / 10;
                 GCGD2 = GCGD - gValue2;
                 setMienGiam2(gValue2);
                 onSubmitMienGiam(dataListSelect2[0], gValue2);
@@ -301,15 +302,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             const diffTime = Math.abs(dateEnd - dateStart);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-            const weeks = diffDays / 7;
-
-
+            const weeks = Math.min(Math.round((diffDays / 7) * 10) / 10, 44);
 
             const gvalue = GCGD * dataListSelect3[0].chucVu.soMien;
 
-            const result = (weeks * gvalue) / 44;
+            const result = Math.round(((weeks * gvalue) / 44) * 10) / 10;
             setMienGiam(result);
             onSubmitMienGiam(dataListSelect3[0], result);
+
+            console.log('result:', result)
+            console.log('weeks:', weeks)
+            console.log('gvalue:', gvalue)
+            console.log('GCGD:', GCGD)
+
             return;
         }
 
@@ -323,11 +328,11 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
             const diffTime = Math.abs(dateEnd - dateStart);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const weeks = diffDays / 7;
+            const weeks = Math.round((diffDays / 7) * 10) / 10;
 
             const gvalue = GCGD2 * dataListSelect3[0].chucVu.soMien;
 
-            const result = (weeks * gvalue) / 44;
+            const result = Math.round(((weeks * gvalue) / 44) * 10) / 10;
             setMienGiam(result);
             onSubmitMienGiam(dataListSelect3[0], result);
             return;
@@ -335,7 +340,9 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
         // Tạo danh sách sự kiện từ dataListSelect
         dataListSelect.forEach((item) => {
+
             if (item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')) return;
+            alert(4)
             if (item.startTime && item.chucVu?.soMien !== undefined) {
                 // Lấy schoolYearEnd từ state thay vì dataListSelect[0]
                 const schoolYearEndDate = schoolYearEnd ? new Date(schoolYearEnd) : null;
@@ -349,86 +356,49 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 let gValue;
 
                 if (item.chucVu.soMien < 1) {
-                    // Nếu trong TH -1
-                    if (dataListSelect2.length > 0) {
-                        const gValueT = item.chucVu.soMien * GCGD2;
 
-                        const diffTime = Math.abs(dateEnd - dateStart);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-                        const weeks = diffDays / 7;
+                    const gValueT = item.chucVu.soMien * GCGD;
 
-                        gValue = (weeks * gValueT) / 44;
+                    const diffTime = Math.abs(dateEnd - dateStart);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    const weeks = Math.round((diffDays / 7) * 10) / 10;
 
-                        console.log('gValue:', gValue)
-                        console.log('weeks:', weeks)
-                       
+                    gValue = Math.round(((weeks * gValueT) / 44) * 10) / 10;
 
-                        console.log('diffDays[0]:', GCGD2)
+                    console.log('gValue:', gValue)
+                    console.log('weeks:', weeks)
+
+                    console.log('diffDays[0]:', GCGD)
 
 
-                        // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
-                        const endTime = item.endTime || schoolYearEnd;
-                        const newRow = {
-                            chucVuCongViec: item.chucVu.tenCV,
-                            maCV: item.chucVu.maCV,
-                            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(endTime).toLocaleDateString('vi-VN')}`,
-                            tyLeMienGiam: item.chucVu.soMien,
-                            soTietQC: Math.round(gValue * 100) / 100,
-                            ghiChu: item.ghiChu || '',
-                            namHoc: namHoc,
-                            user: item.user,
-                            startTime: item.startTime,
-                            endTime: endTime,
-                            _id: generateUniqueId(),
-                        };
-                        setDataList(prev => {
-                            const exists = prev.some(row =>
-                                row.chucVuCongViec === newRow.chucVuCongViec &&
-                                row.thoiGianTinh === newRow.thoiGianTinh &&
-                                row.tyLeMienGiam === newRow.tyLeMienGiam &&
-                                row.soTietQC === newRow.soTietQC
-                            );
-                            if (exists) return prev;
-                            return [...prev, newRow];
-                        });
-
-                    } else {
-                        const gValueT = item.chucVu.soMien * GCGD;
-
-                        const diffTime = Math.abs(dateEnd - dateStart);
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        const weeks = diffDays / 7;
-                        gValue = (weeks * (GCGD - gValueT)) / 44;
-
-                        // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
-                        const endTime = item.endTime || schoolYearEnd;
-                        const newRow = {
-                            chucVuCongViec: item.chucVu.tenCV,
-                            maCV: item.chucVu.maCV,
-                            thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(endTime).toLocaleDateString('vi-VN')}`,
-                            tyLeMienGiam: item.chucVu.soMien,
-                            soTietQC: Math.round(gValue * 100) / 100,
-                            ghiChu: item.ghiChu || '',
-                            namHoc: namHoc,
-                            user: item.user,
-                            startTime: item.startTime,
-                            endTime: endTime,
-                            _id: generateUniqueId(),
-                        };
-                        setDataList(prev => {
-                            const exists = prev.some(row =>
-                                row.chucVuCongViec === newRow.chucVuCongViec &&
-                                row.thoiGianTinh === newRow.thoiGianTinh &&
-                                row.tyLeMienGiam === newRow.tyLeMienGiam &&
-                                row.soTietQC === newRow.soTietQC
-                            );
-                            if (exists) return prev;
-                            return [...prev, newRow];
-                        });
-                    }
+                    // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
+                    const endTime = item.endTime || schoolYearEnd;
+                    const newRow = {
+                        chucVuCongViec: item.chucVu.tenCV,
+                        maCV: item.chucVu.maCV,
+                        thoiGianTinh: `${new Date(item.startTime).toLocaleDateString('vi-VN')} - ${new Date(endTime).toLocaleDateString('vi-VN')}`,
+                        tyLeMienGiam: item.chucVu.soMien,
+                        soTietQC: Math.round(gValue * 100) / 100,
+                        ghiChu: item.ghiChu || '',
+                        namHoc: namHoc,
+                        user: item.user,
+                        startTime: item.startTime,
+                        endTime: endTime,
+                        _id: generateUniqueId(),
+                    };
+                    setDataList(prev => {
+                        const exists = prev.some(row =>
+                            row.chucVuCongViec === newRow.chucVuCongViec &&
+                            row.thoiGianTinh === newRow.thoiGianTinh &&
+                            row.tyLeMienGiam === newRow.tyLeMienGiam &&
+                            row.soTietQC === newRow.soTietQC
+                        );
+                        if (exists) return prev;
+                        return [...prev, newRow];
+                    });
                 }
                 else {
-                    gValue = item.chucVu.soMien;
+                    gValue = Math.round(item.chucVu.soMien * 10) / 10;
 
                     // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
                     const endTime = item.endTime || schoolYearEnd;
@@ -474,6 +444,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 }
             }
         });
+
+
         // Sắp xếp dựa trên giá trị thời gian
         events.sort((a, b) => {
             const dateA = new Date(a.time);
@@ -535,9 +507,15 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
             const diffTime = Math.abs(dateEnd - dateStart);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const weeks = diffDays / 7;
+            const weeks = Math.min(Math.round((diffDays / 7) * 10) / 10, 44);
 
-            const gValue = (weeks * result) / 44;
+            console.log('weeks:', weeks)
+            console.log('result:', result)
+
+            const gValue = Math.round(((weeks * result) / 44) * 10) / 10;
+
+            console.log('gValue:', gValue)
+
 
             setMienGiam(gValue);
             onSubmitMienGiam(dataListSelect3[0], gValue);
@@ -547,7 +525,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
     useEffect(() => {
-        console.log('1');
         onUpdateCongTacKiemNhiem(finalResult);
     }, [finalResult]);
 
