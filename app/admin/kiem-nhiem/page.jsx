@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
     Button,
@@ -48,9 +48,6 @@ const KiemNhiemForm = () => {
     const [listUser, setListUser] = useState([]);
     const [total, setTotal] = useState(0);
     const [editRecord, setEditRecord] = useState(null);
-    const { control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm({
-        defaultValues: formSchema,
-    });
     const [searchName, setSearchName] = useState("");
     const [loading, setLoading] = useState(true);
 
@@ -108,20 +105,35 @@ const KiemNhiemForm = () => {
 
     const [confirmImportVisible, setConfirmImportVisible] = useState(false);
 
-    // useEffect(() => {
-    //     if (typeof window !== "undefined") {
-    //         const valStart = localStorage.getItem(SCHOOL_YEAR_START_KEY);
-    //         setSchoolYearStart(valStart ? dayjs(valStart) : null);
-    //
-    //         const valEnd = localStorage.getItem(SCHOOL_YEAR_END_KEY);
-    //         setSchoolYearEnd(valEnd ? dayjs(valEnd) : null);
-    //     }
-    // }, []);
+    // Thay thế useEffect bằng cách sử dụng useMemo để tính toán giá trị mặc định
+    const defaultFormValues = useMemo(() => {
+        if (!editRecord && schoolYearStart && schoolYearEnd) {
+            return {
+                ...formSchema,
+                startTime: schoolYearStart,
+                endTime: schoolYearEnd,
+            };
+        }
+        return formSchema;
+    }, [editRecord, schoolYearStart, schoolYearEnd]);
 
-    // Khi thay đổi, lưu vào localStorage
-    // Không cho phép thay đổi schoolYearStart, schoolYearEnd nữa
-    // const handleSchoolYearStartChange = (date) => {...}
-    // const handleSchoolYearEndChange = (date) => {...}
+    // Sử dụng defaultFormValues trong useForm
+    const { control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm({
+        defaultValues: defaultFormValues,
+    });
+
+    // Hoặc sử dụng useEffect với dependency array chính xác hơn
+    useEffect(() => {
+        if (showForm && !editRecord) {
+            // Chỉ reset khi mở form mới và không phải edit
+            const newValues = {
+                ...formSchema,
+                startTime: schoolYearStart || null,
+                endTime: schoolYearEnd || null,
+            };
+            reset(newValues);
+        }
+    }, [showForm, editRecord]); // Bỏ schoolYearStart, schoolYearEnd khỏi dependency
 
     // Add this function to handle date range changes
     const handleDateRangeChange = (dates) => {
@@ -316,7 +328,12 @@ const KiemNhiemForm = () => {
     };
 
     const onReset = () => {
-        reset(formSchema);
+        const resetValues = {
+            ...formSchema,
+            startTime: schoolYearStart || null,
+            endTime: schoolYearEnd || null,
+        };
+        reset(resetValues);
         setEditRecord(null);
     };
     const onReset2 = () => {
@@ -816,9 +833,30 @@ const KiemNhiemForm = () => {
                                 <Controller
                                     name="startTime"
                                     control={control}
-                                    rules={{ required: "Ngày bắt đầu là bắt buộc" }}
+                                    defaultValue={schoolYearStart}
+                                    rules={{ 
+                                        required: "Ngày bắt đầu là bắt buộc",
+                                        validate: (value) => {
+                                            if (value && !dayjs(value).isValid()) {
+                                                return "Ngày không hợp lệ";
+                                            }
+                                            return true;
+                                        }
+                                    }}
                                     render={({ field }) => (
-                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày bắt đầu" />
+                                        <DatePicker 
+                                            {...field} 
+                                            value={field.value || schoolYearStart} 
+                                            placeholder="DD/MM/YYYY hoặc chọn từ lịch"
+                                            format="DD/MM/YYYY"
+                                            allowClear
+                                            inputReadOnly={false}
+                                            style={{ width: '100%' }}
+                                            showToday={false}
+                                            onChange={(date) => {
+                                                field.onChange(date);
+                                            }}
+                                        />
                                     )}
                                 />
                             </Form.Item>
@@ -831,8 +869,17 @@ const KiemNhiemForm = () => {
                                 <Controller
                                     name="endTime"
                                     control={control}
+                                    defaultValue={schoolYearEnd}
                                     render={({ field }) => (
-                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày kết thúc" />
+                                        <DatePicker 
+                                            {...field} 
+                                            value={field.value || schoolYearEnd} 
+                                            placeholder="Chọn hoặc nhập ngày kết thúc"
+                                            format="DD/MM/YYYY"
+                                            allowClear
+                                            inputReadOnly={false}
+                                            style={{ width: '100%' }}
+                                        />
                                     )}
                                 />
                             </Form.Item>
@@ -860,7 +907,7 @@ const KiemNhiemForm = () => {
                             >
                                 {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
                             </Button>
-                            <Button onClick={onReset()}>Hủy</Button>
+                            <Button onClick={() => onReset()}>Hủy</Button>
                             <Spin spinning={isUploading}>
                                 <label htmlFor="excelUpload">
                                     <Button
