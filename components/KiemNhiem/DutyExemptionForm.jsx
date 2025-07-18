@@ -302,7 +302,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             const diffTime = Math.abs(dateEnd - dateStart);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-            const weeks = Math.min(Math.round((diffDays / 7) * 10) / 10, 44);
+            const weeks = Math.round((diffDays / 7) * 10) / 10;
 
             const gvalue = GCGD * dataListSelect3[0].chucVu.soMien;
 
@@ -507,7 +507,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
             const diffTime = Math.abs(dateEnd - dateStart);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            const weeks = Math.min(Math.round((diffDays / 7) * 10) / 10, 44);
+            const weeks = Math.round((diffDays / 7) * 10) / 10;
 
             console.log('weeks:', weeks)
             console.log('result:', result)
@@ -771,13 +771,13 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     const onSubmit = async (data) => {
         try {
             // Kiểm tra ngày bắt đầu/kết thúc năm học
-            if (!schoolYearStart) {
-                toast.error('Vui lòng chọn ngày bắt đầu năm học!');
+            if (!data.startTime) {
+                toast.error('Vui lòng chọn ngày bắt đầu!');
                 return;
             }
 
-            if (!schoolYearEnd) {
-                toast.error('Vui lòng chọn ngày kết thúc năm học!');
+            if (!data.endTime) {
+                toast.error('Vui lòng chọn ngày kết thúc!');
                 return;
             }
 

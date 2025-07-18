@@ -345,16 +345,16 @@ const KiemNhiemForm = () => {
         }
     }, [showForm, editRecord, reset]);
 
-    useEffect(() => {
-        if (schoolYearStart && schoolYearEnd) {
-            reset({
-                ...formSchema,
-                startTime: schoolYearStart,
-                endTime: schoolYearEnd,
-            });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [schoolYearStart, schoolYearEnd]);
+    // useEffect(() => {
+    //     if (schoolYearStart && schoolYearEnd) {
+    //         reset({
+    //             ...formSchema,
+    //             startTime: schoolYearStart,
+    //             endTime: schoolYearEnd,
+    //         });
+    //     }
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [schoolYearStart, schoolYearEnd]);
 
     const handleDelete = async (id) => {
         try {
