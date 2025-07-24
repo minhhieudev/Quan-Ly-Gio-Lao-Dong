@@ -342,7 +342,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         dataListSelect.forEach((item) => {
 
             if (item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')) return;
-            alert(4)
             if (item.startTime && item.chucVu?.soMien !== undefined) {
                 // Lấy schoolYearEnd từ state thay vì dataListSelect[0]
                 const schoolYearEndDate = schoolYearEnd ? new Date(schoolYearEnd) : null;
@@ -358,6 +357,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 if (item.chucVu.soMien < 1) {
 
                     const gValueT = item.chucVu.soMien * GCGD;
+                    console.log('item.chucVu.soMien:', item.chucVu.soMien)
+                    console.log('GCGD:', GCGD)
+                    console.log('gValueT:', gValueT)
+
 
                     const diffTime = Math.abs(dateEnd - dateStart);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;

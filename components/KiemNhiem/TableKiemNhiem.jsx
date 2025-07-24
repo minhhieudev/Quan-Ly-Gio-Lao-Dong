@@ -118,7 +118,6 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
   );
 
   const handleDelete = async (id) => {
-    alert(1)
     try {
       const res = await fetch("/api/users/kiem-nhiem-user", {
         method: "DELETE",

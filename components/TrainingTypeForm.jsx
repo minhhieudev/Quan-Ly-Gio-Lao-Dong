@@ -226,7 +226,7 @@ const TrainingTypeForm = ({ namHoc, ky }) => {
   };
 
   const totalSoTietQuyChuan = useMemo(() => {
-    return dataList.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+    return dataList.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0).toFixed(2);
   }, [dataList]);
 
   return loading ? (

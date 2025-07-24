@@ -716,7 +716,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                         scroll={{ x: 'max-content' }}
                                     />
                                     <div className="flex justify-center mt-3 bg-gray-50 p-2 rounded-lg">
-                                        <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-600 text-lg font-bold">{totalHours.toFixed(3)}</span></span>
+                                        <span className="font-bold text-lg">Tổng số giờ:  <span className="text-red-600 text-lg font-bold">{totalHours.toFixed(2)}</span></span>
                                     </div>
                                 </div>
                         },
