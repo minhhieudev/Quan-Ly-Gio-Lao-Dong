@@ -21,7 +21,7 @@ const formSchema = {
     noiDungCongViec: "",
     soSVSoNhom: 0,
     lopHocPhan: "",
-    thoiGian: "",
+    thoiGian: 0,
     soBuoi: 0,
     soTietQuyChuan: 0,
     tongCong: 0,
@@ -287,11 +287,8 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full">
-            <div className="p-5 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100">
-                <div className="border-b border-blue-500 pb-2 mb-2">
-                    <Title className="text-center text-blue-600" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
-                </div>
-
+            <div className="p-3 px-5 shadow-lg bg-white rounded-xl border border-gray-100" style={{ maxWidth: '100%', overflowX: 'auto' }}>
+                <Title className="text-center text-blue-600" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-4">
                     <Space direction="vertical" className="w-full" size={0}>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
@@ -382,7 +379,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                 </Form.Item>
 
                                 <Form.Item
-                                    label={<span className="font-semibold text-base text-gray-700">Thời gian <span className="text-red-600">*</span></span>}
+                                    label={<span className="font-semibold text-base text-gray-700">Thời gian</span>}
                                     className="w-full md:w-[48%] mb-2"
                                     validateStatus={errors.thoiGian ? 'error' : ''}
                                     help={errors.thoiGian?.message}
@@ -390,11 +387,10 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     <Controller
                                         name="thoiGian"
                                         control={control}
-                                        rules={{ required: "Thời gian là bắt buộc" }}
                                         render={({ field }) => 
-                                            <Input 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                                placeholder="Nhập thời gian ..." 
+                                            <InputNumber 
+                                                className="w-full rounded-md border-gray-300" 
+                                                min={0} 
                                                 {...field} 
                                             />
                                         }
@@ -406,7 +402,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
                             <div className="flex justify-between items-start gap-2 flex-wrap">
                                 <Form.Item
-                                    label={<span className="font-semibold text-base text-gray-700">Số buổi <span className="text-red-600">*</span></span>}
+                                    label={<span className="font-semibold text-base text-gray-700">Số buổi</span>}
                                     className="w-full md:w-[48%] mb-2"
                                     validateStatus={errors.soBuoi ? 'error' : ''}
                                     help={errors.soBuoi?.message}
@@ -414,11 +410,10 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     <Controller
                                         name="soBuoi"
                                         control={control}
-                                        rules={{ required: "Số buổi là bắt buộc", min: { value: 1, message: "Số buổi phải lớn hơn 0" } }}
                                         render={({ field }) => 
                                             <InputNumber 
                                                 className="w-full rounded-md border-gray-300" 
-                                                min={1} 
+                                                min={0} 
                                                 {...field} 
                                             />
                                         }
