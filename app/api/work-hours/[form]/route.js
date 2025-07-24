@@ -40,21 +40,33 @@ export const POST = async (req, { params }) => {
     const model = models[form];
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const { hocPhan, namHoc, user, ky } = body;
-    const existingRecord = await model.findOne({ hocPhan, namHoc, user, ky });
+    const { hocPhan, namHoc, user, ky, ngayThi } = body;
+
+    // Tạo query để kiểm tra trùng lặp
+    let duplicateQuery = { hocPhan, namHoc, user, ky };
+
+    // Đối với CongTacCoiThi, thêm ngayThi vào query để tránh trùng lặp
+    if (form === 'CongTacCoiThi' && ngayThi) {
+      duplicateQuery.ngayThi = ngayThi;
+    }
+
+    const existingRecord = await model.findOne(duplicateQuery);
 
     if (existingRecord) {
-      // Nếu bản ghi đã tồn tại, cập nhật bản ghi
-      const updatedRecord = await model.findByIdAndUpdate(existingRecord._id, body, { new: true });
-      return new Response(JSON.stringify(updatedRecord), { status: 200 });
+      // Nếu bản ghi đã tồn tại, trả về bản ghi hiện tại thay vì tạo mới
+      return new Response(JSON.stringify({
+        ...existingRecord.toObject(),
+        message: 'Bản ghi đã tồn tại, không tạo mới'
+      }), { status: 200 });
     } else {
       // Nếu không tồn tại, tạo bản ghi mới
       const newRecord = await model.create(body);
       return new Response(JSON.stringify(newRecord), { status: 200 });
     }
   } catch (err) {
-    console.log(err);
-    return new Response(`Failed to create or update ${form} record`, { status: 500 });
+    console.log('POST Error:', err);
+    const { form } = params;
+    return new Response(`Failed to create or update ${form || 'unknown'} record: ${err.message}`, { status: 500 });
   }
 };
 
@@ -75,8 +87,9 @@ export const PUT = async (req, { params }) => {
     const updatedRecord = await model.findByIdAndUpdate(id, updateData, { new: true });
     return new Response(JSON.stringify(updatedRecord), { status: 200 });
   } catch (err) {
-    console.log(err);
-    return new Response(`Failed to update ${form} record`, { status: 500 });
+    console.log('PUT Error:', err);
+    const { form } = params;
+    return new Response(`Failed to update ${form || 'unknown'} record: ${err.message}`, { status: 500 });
   }
 };
 
@@ -96,8 +109,9 @@ export const DELETE = async (req, { params }) => {
     await model.findByIdAndDelete(id);
     return new Response(`${form} record deleted successfully`, { status: 200 });
   } catch (err) {
-    console.log(err);
-    return new Response(`Failed to delete ${form} record`, { status: 500 });
+    console.log('DELETE Error:', err);
+    const { form } = params;
+    return new Response(`Failed to delete ${form || 'unknown'} record: ${err.message}`, { status: 500 });
   }
 };
 

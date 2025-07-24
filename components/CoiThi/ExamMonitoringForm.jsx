@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber, Radio, Table, Popconfirm, Tabs, Spin, Select } from "antd";
+import { Button, Input, Form, Space, Typography, InputNumber, Radio, Table, Popconfirm, Tabs, Spin, Select, Upload } from "antd";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -10,7 +10,8 @@ import moment from 'moment';
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import * as XLSX from 'xlsx';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -44,6 +45,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [loadings, setLoadings] = useState(true);
     const [isAddingNew, setIsAddingNew] = useState(false);
     const [newHocPhan, setNewHocPhan] = useState([]);
+    const [isImporting, setIsImporting] = useState(false);
 
     const [currentHocPhan, setCurrentHocPhan] = useState(null);
 
@@ -233,6 +235,223 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         setEditRecord(null);
     };
 
+    // Hàm xử lý import Excel
+    const handleImportExcel = async (file) => {
+        setIsImporting(true);
+        toast.loading('Đang import dữ liệu từ Excel...', { id: 'excel-import' });
+        try {
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[sheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    // Tìm hàng header và dữ liệu
+                    let headerRowIndex = -1;
+                    let dataStartIndex = -1;
+
+                    // Tìm hàng chứa "Tên học phần" để xác định header
+                    for (let i = 0; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (row && row.some(cell => cell && cell.toString().includes('Tên học phần'))) {
+                            headerRowIndex = i;
+                            dataStartIndex = i + 1;
+                            break;
+                        }
+                    }
+
+                    if (headerRowIndex === -1) {
+                        toast.error('Không tìm thấy header "Tên học phần" trong file Excel!');
+                        toast.dismiss('excel-import');
+                        return;
+                    }
+
+                    const headers = jsonData[headerRowIndex];
+                    const hocPhanIndex = headers.findIndex(h => h && h.toString().includes('Tên học phần'));
+                    const ngayThiIndex = headers.findIndex(h => h && h.toString().includes('Ngày thi'));
+                    const thoiGianIndex = headers.findIndex(h => h && h.toString().includes('Thời gian thi'));
+
+                    if (hocPhanIndex === -1 || ngayThiIndex === -1) {
+                        toast.error('Không tìm thấy các cột cần thiết trong file Excel!');
+                        toast.dismiss('excel-import');
+                        return;
+                    }
+
+                    // Xử lý dữ liệu
+                    const importedData = [];
+                    for (let i = dataStartIndex; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length === 0) continue;
+
+                        const hocPhan = row[hocPhanIndex];
+                        const ngayThi = row[ngayThiIndex];
+                        const thoiGianThi = row[thoiGianIndex];
+
+                        // Validate dữ liệu cơ bản
+                        if (!hocPhan || hocPhan.toString().trim() === '') continue;
+                        if (!ngayThi) continue;
+
+                        if (hocPhan && ngayThi) {
+                            // Xử lý ngày thi
+                            let formattedNgayThi = '';
+                            try {
+                                if (typeof ngayThi === 'number') {
+                                    // Excel date serial number
+                                    const excelDate = new Date((ngayThi - 25569) * 86400 * 1000);
+                                    if (!isNaN(excelDate.getTime())) {
+                                        formattedNgayThi = excelDate.toISOString().split('T')[0];
+                                    }
+                                } else if (ngayThi instanceof Date) {
+                                    if (!isNaN(ngayThi.getTime())) {
+                                        formattedNgayThi = ngayThi.toISOString().split('T')[0];
+                                    }
+                                } else if (typeof ngayThi === 'string' && ngayThi.trim() !== '') {
+                                    // Thử parse string date
+                                    const parsedDate = new Date(ngayThi.trim());
+                                    if (!isNaN(parsedDate.getTime())) {
+                                        formattedNgayThi = parsedDate.toISOString().split('T')[0];
+                                    } else {
+                                        // Thử format dd/mm/yyyy hoặc dd-mm-yyyy
+                                        const dateFormats = [
+                                            /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/,
+                                            /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/
+                                        ];
+
+                                        for (const format of dateFormats) {
+                                            const match = ngayThi.trim().match(format);
+                                            if (match) {
+                                                let day, month, year;
+                                                if (format === dateFormats[0]) { // dd/mm/yyyy
+                                                    [, day, month, year] = match;
+                                                } else { // yyyy/mm/dd
+                                                    [, year, month, day] = match;
+                                                }
+                                                const testDate = new Date(year, month - 1, day);
+                                                if (!isNaN(testDate.getTime())) {
+                                                    formattedNgayThi = testDate.toISOString().split('T')[0];
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } catch (dateError) {
+                                console.warn('Error parsing date:', ngayThi, dateError);
+                            }
+
+                            // Skip nếu không parse được ngày
+                            if (!formattedNgayThi) {
+                                console.warn('Không thể parse ngày thi:', ngayThi);
+                                continue;
+                            }
+
+                            // Tính soTietQuyChuan theo logic hiện tại
+                            let soTietQuyChuan = 1;
+                            try {
+                                if (thoiGianThi) {
+                                    const thoiGianStr = thoiGianThi.toString().trim();
+                                    // Trích xuất số từ string (ví dụ: "120 phút" -> 120)
+                                    const thoiGianNumber = parseInt(thoiGianStr.replace(/[^\d]/g, ''));
+                                    if (!isNaN(thoiGianNumber) && thoiGianNumber > 0) {
+                                        soTietQuyChuan = Math.max(1, Math.ceil(thoiGianNumber / 60));
+                                    }
+                                }
+                            } catch (timeError) {
+                                console.warn('Error parsing time:', thoiGianThi, timeError);
+                            }
+
+                            importedData.push({
+                                hocPhan: hocPhan.toString().trim(),
+                                ngayThi: formattedNgayThi,
+                                thoiGianThi: thoiGianThi ? thoiGianThi.toString().trim() : '',
+                                soTietQuyChuan: soTietQuyChuan,
+                                ghiChu: '' // Để trống thay vì "Import từ Excel"
+                            });
+                        }
+                    }
+
+                    if (importedData.length === 0) {
+                        toast.error('Không có dữ liệu hợp lệ để import!');
+                        toast.dismiss('excel-import');
+                        return;
+                    }
+
+                    // Gọi API bulk import
+                    try {
+                        const res = await fetch("/api/work-hours/CongTacCoiThi/bulk-import", {
+                            method: "POST",
+                            body: JSON.stringify({
+                                items: importedData,
+                                type: type,
+                                user: currentUser._id,
+                                namHoc,
+                                ky
+                            }),
+                            headers: { "Content-Type": "application/json" },
+                        });
+
+                        if (res.ok) {
+                            const responseData = await res.json();
+                            const { results } = responseData;
+
+                            // Thêm các bản ghi mới vào danh sách
+                            if (results.success && results.success.length > 0) {
+                                setDataList(prevData => {
+                                    const newRecords = results.success.filter(newRecord =>
+                                        !prevData.some(existing =>
+                                            existing.hocPhan === newRecord.hocPhan &&
+                                            existing.ngayThi === newRecord.ngayThi &&
+                                            existing.user === newRecord.user
+                                        )
+                                    );
+                                    return [...prevData, ...newRecords];
+                                });
+                            }
+
+                            // Hiển thị thông báo kết quả
+                            toast.success(responseData.message);
+                            toast.dismiss('excel-import');
+
+                            // Log chi tiết nếu có lỗi
+                            if (results.errors && results.errors.length > 0) {
+                                console.warn('Import errors:', results.errors);
+                            }
+                            if (results.duplicates && results.duplicates.length > 0) {
+                                console.info('Duplicate records:', results.duplicates);
+                            }
+
+                        } else {
+                            const errorText = await res.text();
+                            console.error('Bulk import API Error:', errorText);
+                            toast.error('Import thất bại: ' + errorText);
+                            toast.dismiss('excel-import');
+                        }
+                    } catch (err) {
+                        console.error('Bulk import Error:', err);
+                        toast.error('Lỗi khi import: ' + err.message);
+                        toast.dismiss('excel-import');
+                    }
+
+                } catch (error) {
+                    console.error('Error processing Excel file:', error);
+                    toast.error('Lỗi khi xử lý file Excel!');
+                    toast.dismiss('excel-import');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } catch (error) {
+            console.error('Error importing Excel:', error);
+            toast.error('Lỗi khi import file Excel!');
+            toast.dismiss('excel-import');
+        } finally {
+            setIsImporting(false);
+        }
+        return false; // Prevent upload
+    };
+
     const handleEdit = (record) => {
         console.log('record:', record);
         
@@ -292,10 +511,10 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
             ellipsis: true
         },
         {
-            title: <span className="font-semibold">Thời gian</span>,
+            title: <span className="font-semibold">Thời gian (phút)</span>,
             dataIndex: 'thoiGianThi',
             key: 'thoiGianThi',
-            render: (text) => <span className="font-medium">{text} phút</span>,
+            render: (text) => <span className="font-medium">{text}</span>,
             width: '10%',
             align: 'center'
         },
@@ -335,7 +554,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         className="bg-blue-500 hover:bg-blue-600"
                         icon={<span className="mr-1">✎</span>}
                     >
-                        Sửa
                     </Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
@@ -349,7 +567,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             danger
                             icon={<span className="mr-1">✕</span>}
                         >
-                            Xoá
                         </Button>
                     </Popconfirm>
                 </Space>
@@ -582,23 +799,38 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                         <div className="flex justify-center mt-4">
                             <Space size="middle">
-                                <Button 
-                                    type="primary" 
-                                    htmlType="submit" 
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
                                     loading={isSubmitting}
                                     className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                 >
                                     {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu dữ liệu")}
                                 </Button>
-                                <Button 
-                                    type="default" 
-                                    danger 
-                                    onClick={onReset} 
+                                <Button
+                                    type="default"
+                                    danger
+                                    onClick={onReset}
                                     disabled={isSubmitting}
                                     className="h-8 px-6 font-medium text-base"
                                 >
                                     Làm mới
                                 </Button>
+                                <Upload
+                                    accept=".xlsx,.xls"
+                                    beforeUpload={handleImportExcel}
+                                    showUploadList={false}
+                                >
+                                    <Button
+                                        type="default"
+                                        loading={isImporting}
+                                        disabled={isSubmitting || isImporting}
+                                        className="bg-green-50 hover:bg-green-100 border-green-300 text-green-700 h-8 px-6 font-medium text-base"
+                                        icon={<UploadOutlined />}
+                                    >
+                                        {isImporting ? "Đang import..." : "Import Excel"}
+                                    </Button>
+                                </Upload>
                             </Space>
                         </div>
                     </Space>
