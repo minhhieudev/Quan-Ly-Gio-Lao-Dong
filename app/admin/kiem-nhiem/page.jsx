@@ -340,10 +340,10 @@ const KiemNhiemForm = () => {
         reset({
             ...formSchema,
             startTime: schoolYearStart,
-            endTime: schoolYearEnd,
         });
         setEditRecord(null);
         setEditSource(null);
+        setDidInitForm(true);
     };
     const handleEdit = (record) => {
         setEditRecord(record);
@@ -362,16 +362,17 @@ const KiemNhiemForm = () => {
         }
     }, [showForm, editRecord, reset]);
 
-    // useEffect(() => {
-    //     if (schoolYearStart && schoolYearEnd) {
-    //         reset({
-    //             ...formSchema,
-    //             startTime: schoolYearStart,
-    //             endTime: schoolYearEnd,
-    //         });
-    //     }
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, [schoolYearStart, schoolYearEnd]);
+    useEffect(() => {
+        if (schoolYearStart && !editRecord && !didInitForm) {
+            reset({
+                ...formSchema,
+                startTime: schoolYearStart,
+            });
+            setDidInitForm(true);
+        }
+        // Reset lại cờ khi chuyển sang edit hoặc khi schoolYearStart đổi
+        if (editRecord) setDidInitForm(false);
+    }, [schoolYearStart, editRecord, reset]);
 
     const handleDelete = async (id) => {
         try {
@@ -736,6 +737,8 @@ const KiemNhiemForm = () => {
         }
     };
 
+    const [didInitForm, setDidInitForm] = useState(false);
+
     return loading ? (
         <Loader />
     ) : (
@@ -833,29 +836,9 @@ const KiemNhiemForm = () => {
                                 <Controller
                                     name="startTime"
                                     control={control}
-                                    defaultValue={schoolYearStart}
-                                    rules={{ 
-                                        validate: (value) => {
-                                            if (value && !dayjs(value).isValid()) {
-                                                return "Ngày không hợp lệ";
-                                            }
-                                            return true;
-                                        }
-                                    }}
+                                    rules={{ required: "Ngày bắt đầu là bắt buộc" }}
                                     render={({ field }) => (
-                                        <DatePicker 
-                                            {...field} 
-                                            value={field.value || schoolYearStart} 
-                                            placeholder="DD/MM/YYYY hoặc chọn từ lịch"
-                                            format="DD/MM/YYYY"
-                                            allowClear
-                                            inputReadOnly={false}
-                                            style={{ width: '100%' }}
-                                            showToday={false}
-                                            onChange={(date) => {
-                                                field.onChange(date);
-                                            }}
-                                        />
+                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày bắt đầu" />
                                     )}
                                 />
                             </Form.Item>
