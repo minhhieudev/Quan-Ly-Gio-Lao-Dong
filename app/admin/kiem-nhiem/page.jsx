@@ -835,7 +835,6 @@ const KiemNhiemForm = () => {
                                     control={control}
                                     defaultValue={schoolYearStart}
                                     rules={{ 
-                                        required: "Ngày bắt đầu là bắt buộc",
                                         validate: (value) => {
                                             if (value && !dayjs(value).isValid()) {
                                                 return "Ngày không hợp lệ";
