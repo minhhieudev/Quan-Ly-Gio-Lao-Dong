@@ -54,10 +54,19 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
       title: 'Ngày kết thúc',
       dataIndex: 'endTime',
       key: 'endTime',
-      render: (text) => <span className="text-blue-600 font-medium">{dayjs(text).format('DD/MM/YYYY')}</span>,
+      render: (text) => {
+        if (!text || !dayjs(text).isValid()) {
+          return <span className="text-gray-400">-</span>;
+        }
+        return <span className="text-blue-600 font-medium">{dayjs(text).format('DD/MM/YYYY')}</span>;
+      },
       width: '11%',
       align: 'center',
-      sorter: (a, b) => new Date(a.endTime) - new Date(b.endTime),
+      sorter: (a, b) => {
+        const dateA = a.endTime ? new Date(a.endTime) : new Date(0);
+        const dateB = b.endTime ? new Date(b.endTime) : new Date(0);
+        return dateA - dateB;
+      },
     },
     {
       title: 'Miễn giảm',

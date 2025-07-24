@@ -69,15 +69,29 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 const res = await fetch('/api/admin/setting');
                 const data = await res.json();
                 if (data && data.length > 0) {
-                    setSchoolYearStart(data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null);
-                    setSchoolYearEnd(data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null);
+                    const startDate = data[0].schoolYearStart ? dayjs(data[0].schoolYearStart) : null;
+                    const endDate = data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null;
+                    setSchoolYearStart(startDate);
+                    setSchoolYearEnd(endDate);
+
+                    // Set default startTime to schoolYearStart
+                    if (startDate) {
+                        setValue('startTime', startDate);
+                    }
                 }
             } catch (err) {
                 // Có thể show message lỗi nếu cần
             }
         };
         fetchSchoolYear();
-    }, []);
+    }, [setValue]);
+
+    // Set default user to current user
+    useEffect(() => {
+        if (currentUser?._id) {
+            setValue('user', currentUser._id);
+        }
+    }, [currentUser, setValue]);
 
     // For PHỤ LỤC CÔNG VIỆC form
     useEffect(() => {
@@ -532,7 +546,20 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     }, [finalResult]);
 
     const onReset = () => {
+        // Giữ lại user và startTime sau khi submit thành công
+        const currentUser_id = watch('user');
+        const currentStartTime = watch('startTime') || schoolYearStart;
+
         reset(formSchema);
+
+        // Set lại các giá trị cần giữ
+        if (currentUser_id) {
+            setValue('user', currentUser_id);
+        }
+        if (currentStartTime) {
+            setValue('startTime', currentStartTime);
+        }
+
         setEditRecord(null);
     };
 
@@ -773,26 +800,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
     const onSubmit = async (data) => {
         try {
-            // Kiểm tra ngày bắt đầu/kết thúc năm học
-            if (!data.startTime) {
-                toast.error('Vui lòng chọn ngày bắt đầu!');
+            // Sử dụng schoolYearStart làm default nếu không có startTime
+            const startTime = data.startTime || schoolYearStart;
+
+            if (!startTime) {
+                toast.error('Không thể xác định ngày bắt đầu!');
                 return;
             }
 
-            if (!data.endTime) {
-                toast.error('Vui lòng chọn ngày kết thúc!');
-                return;
-            }
-
-            // Kiểm tra ngày bắt đầu
-            if (!data.startTime) {
-                toast.error('Vui lòng chọn ngày bắt đầu!');
-                return;
-            }
-
+          
             // Thêm ngày bắt đầu/kết thúc năm học vào data
             const payload = {
                 ...data,
+                startTime,
                 id: editRecord?._id,
                 schoolYearStart,
                 schoolYearEnd,
@@ -818,7 +838,20 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     };
 
     const onReset2 = () => {
+        // Giữ lại user và startTime khi reset
+        const currentUser_id = watch('user');
+        const currentStartTime = watch('startTime') || schoolYearStart;
+
         reset(formSchema);
+
+        // Set lại các giá trị cần giữ
+        if (currentUser_id) {
+            setValue('user', currentUser_id);
+        }
+        if (currentStartTime) {
+            setValue('startTime', currentStartTime);
+        }
+
         setEditRecord(null);
         setEditSource(null);
     };
@@ -890,7 +923,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 <DatePicker
                                     value={schoolYearStart}
                                     disabled
-                                    placeholder="Chọn ngày bắt đầu năm học"
+                                    placeholder="yy-mm-dd"
                                     style={{ width: '100%' }}
                                     className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
                                 />
@@ -901,7 +934,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 <DatePicker
                                     value={schoolYearEnd}
                                     disabled
-                                    placeholder="Chọn ngày kết thúc năm học"
+                                    placeholder="yy-mm-dd"
                                     style={{ width: '100%' }}
                                     className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
                                 />
@@ -922,6 +955,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                         <Select
                                             className="input-select"
                                             placeholder="Chọn công việc, chức vụ ..."
+                                            showSearch
+                                            filterOption={(input, option) =>
+                                                option.label.toLowerCase().includes(input.toLowerCase())
+                                            }
                                             {...field}
                                             options={listChucVu.map(item => ({ label: item.tenCV, value: item._id }))}
                                         />
@@ -955,7 +992,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
                             <div className="flex justify-between">
                                 <Form.Item
-                                    label={<span className="font-bold text-xl">Ngày bắt đầu <span className="text-red-600">*</span></span>}
+                                    label={<span className="font-bold text-xl">Ngày bắt đầu</span>}
                                     className="w-[40%]"
                                     validateStatus={errors.startTime ? 'error' : ''}
                                     help={errors.startTime?.message}
@@ -963,9 +1000,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     <Controller
                                         name="startTime"
                                         control={control}
-                                        rules={{ required: "Ngày bắt đầu là bắt buộc" }}
                                         render={({ field }) => (
-                                            <DatePicker {...field} placeholder="Chọn ngày bắt đầu" />
+                                            <DatePicker {...field} placeholder="Mặc định: Ngày bắt đầu năm học" />
                                         )}
                                     />
                                 </Form.Item>
@@ -1170,7 +1206,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 className="custom-table"
                                 bordered
                                 size="middle"
-                                scroll={{ x: 'max-content', y: 'calc(85vh - 380px)' }}
+                                scroll={{ x: 'max-content', y: 'calc(85vh - 400px)' }}
                                 summary={() => (
                                     <Table.Summary.Row>
                                         <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
