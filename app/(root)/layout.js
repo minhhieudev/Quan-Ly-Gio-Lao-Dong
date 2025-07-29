@@ -16,8 +16,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} bg-gray-200`}>
         <Provider>
-          <TopBar />
-          {children}
+          <div className="container mx-auto max-w-[1600px] px-2 min-h-screen">
+            <TopBar />
+            {children}
+          </div>
           <Toaster
             position="top-right"
             reverseOrder={false}
@@ -57,7 +59,7 @@ export default function RootLayout({ children }) {
                 },
               },
             }}
-          /> {/* Thêm Toaster vào đây */}
+          />
         </Provider>
       </body>
     </html>

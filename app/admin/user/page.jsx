@@ -74,6 +74,8 @@ const UserForm = () => {
         if (selectedRole && selectedRole != null) {
             filteredData = filteredData.filter(user => user.role === selectedRole);
         }
+        // Ẩn tài khoản admin gốc (ví dụ: username === 'admin' hoặc email === 'admin@...')
+        filteredData = filteredData.filter(user => !(user.role === 'admin' && (user.username === 'admin' || user.email?.toLowerCase().includes('admin'))));
         setFilteredList(filteredData);
     }, [searchName, selectedKhoa, selectedRole, dataList]);
 
@@ -271,11 +273,11 @@ const UserForm = () => {
             key: 'username',
             className: 'text-blue-500 font-bold'
         },
-        // {
-        //     title: 'GCGD',
-        //     dataIndex: 'GCGD',
-        //     key: 'GCGD'
-        // },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email'
+        },
 
         {
             title: 'Mã ngạch',

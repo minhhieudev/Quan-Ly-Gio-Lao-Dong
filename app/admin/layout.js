@@ -17,10 +17,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} bg-gray-200`}>
         <Provider>
-          <TopBar />
-          <div className="flex justify-between h-[45vh] ml-1">
-            <div className="w-[15%]"><SideBar /></div>
-            <div className="w-[84%] mx-auto">{children}</div>
+          <div className="container mx-auto max-w-[1600px] px-2 min-h-screen">
+            <TopBar />
+            <div className="flex justify-between min-h-[90vh] mt-2">
+              <div className="w-[15%]"><SideBar /></div>
+              <div className="w-[84%] mx-auto">{children}</div>
+            </div>
           </div>
           <Toaster
             position="top-right"
