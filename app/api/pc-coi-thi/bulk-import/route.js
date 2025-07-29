@@ -13,6 +13,7 @@ export const POST = async (req) => {
       return new Response("Invalid items data", { status: 400 });
     }
 
+    console.log(items);
     const results = {
       success: [],
       duplicates: [],
@@ -31,7 +32,8 @@ export const POST = async (req) => {
           cbo1,
           cbo2,
           hinhThuc,
-          thoiGian
+          thoiGian,
+          loaiKyThi
         } = item;
 
         // Validate dữ liệu cơ bản
@@ -55,11 +57,60 @@ export const POST = async (req) => {
         const existingRecord = await PcCoiThi.findOne(duplicateQuery);
 
         if (existingRecord) {
-          results.duplicates.push({
-            item,
-            existing: existingRecord
-          });
-          continue;
+          // Cập nhật bản ghi hiện có với logic merge thông minh cho cbo1/cbo2
+          try {
+            // Xử lý merge cbo1 và cbo2
+            let newCbo1 = existingRecord.cbo1 || [];
+            let newCbo2 = existingRecord.cbo2 || [];
+
+            // Nếu có dữ liệu cbo1 mới và chưa tồn tại
+            if (cbo1 && Array.isArray(cbo1) && cbo1.length > 0) {
+              cbo1.forEach(cb => {
+                if (cb && !newCbo1.includes(cb)) {
+                  newCbo1.push(cb);
+                }
+              });
+            }
+
+            // Nếu có dữ liệu cbo2 mới và chưa tồn tại
+            if (cbo2 && Array.isArray(cbo2) && cbo2.length > 0) {
+              cbo2.forEach(cb => {
+                if (cb && !newCbo2.includes(cb)) {
+                  newCbo2.push(cb);
+                }
+              });
+            }
+
+            const updatedRecord = await PcCoiThi.findByIdAndUpdate(
+              existingRecord._id,
+              {
+                maHocPhan: maHocPhan || existingRecord.maHocPhan,
+                hocPhan: Array.isArray(hocPhan) ? hocPhan : [hocPhan],
+                lop: Array.isArray(lop) ? lop : (lop ? [lop] : existingRecord.lop),
+                ngayThi,
+                ca: ca || existingRecord.ca,
+                phong: Array.isArray(phong) ? phong : (phong ? [phong] : existingRecord.phong),
+                cbo1: newCbo1,
+                cbo2: newCbo2,
+                hinhThuc: Array.isArray(hinhThuc) ? hinhThuc : (hinhThuc ? [hinhThuc] : existingRecord.hinhThuc),
+                thoiGian: Array.isArray(thoiGian) ? thoiGian : (thoiGian ? [thoiGian] : existingRecord.thoiGian),
+                loaiKyThi: loaiKyThi || existingRecord.loaiKyThi,
+                type,
+                namHoc,
+                ky
+              },
+              { new: true }
+            );
+
+            results.success.push(updatedRecord);
+            continue;
+          } catch (updateError) {
+            results.errors.push({
+              item,
+              error: 'Lỗi khi cập nhật bản ghi: ' + updateError.message
+            });
+            continue;
+          }
         }
 
         // Tạo bản ghi mới
@@ -74,6 +125,7 @@ export const POST = async (req) => {
           cbo2: Array.isArray(cbo2) ? cbo2 : (cbo2 ? [cbo2] : []),
           hinhThuc: Array.isArray(hinhThuc) ? hinhThuc : (hinhThuc ? [hinhThuc] : []),
           thoiGian: Array.isArray(thoiGian) ? thoiGian : (thoiGian ? [thoiGian] : []),
+          loaiKyThi: loaiKyThi || '1',
           type,
           user,
           namHoc,
@@ -92,9 +144,9 @@ export const POST = async (req) => {
     }
 
     return new Response(JSON.stringify({
-      message: `Import PcCoiThi hoàn tất: ${results.success.length} bản ghi mới, ${results.duplicates.length} bản ghi trùng lặp, ${results.errors.length} bản ghi lỗi`,
+      message: `Import PcCoiThi hoàn tất: ${results.success.length} bản ghi (tạo mới + cập nhật), ${results.duplicates.length} bản ghi bỏ qua, ${results.errors.length} bản ghi lỗi`,
       results
-    }), { 
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

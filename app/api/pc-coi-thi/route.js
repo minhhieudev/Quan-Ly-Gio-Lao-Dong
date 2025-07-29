@@ -14,12 +14,14 @@ export const GET = async (req) => {
     const ky = searchParams.get('ky');
     const type = searchParams.get('type');
     const user = searchParams.get('user');
+    const loaiKyThi = searchParams.get('loaiKyThi');
 
     let query = {};
     if (namHoc) query.namHoc = namHoc;
     if (ky) query.ky = ky;
     if (type) query.type = type;
     if (user) query.user = user;
+    if (loaiKyThi) query.loaiKyThi = loaiKyThi;
 
     const pcCoiThiList = await PcCoiThi.find(query)
       .populate('user', 'name email')

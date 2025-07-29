@@ -41,6 +41,10 @@ const PcCoiThiSchema = new Schema({
     type: [String], // Array of strings để hỗ trợ nhiều thời gian
     default: []
   },
+  loaiKyThi: {
+    type: String,
+    default: "1" // Mặc định là đợt 1
+  },
   namHoc: {
     type: String,
     required: true

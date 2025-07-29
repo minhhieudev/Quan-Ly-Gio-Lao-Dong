@@ -171,7 +171,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         const fetchData = async () => {
             try {
                 const res = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/pc-coi-thi?namHoc=${namHoc}&hocKy=${ky}&gvGiangDay=${currentUser.username}`,
+                    `/api/pc-coi-thi?namHoc=${namHoc}&hocKy=${ky}&gvGiangDay=${currentUser.username}`,
                     {
                         method: "GET",
                         headers: { "Content-Type": "application/json" },
@@ -270,6 +270,22 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     let headerRowIndex = -1;
                     let dataStartIndex = -1;
 
+                    // Tìm loại kỳ thi từ các dòng đầu
+                    let loaiKyThi = '1'; // Mặc định
+                    for (let i = 0; i < Math.min(10, jsonData.length); i++) {
+                        const row = jsonData[i];
+                        if (row && row.length > 0) {
+                            const cellText = row.join(' ').toLowerCase();
+                            // Tìm "đợt" hoặc "Đợt" theo sau bởi số
+                            const dotMatch = cellText.match(/đợt\s*(\d+)/i);
+                            if (dotMatch) {
+                                loaiKyThi = dotMatch[1];
+                                console.log('Detected loaiKyThi:', loaiKyThi);
+                                break;
+                            }
+                        }
+                    }
+
                     // Tìm hàng chứa "Tên học phần" để xác định header
                     for (let i = 0; i < jsonData.length; i++) {
                         const row = jsonData[i];
@@ -287,15 +303,29 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     }
 
                     const headers = jsonData[headerRowIndex];
-                    const hocPhanIndex = headers.findIndex(h => h && h.toString().includes('Tên học phần'));
-                    const ngayThiIndex = headers.findIndex(h => h && h.toString().includes('Ngày thi'));
-                    const thoiGianIndex = headers.findIndex(h => h && h.toString().includes('Thời gian thi'));
 
-                    if (hocPhanIndex === -1 || ngayThiIndex === -1) {
-                        toast.error('Không tìm thấy các cột cần thiết trong file Excel!');
+                    // Tìm các cột cần thiết
+                    const columnIndexes = {
+                        maHocPhan: headers.findIndex(h => h && h.toString().includes('Mã học phần')),
+                        tenHocPhan: headers.findIndex(h => h && h.toString().includes('Tên học phần')),
+                        lopHP: headers.findIndex(h => h && h.toString().includes('Lớp HP')),
+                        ngayThi: headers.findIndex(h => h && h.toString().includes('Ngày thi')),
+                        buoiThi: headers.findIndex(h => h && h.toString().includes('Buổi thi')),
+                        gioThi: headers.findIndex(h => h && h.toString().includes('Giờ thi')),
+                        thoiGianThi: headers.findIndex(h => h && (h.toString().includes('Thời gian thi') || h.toString().includes('Thời gian'))),
+                        phongThi: headers.findIndex(h => h && h.toString().includes('Phòng thi')),
+                        canBoGiangDay: headers.findIndex(h => h && h.toString().includes('Cán bộ giảng dạy')),
+                        vaiTro: headers.findIndex(h => h && h.toString().includes('Vai trò'))
+                    };
+
+                    // Kiểm tra các cột bắt buộc
+                    if (columnIndexes.tenHocPhan === -1 || columnIndexes.ngayThi === -1) {
+                        toast.error('Không tìm thấy các cột cần thiết (Tên học phần, Ngày thi) trong file Excel!');
                         toast.dismiss('excel-import');
                         return;
                     }
+
+                    console.log('Column indexes found:', columnIndexes);
 
                     // Xử lý dữ liệu
                     const importedData = [];
@@ -303,31 +333,43 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         const row = jsonData[i];
                         if (!row || row.length === 0) continue;
 
-                        const hocPhan = row[hocPhanIndex];
-                        const ngayThi = row[ngayThiIndex];
-                        const thoiGianThi = row[thoiGianIndex];
+                        // Đọc tất cả các cột
+                        const rowData = {
+                            maHocPhan: columnIndexes.maHocPhan !== -1 ? (row[columnIndexes.maHocPhan] || '') : '',
+                            tenHocPhan: columnIndexes.tenHocPhan !== -1 ? (row[columnIndexes.tenHocPhan] || '') : '',
+                            lopHP: columnIndexes.lopHP !== -1 ? (row[columnIndexes.lopHP] || '') : '',
+                            ngayThi: columnIndexes.ngayThi !== -1 ? (row[columnIndexes.ngayThi] || '') : '',
+                            buoiThi: columnIndexes.buoiThi !== -1 ? (row[columnIndexes.buoiThi] || '') : '',
+                            gioThi: columnIndexes.gioThi !== -1 ? (row[columnIndexes.gioThi] || '') : '',
+                            thoiGianThi: columnIndexes.thoiGianThi !== -1 ? (row[columnIndexes.thoiGianThi] || '') : '',
+                            phongThi: columnIndexes.phongThi !== -1 ? (row[columnIndexes.phongThi] || '') : '',
+                            canBoGiangDay: columnIndexes.canBoGiangDay !== -1 ? (row[columnIndexes.canBoGiangDay] || '') : '',
+                            vaiTro: columnIndexes.vaiTro !== -1 ? (row[columnIndexes.vaiTro] || '') : ''
+                        };
 
                         // Validate dữ liệu cơ bản
-                        if (!hocPhan || hocPhan.toString().trim() === '') continue;
-                        if (!ngayThi) continue;
+                        if (!rowData.tenHocPhan || rowData.tenHocPhan.toString().trim() === '') continue;
+                        if (!rowData.ngayThi) continue;
 
-                        if (hocPhan && ngayThi) {
+                        console.log('Processing row data:', rowData);
+
+                        if (rowData.tenHocPhan && rowData.ngayThi) {
                             // Xử lý ngày thi
                             let formattedNgayThi = '';
                             try {
-                                if (typeof ngayThi === 'number') {
+                                if (typeof rowData.ngayThi === 'number') {
                                     // Excel date serial number
-                                    const excelDate = new Date((ngayThi - 25569) * 86400 * 1000);
+                                    const excelDate = new Date((rowData.ngayThi - 25569) * 86400 * 1000);
                                     if (!isNaN(excelDate.getTime())) {
                                         formattedNgayThi = excelDate.toISOString().split('T')[0];
                                     }
-                                } else if (ngayThi instanceof Date) {
-                                    if (!isNaN(ngayThi.getTime())) {
-                                        formattedNgayThi = ngayThi.toISOString().split('T')[0];
+                                } else if (rowData.ngayThi instanceof Date) {
+                                    if (!isNaN(rowData.ngayThi.getTime())) {
+                                        formattedNgayThi = rowData.ngayThi.toISOString().split('T')[0];
                                     }
-                                } else if (typeof ngayThi === 'string' && ngayThi.trim() !== '') {
+                                } else if (typeof rowData.ngayThi === 'string' && rowData.ngayThi.trim() !== '') {
                                     // Thử parse string date
-                                    const parsedDate = new Date(ngayThi.trim());
+                                    const parsedDate = new Date(rowData.ngayThi.trim());
                                     if (!isNaN(parsedDate.getTime())) {
                                         formattedNgayThi = parsedDate.toISOString().split('T')[0];
                                     } else {
@@ -338,7 +380,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                         ];
 
                                         for (const format of dateFormats) {
-                                            const match = ngayThi.trim().match(format);
+                                            const match = rowData.ngayThi.trim().match(format);
                                             if (match) {
                                                 let day, month, year;
                                                 if (format === dateFormats[0]) { // dd/mm/yyyy
@@ -356,22 +398,23 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     }
                                 }
                             } catch (dateError) {
-                                console.warn('Error parsing date:', ngayThi, dateError);
+                                console.warn('Error parsing date:', rowData.ngayThi, dateError);
                             }
 
                             // Skip nếu không parse được ngày
                             if (!formattedNgayThi) {
-                                console.warn('Không thể parse ngày thi:', ngayThi);
+                                console.warn('Không thể parse ngày thi:', rowData.ngayThi);
                                 continue;
                             }
 
                             // Tính soTietQuyChuan theo logic hiện tại
-                            let soTietQuyChuan = calcSoTietQuyChuan(thoiGianThi, formattedNgayThi);
+                            let soTietQuyChuan = calcSoTietQuyChuan(rowData.thoiGianThi, formattedNgayThi);
 
+                            // Thêm vào importedData cho CongTacCoiThi
                             importedData.push({
-                                hocPhan: hocPhan.toString().trim(),
+                                hocPhan: rowData.tenHocPhan.toString().trim(),
                                 ngayThi: formattedNgayThi,
-                                thoiGianThi: thoiGianThi ? thoiGianThi.toString().trim() : '',
+                                thoiGianThi: rowData.thoiGianThi ? rowData.thoiGianThi.toString().trim() : '',
                                 soTietQuyChuan: soTietQuyChuan,
                                 ghiChu: '' // Để trống thay vì "Import từ Excel"
                             });
@@ -387,19 +430,125 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         return;
                     }
 
-                    // Chuẩn bị dữ liệu cho PcCoiThi
-                    const pcCoiThiData = importedData.map(item => ({
-                        maHocPhan: '', // Để trống
-                        hocPhan: [item.hocPhan], // Array format
-                        lop: [], // Để trống
-                        ngayThi: item.ngayThi,
-                        ca: '1', // Mặc định sáng
-                        phong: [], // Để trống
-                        cbo1: [currentUser?.name || ''], // Lấy tên giảng viên từ user hiện tại
-                        cbo2: [], // Để trống
-                        hinhThuc: [], // Để trống
-                        thoiGian: item.thoiGianThi ? [item.thoiGianThi] : [] // Array format
-                    }));
+                    // Chuẩn bị dữ liệu cho PcCoiThi từ dữ liệu Excel đầy đủ
+                    const pcCoiThiData = [];
+
+                    // Xử lý lại từ jsonData để lấy đầy đủ thông tin
+                    for (let i = dataStartIndex; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row || row.length === 0) continue;
+
+                        const rowData = {
+                            maHocPhan: columnIndexes.maHocPhan !== -1 ? (row[columnIndexes.maHocPhan] || '') : '',
+                            tenHocPhan: columnIndexes.tenHocPhan !== -1 ? (row[columnIndexes.tenHocPhan] || '') : '',
+                            lopHP: columnIndexes.lopHP !== -1 ? (row[columnIndexes.lopHP] || '') : '',
+                            ngayThi: columnIndexes.ngayThi !== -1 ? (row[columnIndexes.ngayThi] || '') : '',
+                            buoiThi: columnIndexes.buoiThi !== -1 ? (row[columnIndexes.buoiThi] || '') : '',
+                            gioThi: columnIndexes.gioThi !== -1 ? (row[columnIndexes.gioThi] || '') : '',
+                            thoiGianThi: columnIndexes.thoiGianThi !== -1 ? (row[columnIndexes.thoiGianThi] || '') : '',
+                            phongThi: columnIndexes.phongThi !== -1 ? (row[columnIndexes.phongThi] || '') : '',
+                            canBoGiangDay: columnIndexes.canBoGiangDay !== -1 ? (row[columnIndexes.canBoGiangDay] || '') : '',
+                            vaiTro: columnIndexes.vaiTro !== -1 ? (row[columnIndexes.vaiTro] || '') : ''
+                        };
+
+                        if (!rowData.tenHocPhan || !rowData.ngayThi) continue;
+
+                        // Xử lý ngày thi cho PcCoiThi
+                        let formattedNgayThi = '';
+                        try {
+                            if (typeof rowData.ngayThi === 'number') {
+                                const excelDate = new Date((rowData.ngayThi - 25569) * 86400 * 1000);
+                                if (!isNaN(excelDate.getTime())) {
+                                    formattedNgayThi = excelDate.toISOString().split('T')[0];
+                                }
+                            } else if (rowData.ngayThi instanceof Date) {
+                                if (!isNaN(rowData.ngayThi.getTime())) {
+                                    formattedNgayThi = rowData.ngayThi.toISOString().split('T')[0];
+                                }
+                            } else if (typeof rowData.ngayThi === 'string' && rowData.ngayThi.trim() !== '') {
+                                const parsedDate = new Date(rowData.ngayThi.trim());
+                                if (!isNaN(parsedDate.getTime())) {
+                                    formattedNgayThi = parsedDate.toISOString().split('T')[0];
+                                } else {
+                                    const dateFormats = [
+                                        /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/,
+                                        /^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/
+                                    ];
+
+                                    for (const format of dateFormats) {
+                                        const match = rowData.ngayThi.trim().match(format);
+                                        if (match) {
+                                            let day, month, year;
+                                            if (format === dateFormats[0]) {
+                                                [, day, month, year] = match;
+                                            } else {
+                                                [, year, month, day] = match;
+                                            }
+                                            const testDate = new Date(year, month - 1, day);
+                                            if (!isNaN(testDate.getTime())) {
+                                                formattedNgayThi = testDate.toISOString().split('T')[0];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (dateError) {
+                            console.warn('Error parsing date for PcCoiThi:', rowData.ngayThi, dateError);
+                        }
+
+                        if (!formattedNgayThi) continue;
+
+                        // Xác định ca thi từ buổi thi hoặc giờ thi
+                        let ca = '1'; // Mặc định sáng
+                        if (rowData.buoiThi) {
+                            const buoiStr = rowData.buoiThi.toString().toLowerCase();
+                            if (buoiStr.includes('chiều') || buoiStr.includes('afternoon')) {
+                                ca = '2';
+                            }
+                        }
+
+                        // Xử lý cbo1/cbo2 dựa trên vai trò
+                        let cbo1 = [];
+                        let cbo2 = [];
+
+                        if (rowData.vaiTro) {
+                            const vaiTroStr = rowData.vaiTro.toString().toLowerCase();
+                            const currentUsername = currentUser?.username || currentUser?.name || '';
+
+                            if (vaiTroStr.includes('cán bộ coi thi 2') || vaiTroStr.includes('cbo2')) {
+                                cbo2 = [currentUsername];
+                                cbo1 = []; // Để trống
+                            } else {
+                                // Mặc định là cbo1 (bao gồm "Cán bộ coi thi", "Cán bộ coi thi 1", v.v.)
+                                cbo1 = [currentUsername];
+                                cbo2 = []; // Để trống
+                            }
+                        } else {
+                            // Nếu không có vai trò, mặc định là cbo1
+                            cbo1 = [currentUser?.username || currentUser?.name || ''];
+                            cbo2 = [];
+                        }
+
+                        pcCoiThiData.push({
+                            maHocPhan: rowData.maHocPhan.toString().trim(),
+                            hocPhan: [rowData.tenHocPhan.toString().trim()],
+                            lop: rowData.lopHP ? [rowData.lopHP.toString().trim()] : [],
+                            ngayThi: formattedNgayThi,
+                            ca: ca,
+                            phong: rowData.phongThi ? [rowData.phongThi.toString().trim()] : [],
+                            cbo1: cbo1,
+                            cbo2: cbo2,
+                            hinhThuc: [], // Để trống
+                            thoiGian: rowData.thoiGianThi ? [rowData.thoiGianThi.toString().trim()] : [],
+                            loaiKyThi: loaiKyThi,
+                            type: type === 'chinh-quy' ? 'Chính quy' : 'Liên thông vlvh',
+                            namHoc: namHoc,
+                            ky: ky
+                        });
+                    }
+
+                    console.log('PcCoiThi data prepared:', pcCoiThiData);
 
                     // Gọi cả 2 API song song
                     try {
