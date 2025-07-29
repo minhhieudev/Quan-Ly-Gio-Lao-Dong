@@ -129,7 +129,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     // Nếu là số thực hành, thực hiện tính toán hệ số
     let result = 0;
     let heSo = 1;
-    if (currentHocPhan.record?.heSo) {
+    if (currentHocPhan && currentHocPhan.record?.heSo) {
       if (typeof currentHocPhan.record.heSo === "string" && currentHocPhan.record.heSo.includes("-")) {
         const heSoValues = currentHocPhan.record.heSo
           .replace(/[–—]/g, "-")
@@ -157,6 +157,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     result = Number(soTietTH) * heSo;
     setValue("soTietQCTH", isNaN(result) ? 0 : result);
   }, [setValue, currentHocPhan, soTietTH, soSVDK]);
+
+  // Khi sửa, cập nhật lại currentHocPhan đúng với học phần đang sửa để tính lại THQC
+  useEffect(() => {
+    if (editRecord) {
+      const hp = listSelect.find(item => item.tenMH === editRecord.hocPhan);
+      if (hp) setCurrentHocPhan(hp);
+    }
+  }, [editRecord, listSelect]);
 
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
@@ -329,6 +337,19 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const handleEdit = (record) => {
     setEditRecord(record);
+    setCurrentHocPhan(null); // Đảm bảo không bị ghi đè bởi useEffect hoặc logic khác
+    // Đổ dữ liệu chi tiết vào form, bao gồm cả THQC
+    setValue("maMH", record.maMH || "");
+    setValue("hocPhan", record.hocPhan || "");
+    setValue("soTinChi", record.soTinChi || 0);
+    setValue("lopHocPhan", record.lopHocPhan || "");
+    setValue("soSV", record.soSV || 0);
+    setValue("soTietLT", record.soTietLT || 0);
+    setValue("soTietTH", record.soTietTH || 0);
+    setValue("soTietQCLT", record.soTietQCLT || 0);
+    setValue("soTietQCTH", record.soTietQCTH || 0);
+    setValue("tongCong", record.tongCong || 0);
+    setValue("ghiChu", record.ghiChu || "");
   };
 
   const handleDelete = async (id) => {
@@ -756,7 +777,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         rules={{ required: "Số tiết quy chuẩn LT là bắt buộc" }}
                         render={({ field }) => <InputNumber 
                           className="w-20 rounded-md border-gray-300 bg-gray-100" 
-                          readOnly 
                           {...field} 
                         />} // Disable input
                       />
@@ -794,7 +814,6 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                       size="large" 
                       className="text-red-700 font-bold text-lg w-full rounded-md border-gray-300 bg-red-50" 
                       {...field} 
-                      readOnly 
                     />
                   }
                 />
