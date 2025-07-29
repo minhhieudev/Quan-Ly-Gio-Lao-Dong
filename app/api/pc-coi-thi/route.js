@@ -22,7 +22,7 @@ export const GET = async (req) => {
     if (loaiKyThi) query.loaiKyThi = loaiKyThi;
 
     console.log('PcCoiThi API Query:', {
-      namHoc, ky, type, user, loaiKyThi, query
+      namHoc, ky, type, loaiKyThi, query
     });
 
     const pcCoiThiList = await PcCoiThi.find(query)
