@@ -466,6 +466,19 @@ const PcCoiThiManagement = () => {
             {/* Filters */}
             <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
                 <div>
+                    <label className="block text-sm font-medium mb-1">Loại:</label>
+                    <Select
+                        value={loai}
+                        onChange={setLoai}
+                        className="w-full"
+                        placeholder="Chọn loại hình đào tạo"
+                        allowClear
+                    >
+                        <Option value="chinh-quy">Chính quy</Option>
+                        <Option value="lien-thong-vlvh">Liên thông vlvh</Option>
+                    </Select>
+                </div>
+                <div>
                     <label className="block text-sm font-medium mb-1">Năm học:</label>
                     <Select
                         value={namHoc}
@@ -491,19 +504,7 @@ const PcCoiThiManagement = () => {
                         <Option value="3">3</Option>
                     </Select>
                 </div>
-                <div>
-                    <label className="block text-sm font-medium mb-1">Loại:</label>
-                    <Select
-                        value={loai}
-                        onChange={setLoai}
-                        className="w-full"
-                        placeholder="Chọn loại hình đào tạo"
-                        allowClear
-                    >
-                        <Option value="chinh-quy">Chính quy</Option>
-                        <Option value="lien-thong-vlvh">Liên thông vlvh</Option>
-                    </Select>
-                </div>
+
                 <div>
                     <label className="block text-sm font-medium mb-1">Loại kỳ thi:</label>
                     <Select
