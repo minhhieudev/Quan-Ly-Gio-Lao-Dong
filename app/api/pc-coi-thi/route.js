@@ -16,10 +16,10 @@ export const GET = async (req) => {
     const loaiKyThi = searchParams.get('loaiKyThi');
 
     let query = {};
-    if (namHoc) query.namHoc = namHoc;
-    if (ky) query.ky = ky;
-    if (type) query.type = type;
-    if (loaiKyThi) query.loaiKyThi = loaiKyThi;
+    if (namHoc !== null && namHoc !== undefined) query.namHoc = namHoc;
+    if (ky !== null && ky !== undefined) query.ky = ky;
+    if (type !== null && type !== undefined) query.type = type;
+    if (loaiKyThi !== null && loaiKyThi !== undefined) query.loaiKyThi = loaiKyThi;
 
     console.log('PcCoiThi API Query:', {
       namHoc, ky, type, loaiKyThi, query
