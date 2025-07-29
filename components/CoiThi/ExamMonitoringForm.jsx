@@ -270,18 +270,27 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     let headerRowIndex = -1;
                     let dataStartIndex = -1;
 
-                    // Tìm loại kỳ thi từ các dòng đầu
+                    // Tìm loại kỳ thi và kỳ học từ các dòng đầu
                     let loaiKyThi = '1'; // Mặc định
+                    let kyFromFile = ky; // Mặc định từ props
+
                     for (let i = 0; i < Math.min(10, jsonData.length); i++) {
                         const row = jsonData[i];
                         if (row && row.length > 0) {
                             const cellText = row.join(' ').toLowerCase();
+
                             // Tìm "đợt" hoặc "Đợt" theo sau bởi số
                             const dotMatch = cellText.match(/đợt\s*(\d+)/i);
                             if (dotMatch) {
                                 loaiKyThi = dotMatch[1];
                                 console.log('Detected loaiKyThi:', loaiKyThi);
-                                break;
+                            }
+
+                            // Tìm "kỳ" hoặc "Kỳ" theo sau bởi số
+                            const kyMatch = cellText.match(/kỳ\s*(\d+)/i);
+                            if (kyMatch) {
+                                kyFromFile = kyMatch[1];
+                                console.log('Detected ky from file:', kyFromFile);
                             }
                         }
                     }
@@ -544,7 +553,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             loaiKyThi: loaiKyThi,
                             type: type === 'chinh-quy' ? 'Chính quy' : 'Liên thông vlvh',
                             namHoc: namHoc,
-                            ky: ky
+                            ky: kyFromFile
                         });
                     }
 

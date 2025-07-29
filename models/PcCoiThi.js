@@ -56,19 +56,14 @@ const PcCoiThiSchema = new Schema({
   type: {
     type: String,
     required: true
-  },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true
   }
 }, {
   timestamps: true
 });
 
 // Index để tối ưu query
-PcCoiThiSchema.index({ namHoc: 1, ky: 1, type: 1, user: 1 });
-PcCoiThiSchema.index({ hocPhan: 1, ngayThi: 1, user: 1 });
+PcCoiThiSchema.index({ namHoc: 1, ky: 1, type: 1 });
+PcCoiThiSchema.index({ hocPhan: 1, ngayThi: 1, namHoc: 1, ky: 1 });
 
 const PcCoiThi = models.PcCoiThi || model("PcCoiThi", PcCoiThiSchema);
 

@@ -7,7 +7,7 @@ import PcCoiThi from "@models/PcCoiThi";
 export const POST = async (req) => {
   try {
     await connectToDB();
-    const { items, type, user, namHoc, ky } = await req.json();
+    const { items, type, namHoc, ky } = await req.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return new Response("Invalid items data", { status: 400 });
@@ -37,10 +37,10 @@ export const POST = async (req) => {
         } = item;
 
         // Validate dữ liệu cơ bản
-        if (!hocPhan || !ngayThi || !user) {
+        if (!hocPhan || !ngayThi) {
           results.errors.push({
             item,
-            error: 'Thiếu thông tin bắt buộc (hocPhan, ngayThi, user)'
+            error: 'Thiếu thông tin bắt buộc (hocPhan, ngayThi)'
           });
           continue;
         }
@@ -49,7 +49,6 @@ export const POST = async (req) => {
         const duplicateQuery = {
           hocPhan,
           ngayThi,
-          user,
           namHoc,
           ky
         };
@@ -127,7 +126,6 @@ export const POST = async (req) => {
           thoiGian: Array.isArray(thoiGian) ? thoiGian : (thoiGian ? [thoiGian] : []),
           loaiKyThi: loaiKyThi || '1',
           type,
-          user,
           namHoc,
           ky
         });

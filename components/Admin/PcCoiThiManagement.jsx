@@ -20,7 +20,7 @@ const PcCoiThiManagement = () => {
     const [ky, setKy] = useState('1');
     const [type, setType] = useState('Coi thi');
     const [loaiKyThi, setLoaiKyThi] = useState('1');
-    const [loai, setLoai] = useState('Chính quy');
+    const [loai, setLoai] = useState('chinh-quy');
 
     // Inline editing
     const [editingKey, setEditingKey] = useState('');
@@ -58,16 +58,23 @@ const PcCoiThiManagement = () => {
     // Handle create/update
     const handleSubmit = async (values) => {
         try {
-            // Đảm bảo các array fields được xử lý đúng
+            // Convert comma-separated strings to arrays
             const formattedValues = {
                 ...values,
-                hocPhan: Array.isArray(values.hocPhan) ? values.hocPhan : [values.hocPhan],
-                lop: Array.isArray(values.lop) ? values.lop : (values.lop ? [values.lop] : []),
-                phong: Array.isArray(values.phong) ? values.phong : (values.phong ? [values.phong] : []),
-                cbo1: Array.isArray(values.cbo1) ? values.cbo1 : (values.cbo1 ? [values.cbo1] : []),
-                cbo2: Array.isArray(values.cbo2) ? values.cbo2 : (values.cbo2 ? [values.cbo2] : []),
-                hinhThuc: Array.isArray(values.hinhThuc) ? values.hinhThuc : (values.hinhThuc ? [values.hinhThuc] : []),
-                thoiGian: Array.isArray(values.thoiGian) ? values.thoiGian : (values.thoiGian ? [values.thoiGian] : []),
+                hocPhan: values.hocPhan && values.hocPhan.trim() ?
+                    values.hocPhan.split(',').map(s => s.trim()).filter(s => s) : [],
+                lop: values.lop && values.lop.trim() ?
+                    values.lop.split(',').map(s => s.trim()).filter(s => s) : [],
+                phong: values.phong && values.phong.trim() ?
+                    values.phong.split(',').map(s => s.trim()).filter(s => s) : [],
+                cbo1: values.cbo1 && values.cbo1.trim() ?
+                    values.cbo1.split(',').map(s => s.trim()).filter(s => s) : [],
+                cbo2: values.cbo2 && values.cbo2.trim() ?
+                    values.cbo2.split(',').map(s => s.trim()).filter(s => s) : [],
+                hinhThuc: values.hinhThuc && values.hinhThuc.trim() ?
+                    values.hinhThuc.split(',').map(s => s.trim()).filter(s => s) : [],
+                thoiGian: values.thoiGian && values.thoiGian.trim() ?
+                    values.thoiGian.split(',').map(s => s.trim()).filter(s => s) : [],
                 // Thêm các trường từ filters
                 namHoc,
                 ky,
@@ -125,15 +132,7 @@ const PcCoiThiManagement = () => {
         }
     };
 
-    // Handle edit
-    const handleEdit = (record) => {
-        setEditingRecord(record);
-        form.setFieldsValue({
-            ...record,
-            ngayThi: record.ngayThi ? dayjs(record.ngayThi) : null,
-        });
-        setModalVisible(true);
-    };
+
 
     // Handle create new
     const handleCreate = () => {
@@ -148,13 +147,13 @@ const PcCoiThiManagement = () => {
     const editInline = (record) => {
         editForm.setFieldsValue({
             ...record,
-            hocPhan: Array.isArray(record.hocPhan) ? record.hocPhan.join(', ') : record.hocPhan,
-            lop: Array.isArray(record.lop) ? record.lop.join(', ') : record.lop,
-            phong: Array.isArray(record.phong) ? record.phong.join(', ') : record.phong,
-            cbo1: Array.isArray(record.cbo1) ? record.cbo1.join(', ') : record.cbo1,
-            cbo2: Array.isArray(record.cbo2) ? record.cbo2.join(', ') : record.cbo2,
-            hinhThuc: Array.isArray(record.hinhThuc) ? record.hinhThuc.join(', ') : record.hinhThuc,
-            thoiGian: Array.isArray(record.thoiGian) ? record.thoiGian.join(', ') : record.thoiGian,
+            hocPhan: Array.isArray(record.hocPhan) && record.hocPhan.length > 0 ? record.hocPhan.join(', ') : '',
+            lop: Array.isArray(record.lop) && record.lop.length > 0 ? record.lop.join(', ') : '',
+            phong: Array.isArray(record.phong) && record.phong.length > 0 ? record.phong.join(', ') : '',
+            cbo1: Array.isArray(record.cbo1) && record.cbo1.length > 0 ? record.cbo1.join(', ') : '',
+            cbo2: Array.isArray(record.cbo2) && record.cbo2.length > 0 ? record.cbo2.join(', ') : '',
+            hinhThuc: Array.isArray(record.hinhThuc) && record.hinhThuc.length > 0 ? record.hinhThuc.join(', ') : '',
+            thoiGian: Array.isArray(record.thoiGian) && record.thoiGian.length > 0 ? record.thoiGian.join(', ') : '',
         });
         setEditingKey(record._id);
     };
@@ -171,16 +170,23 @@ const PcCoiThiManagement = () => {
             // Convert comma-separated strings back to arrays
             const formattedValues = {
                 ...values,
-                hocPhan: values.hocPhan ? values.hocPhan.split(',').map(s => s.trim()).filter(s => s) : [],
-                lop: values.lop ? values.lop.split(',').map(s => s.trim()).filter(s => s) : [],
-                phong: values.phong ? values.phong.split(',').map(s => s.trim()).filter(s => s) : [],
-                cbo1: values.cbo1 ? values.cbo1.split(',').map(s => s.trim()).filter(s => s) : [],
-                cbo2: values.cbo2 ? values.cbo2.split(',').map(s => s.trim()).filter(s => s) : [],
-                hinhThuc: values.hinhThuc ? values.hinhThuc.split(',').map(s => s.trim()).filter(s => s) : [],
-                thoiGian: values.thoiGian ? values.thoiGian.split(',').map(s => s.trim()).filter(s => s) : [],
+                hocPhan: values.hocPhan && values.hocPhan.trim() ?
+                    values.hocPhan.split(',').map(s => s.trim()).filter(s => s) : [],
+                lop: values.lop && values.lop.trim() ?
+                    values.lop.split(',').map(s => s.trim()).filter(s => s) : [],
+                phong: values.phong && values.phong.trim() ?
+                    values.phong.split(',').map(s => s.trim()).filter(s => s) : [],
+                cbo1: values.cbo1 && values.cbo1.trim() ?
+                    values.cbo1.split(',').map(s => s.trim()).filter(s => s) : [],
+                cbo2: values.cbo2 && values.cbo2.trim() ?
+                    values.cbo2.split(',').map(s => s.trim()).filter(s => s) : [],
+                hinhThuc: values.hinhThuc && values.hinhThuc.trim() ?
+                    values.hinhThuc.split(',').map(s => s.trim()).filter(s => s) : [],
+                thoiGian: values.thoiGian && values.thoiGian.trim() ?
+                    values.thoiGian.split(',').map(s => s.trim()).filter(s => s) : [],
                 namHoc,
                 ky,
-                type,
+                type: loai, // Sử dụng loai thay vì type
                 loaiKyThi
             };
 
@@ -255,9 +261,7 @@ const PcCoiThiManagement = () => {
                     </Form.Item>
                 ) : (
                     <span style={{ color: 'red', fontWeight: 'bold' }}>
-                        {Array.isArray(text)
-                            ? text.map(lop => Array.isArray(lop) ? lop.join(', ') : lop).join(' - ')
-                            : text}
+                        {Array.isArray(text) && text.length > 0 ? text.join(', ') : ''}
                     </span>
                 );
             },
@@ -281,11 +285,21 @@ const PcCoiThiManagement = () => {
             dataIndex: 'phong',
             key: 'phong',
             width: 120,
-            render: (text) => (
-                <span style={{ fontWeight: "bold" }}>
-                    {Array.isArray(text) ? text.join(', ') : text}
-                </span>
-            ),
+            render: (text, record) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <Form.Item
+                        name="phong"
+                        style={{ margin: 0 }}
+                    >
+                        <Input size="small" placeholder="Ngăn cách bằng dấu phẩy" />
+                    </Form.Item>
+                ) : (
+                    <span style={{ fontWeight: "bold" }}>
+                        {Array.isArray(text) && text.length > 0 ? text.join(', ') : ''}
+                    </span>
+                );
+            },
         },
         {
             title: 'Cán bộ 1',
@@ -334,22 +348,42 @@ const PcCoiThiManagement = () => {
             dataIndex: 'hinhThuc',
             key: 'hinhThuc',
             width: 100,
-            render: (text) => (
-                <span style={{ fontWeight: 'bold' }}>
-                    {Array.isArray(text) ? text.join(' - ') : text}
-                </span>
-            ),
+            render: (text, record) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <Form.Item
+                        name="hinhThuc"
+                        style={{ margin: 0 }}
+                    >
+                        <Input size="small" placeholder="Ngăn cách bằng dấu phẩy" />
+                    </Form.Item>
+                ) : (
+                    <span style={{ fontWeight: 'bold' }}>
+                        {Array.isArray(text) && text.length > 0 ? text.join(', ') : ''}
+                    </span>
+                );
+            },
         },
         {
             title: 'TG',
             dataIndex: 'thoiGian',
             key: 'thoiGian',
             width: 100,
-            render: (text) => (
-                <span style={{ fontWeight: 'bold' }}>
-                    {Array.isArray(text) ? text.join(' - ') : text}
-                </span>
-            ),
+            render: (text, record) => {
+                const editable = isEditing(record);
+                return editable ? (
+                    <Form.Item
+                        name="thoiGian"
+                        style={{ margin: 0 }}
+                    >
+                        <Input size="small" placeholder="Ngăn cách bằng dấu phẩy" />
+                    </Form.Item>
+                ) : (
+                    <span style={{ fontWeight: 'bold' }}>
+                        {Array.isArray(text) && text.length > 0 ? text.join(', ') : ''}
+                    </span>
+                );
+            },
         },
         {
             title: 'Đợt',
@@ -394,7 +428,6 @@ const PcCoiThiManagement = () => {
                             size="small"
                             disabled={editingKey !== ''}
                         >
-                            Sửa
                         </Button>
                         <Popconfirm
                             title="Bạn có chắc chắn muốn xóa?"
@@ -409,7 +442,6 @@ const PcCoiThiManagement = () => {
                                 size="small"
                                 disabled={editingKey !== ''}
                             >
-                                Xóa
                             </Button>
                         </Popconfirm>
                     </Space>
@@ -447,20 +479,20 @@ const PcCoiThiManagement = () => {
                     </Select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Kỳ:</label>
+                    <label className="block text-sm font-medium mb-1">Kỳ :</label>
                     <Select
                         value={ky}
                         onChange={setKy}
                         className="w-full"
                         placeholder="Chọn kỳ"
                     >
-                        <Option value="1">Kỳ 1</Option>
-                        <Option value="2">Kỳ 2</Option>
-                        <Option value="3">Kỳ 3</Option>
+                        <Option value="1">1</Option>
+                        <Option value="2">2</Option>
+                        <Option value="3">3</Option>
                     </Select>
                 </div>
                 <div>
-                    <label className="block text-sm font-medium mb-1">Loại hình đào tạo:</label>
+                    <label className="block text-sm font-medium mb-1">Loại:</label>
                     <Select
                         value={loai}
                         onChange={setLoai}
@@ -468,8 +500,8 @@ const PcCoiThiManagement = () => {
                         placeholder="Chọn loại hình đào tạo"
                         allowClear
                     >
-                        <Option value="Chính quy">Chính quy</Option>
-                        <Option value="Liên thông vlvh">Liên thông vlvh</Option>
+                        <Option value="chinh-quy">Chính quy</Option>
+                        <Option value="lien-thong-vlvh">Liên thông vlvh</Option>
                     </Select>
                 </div>
                 <div>
@@ -479,6 +511,7 @@ const PcCoiThiManagement = () => {
                         onChange={setLoaiKyThi}
                         className="w-full"
                         placeholder="Chọn đợt thi"
+                        allowClear
                     >
                         <Option value="1">Đợt 1</Option>
                         <Option value="2">Đợt 2</Option>
@@ -528,7 +561,7 @@ const PcCoiThiManagement = () => {
                             name="maHocPhan"
                             label="Mã học phần"
                         >
-                            <Input />
+                            <Input placeholder="Nhập mã học phần" />
                         </Form.Item>
 
                         <Form.Item
@@ -536,16 +569,14 @@ const PcCoiThiManagement = () => {
                             label="Học phần"
                             rules={[{ required: true, message: 'Vui lòng nhập học phần' }]}
                         >
-                            <Select mode="tags" placeholder="Nhập học phần">
-                            </Select>
+                            <Input placeholder="Nhập tên học phần (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
                             name="lop"
                             label="Nhóm/Lớp"
                         >
-                            <Select mode="tags" placeholder="Nhập nhóm/lớp">
-                            </Select>
+                            <Input placeholder="Nhập nhóm/lớp (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
@@ -553,14 +584,15 @@ const PcCoiThiManagement = () => {
                             label="Ngày thi"
                             rules={[{ required: true, message: 'Vui lòng nhập ngày thi' }]}
                         >
-                            <Input placeholder="dd/mm/yyyy" />
+                            <Input placeholder="YYYY-MM-DD" />
                         </Form.Item>
 
                         <Form.Item
                             name="ca"
                             label="Ca"
+                            initialValue="1"
                         >
-                            <Select allowClear>
+                            <Select>
                                 <Option value="1">Sáng</Option>
                                 <Option value="2">Chiều</Option>
                             </Select>
@@ -570,77 +602,43 @@ const PcCoiThiManagement = () => {
                             name="phong"
                             label="Phòng thi"
                         >
-                            <Select mode="tags" placeholder="Nhập phòng thi">
-                            </Select>
+                            <Input placeholder="Nhập phòng thi (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
                             name="cbo1"
                             label="Cán bộ 1"
                         >
-                            <Select mode="tags" placeholder="Nhập cán bộ 1">
-                            </Select>
+                            <Input placeholder="Nhập cán bộ 1 (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
                             name="cbo2"
                             label="Cán bộ 2"
                         >
-                            <Select mode="tags" placeholder="Nhập cán bộ 2">
-                            </Select>
+                            <Input placeholder="Nhập cán bộ 2 (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
                             name="hinhThuc"
                             label="Hình thức (HT)"
                         >
-                            <Select mode="tags" placeholder="Nhập hình thức">
-                            </Select>
+                            <Input placeholder="Nhập hình thức (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
 
                         <Form.Item
                             name="thoiGian"
                             label="Thời gian (TG)"
                         >
-                            <Select mode="tags" placeholder="Nhập thời gian">
-                            </Select>
+                            <Input placeholder="Nhập thời gian (ngăn cách bằng dấu phẩy nếu nhiều)" />
                         </Form.Item>
+                    </div>
 
-                        <Form.Item
-                            name="namHoc"
-                            label="Năm học"
-                            rules={[{ required: true, message: 'Vui lòng nhập năm học' }]}
-                        >
-                            <Input placeholder="2023-2024" />
-                        </Form.Item>
-
-                        <Form.Item
-                            name="ky"
-                            label="Kỳ"
-                            rules={[{ required: true, message: 'Vui lòng chọn kỳ' }]}
-                        >
-                            <Select>
-                                <Option value="1">Kỳ 1</Option>
-                                <Option value="2">Kỳ 2</Option>
-                                <Option value="3">Kỳ 3</Option>
-                            </Select>
-                        </Form.Item>
-
-                        <Form.Item
-                            name="type"
-                            label="Loại"
-                            rules={[{ required: true, message: 'Vui lòng chọn loại' }]}
-                        >
-                            <Select>
-                                <Option value="Coi thi">Coi thi</Option>
-                                <Option value="Chấm thi">Chấm thi</Option>
-                            </Select>
-                        </Form.Item>
-
+                    <div className="grid grid-cols-2 gap-4 mt-4">
                         <Form.Item
                             name="loaiKyThi"
                             label="Loại kỳ thi"
-                            rules={[{ required: true, message: 'Vui lòng chọn loại kỳ thi' }]}
+                            initialValue={loaiKyThi}
                         >
                             <Select>
                                 <Option value="1">Đợt 1</Option>
@@ -652,6 +650,12 @@ const PcCoiThiManagement = () => {
                                 <Option value="7">Đợt 7</Option>
                             </Select>
                         </Form.Item>
+
+                        <div className="text-sm text-gray-600 pt-6">
+                            <p><strong>Năm học:</strong> {namHoc}</p>
+                            <p><strong>Kỳ:</strong> {ky}</p>
+                            <p><strong>Loại hình đào tạo:</strong> {loai}</p>
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-2 mt-6">
