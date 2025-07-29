@@ -387,23 +387,56 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         return;
                     }
 
-                    // Gọi API bulk import
-                    try {
-                        const res = await fetch("/api/work-hours/CongTacCoiThi/bulk-import", {
-                            method: "POST",
-                            body: JSON.stringify({
-                                items: importedData,
-                                type: type,
-                                user: currentUser._id,
-                                namHoc,
-                                ky
-                            }),
-                            headers: { "Content-Type": "application/json" },
-                        });
+                    // Chuẩn bị dữ liệu cho PcCoiThi
+                    const pcCoiThiData = importedData.map(item => ({
+                        maHocPhan: '', // Để trống
+                        hocPhan: [item.hocPhan], // Array format
+                        lop: [], // Để trống
+                        ngayThi: item.ngayThi,
+                        ca: '1', // Mặc định sáng
+                        phong: [], // Để trống
+                        cbo1: [currentUser?.name || ''], // Lấy tên giảng viên từ user hiện tại
+                        cbo2: [], // Để trống
+                        hinhThuc: [], // Để trống
+                        thoiGian: item.thoiGianThi ? [item.thoiGianThi] : [] // Array format
+                    }));
 
-                        if (res.ok) {
-                            const responseData = await res.json();
-                            const { results } = responseData;
+                    // Gọi cả 2 API song song
+                    try {
+                        const [congTacRes, pcCoiThiRes] = await Promise.all([
+                            // API 1: CongTacCoiThi
+                            fetch("/api/work-hours/CongTacCoiThi/bulk-import", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    items: importedData,
+                                    type: type,
+                                    user: currentUser._id,
+                                    namHoc,
+                                    ky
+                                }),
+                                headers: { "Content-Type": "application/json" },
+                            }),
+                            // API 2: PcCoiThi
+                            fetch("/api/pc-coi-thi/bulk-import", {
+                                method: "POST",
+                                body: JSON.stringify({
+                                    items: pcCoiThiData,
+                                    type: type,
+                                    user: currentUser._id,
+                                    namHoc,
+                                    ky
+                                }),
+                                headers: { "Content-Type": "application/json" },
+                            })
+                        ]);
+
+                        let successMessage = '';
+                        let hasError = false;
+
+                        // Xử lý kết quả CongTacCoiThi
+                        if (congTacRes.ok) {
+                            const congTacData = await congTacRes.json();
+                            const { results } = congTacData;
 
                             // Thêm các bản ghi mới vào danh sách
                             if (results.success && results.success.length > 0) {
@@ -419,24 +452,31 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 });
                             }
 
-                            // Hiển thị thông báo kết quả
-                            toast.success(responseData.message);
-                            toast.dismiss('excel-import');
-
-                            // Log chi tiết nếu có lỗi
-                            if (results.errors && results.errors.length > 0) {
-                                console.warn('Import errors:', results.errors);
-                            }
-                            if (results.duplicates && results.duplicates.length > 0) {
-                                console.info('Duplicate records:', results.duplicates);
-                            }
-
+                            successMessage += `Công tác coi thi: ${congTacData.message}`;
                         } else {
-                            const errorText = await res.text();
-                            console.error('Bulk import API Error:', errorText);
-                            toast.error('Import thất bại: ' + errorText);
-                            toast.dismiss('excel-import');
+                            hasError = true;
+                            const errorText = await congTacRes.text();
+                            console.error('CongTacCoiThi API Error:', errorText);
                         }
+
+                        // Xử lý kết quả PcCoiThi
+                        if (pcCoiThiRes.ok) {
+                            const pcCoiThiData = await pcCoiThiRes.json();
+                            successMessage += `\nPhân công coi thi: ${pcCoiThiData.message}`;
+                        } else {
+                            hasError = true;
+                            const errorText = await pcCoiThiRes.text();
+                            console.error('PcCoiThi API Error:', errorText);
+                        }
+
+                        // Hiển thị thông báo kết quả
+                        if (hasError) {
+                            toast.error('Import một phần thành công. Kiểm tra console để xem chi tiết lỗi.');
+                        } else {
+                            toast.success(successMessage);
+                        }
+                        toast.dismiss('excel-import');
+
                     } catch (err) {
                         console.error('Bulk import Error:', err);
                         toast.error('Lỗi khi import: ' + err.message);
