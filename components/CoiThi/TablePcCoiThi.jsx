@@ -30,13 +30,29 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
       title: <span className="font-semibold">Học phần</span>,
       dataIndex: 'hocPhan',
       key: 'hocPhan',
-      width: '20%',
+      width: '18%',
       render: (text) => (
         <span className="text-green-600 font-medium">
           {Array.isArray(text) ? text.join(' | ') : text}
         </span>
       ),
       ellipsis: true
+    },
+    {
+      title: <span className="font-semibold">Kỳ</span>,
+      dataIndex: 'ky',
+      key: 'ky',
+      width: '6%',
+      align: 'center',
+      render: (text) => <span className="font-medium">{text}</span>,
+    },
+    {
+      title: <span className="font-semibold">Đợt</span>,
+      dataIndex: 'loaiKyThi',
+      key: 'loaiKyThi',
+      width: '6%',
+      align: 'center',
+      render: (text) => <span className="font-medium">{text}</span>,
     },
     {
       title: <span className="font-semibold">Nhóm/Lớp</span>,
@@ -144,6 +160,7 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
               bordered
               size="middle"
               className="custom-table"
+              scroll={{ x: 'max-content' }}
             />
           </div>
           

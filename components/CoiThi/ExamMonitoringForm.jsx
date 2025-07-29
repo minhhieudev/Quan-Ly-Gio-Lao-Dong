@@ -144,7 +144,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${ky}`, {
+                const res = await fetch(`/api/work-hours/CongTacCoiThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -163,35 +163,37 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [namHoc, ky]);
+    }, [namHoc]);
+
+    // Định nghĩa fetchData bên ngoài useEffect để có thể gọi từ nhiều nơi
+    const fetchData = async () => {
+       
+        if (!namHoc || !currentUser?.username) return;
+
+        try {
+
+            const res = await fetch(
+                `/api/pc-coi-thi?namHoc=${namHoc}&userName=${encodeURIComponent(currentUser.username)}`,
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                }
+            );
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            const data = await res.json();
+            setListSelect(data);
+        } catch (err) {
+            console.log('error:', err);
+            toast.error("An error occurred while fetching data");
+        }
+    };
 
     useEffect(() => {
-        if (!namHoc && !ky) return;
-
-        const fetchData = async () => {
-            try {
-                const res = await fetch(
-                    `/api/pc-coi-thi?namHoc=${namHoc}&hocKy=${ky}&gvGiangDay=${currentUser.username}`,
-                    {
-                        method: "GET",
-                        headers: { "Content-Type": "application/json" },
-                    }
-                );
-
-                if (!res.ok) {
-                    throw new Error(`HTTP error! Status: ${res.status}`);
-                }
-                const data = await res.json();
-                setListSelect(data);
-            } catch (err) {
-                console.log('error:', err);
-                toast.error("An error occurred while fetching data");
-            }
-        };
-
-
         fetchData();
-    }, [namHoc, ky]);
+    }, [namHoc, currentUser?.name]);
 
     const calculateTotals = () => {
         onUpdateCongTacCoiThi(totalSoTietQuyChuan);
@@ -270,30 +272,67 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     let headerRowIndex = -1;
                     let dataStartIndex = -1;
 
-                    // Tìm loại kỳ thi và kỳ học từ các dòng đầu
-                    let loaiKyThi = '1'; // Mặc định
+                    // Tìm loại kỳ thi và kỳ học từ toàn bộ file
+                    let currentLoaiKyThi = '1'; // Mặc định
+                    let initialLoaiKyThi = '1'; // LƯU GIÁ TRỊ BAN ĐẦU
                     let kyFromFile = ky; // Mặc định từ props
+                    let foundKy = false;
+                    let foundFirstDot = false; // QUAN TRỌNG: Chỉ lấy đợt đầu tiên
 
-                    for (let i = 0; i < Math.min(10, jsonData.length); i++) {
+                    console.log('🔍 Starting to scan file for ky and FIRST dot only...');
+
+                    // Scan toàn bộ file để tìm kỳ học và đợt đầu tiên
+                    for (let i = 0; i < Math.min(15, jsonData.length); i++) {
                         const row = jsonData[i];
                         if (row && row.length > 0) {
-                            const cellText = row.join(' ').toLowerCase();
+                            const cellText = row.join(' ');
+                            console.log(`📄 Header scan row ${i}:`, cellText);
 
-                            // Tìm "đợt" hoặc "Đợt" theo sau bởi số
-                            const dotMatch = cellText.match(/đợt\s*(\d+)/i);
-                            if (dotMatch) {
-                                loaiKyThi = dotMatch[1];
-                                console.log('Detected loaiKyThi:', loaiKyThi);
+                            // Tìm "kỳ" hoặc "Kỳ" theo sau bởi số - chỉ lấy lần đầu tiên
+                            if (!foundKy) {
+                                const kyMatch = cellText.match(/kỳ\s*(\d+)/i);
+                                if (kyMatch) {
+                                    kyFromFile = kyMatch[1];
+                                    foundKy = true;
+                                    console.log('✅ Detected ky from file:', kyFromFile, 'from row:', i);
+                                }
                             }
 
-                            // Tìm "kỳ" hoặc "Kỳ" theo sau bởi số
-                            const kyMatch = cellText.match(/kỳ\s*(\d+)/i);
-                            if (kyMatch) {
-                                kyFromFile = kyMatch[1];
-                                console.log('Detected ky from file:', kyFromFile);
+                            // QUAN TRỌNG: Chỉ lấy đợt ĐẦU TIÊN trong header scan
+                            if (!foundFirstDot) {
+                                const lowerCellText = cellText.toLowerCase();
+                                const isDotRowInHeader = (
+                                    lowerCellText.includes('đợt kết thúc') ||
+                                    lowerCellText.includes('đợt') && lowerCellText.includes('học phần') ||
+                                    lowerCellText.includes('đợt') && lowerCellText.includes('2024-2025') ||
+                                    lowerCellText.includes('đợt') && lowerCellText.includes('năm học') ||
+                                    // THÊM: Nhận diện format "Đợt học kỳ X, đợt Y"
+                                    lowerCellText.includes('đợt') && lowerCellText.includes('học kỳ') ||
+                                    // THÊM: Nhận diện bất kỳ dòng nào chứa "đợt" và có số
+                                    lowerCellText.includes('đợt') && /đợt\s*\d+/.test(lowerCellText)
+                                );
+
+                                if (isDotRowInHeader) {
+                                    const dotMatches = cellText.match(/[Đđ]ợt\s*(\d+)/g);
+                                    console.log(`🔍 CHECKING DOT in header scan row ${i}:`, cellText);
+                                    console.log(`🔍 Dot matches found:`, dotMatches);
+
+                                    if (dotMatches && dotMatches.length > 0) {
+                                        const lastDotMatch = dotMatches[dotMatches.length - 1];
+                                        const dotNumber = lastDotMatch.match(/(\d+)/)[1];
+                                        console.log(`🎯 FOUND FIRST DOT in header scan row ${i}:`, cellText);
+                                        console.log(`🔄 Setting initial loaiKyThi to "${dotNumber}" (from: ${lastDotMatch})`);
+                                        currentLoaiKyThi = dotNumber;
+                                        initialLoaiKyThi = dotNumber; // LƯU GIÁ TRỊ BAN ĐẦU
+                                        foundFirstDot = true; // DỪNG TÌM KIẾM ĐỢT TIẾP THEO
+                                    }
+                                }
                             }
                         }
                     }
+
+                    console.log('🎯 Initial values after header scan:', { currentLoaiKyThi, kyFromFile });
+                    console.log('⚠️ Note: currentLoaiKyThi will be updated dynamically when processing data rows');
 
                     // Tìm hàng chứa "Tên học phần" để xác định header
                     for (let i = 0; i < jsonData.length; i++) {
@@ -342,6 +381,54 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         const row = jsonData[i];
                         if (!row || row.length === 0) continue;
 
+                        // Kiểm tra xem có phải dòng header với đợt không
+                        const rowText = row.join(' ');
+                        console.log(`🔍 Row ${i} (${row.length} cells):`, rowText);
+
+                        // Debug: Hiển thị từng cell
+                        if (rowText.toLowerCase().includes('đợt')) {
+                            console.log(`🔍 Row ${i} contains 'đợt', cells:`, row.map((cell, idx) => `[${idx}]: "${cell}"`));
+                        }
+
+                        // Kiểm tra nếu dòng này chứa thông tin đợt - CẢI THIỆN LOGIC
+                        const lowerRowText = rowText.toLowerCase();
+                        const isDotRow = (
+                            lowerRowText.includes('đợt kết thúc') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('học phần') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('2024-2025') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('năm học')
+                        );
+
+                        if (isDotRow) {
+                            // Tìm số đợt trong dòng này - tìm tất cả các số sau "đợt"
+                            const dotMatches = rowText.match(/[Đđ]ợt\s*(\d+)/g);
+                            console.log(`🎯 FOUND DOT ROW at ${i}:`, rowText);
+                            console.log(`🔍 Dot matches found:`, dotMatches);
+
+                            if (dotMatches && dotMatches.length > 0) {
+                                // Lấy số đợt cuối cùng (thường là đợt chính xác nhất)
+                                const lastDotMatch = dotMatches[dotMatches.length - 1];
+                                const dotNumber = lastDotMatch.match(/(\d+)/)[1];
+                                console.log(`🔄 UPDATING loaiKyThi from "${currentLoaiKyThi}" to "${dotNumber}" (from: ${lastDotMatch})`);
+                                currentLoaiKyThi = dotNumber;
+                            }
+                            continue; // Skip header row
+                        }
+
+                        // Kiểm tra dòng có dữ liệu thực không (skip dòng trống và header table)
+                        const firstCell = row[0] ? row[0].toString().toLowerCase() : '';
+                        const secondCell = row[1] ? row[1].toString().toLowerCase() : '';
+
+                        if (!row[0] || !row[1] || firstCell === '' || secondCell === '') {
+                            console.log(`⏭️ Skipping empty row ${i}`);
+                            continue;
+                        }
+
+                        if (firstCell.includes('stt') || secondCell.includes('mã học phần') || secondCell.includes('tên học phần')) {
+                            console.log(`⏭️ Skipping table header row ${i}:`, firstCell, secondCell);
+                            continue;
+                        }
+
                         // Đọc tất cả các cột
                         const rowData = {
                             maHocPhan: columnIndexes.maHocPhan !== -1 ? (row[columnIndexes.maHocPhan] || '') : '',
@@ -357,8 +444,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         };
 
                         // Validate dữ liệu cơ bản
-                        if (!rowData.tenHocPhan || rowData.tenHocPhan.toString().trim() === '') continue;
-                        if (!rowData.ngayThi) continue;
+                        if (!rowData.tenHocPhan || rowData.tenHocPhan.toString().trim() === '') {
+                            console.log(`⏭️ Skipping row ${i} - no tenHocPhan`);
+                            continue;
+                        }
+                        if (!rowData.ngayThi) {
+                            console.log(`⏭️ Skipping row ${i} - no ngayThi`);
+                            continue;
+                        }
 
                         console.log('Processing row data:', rowData);
 
@@ -442,10 +535,52 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     // Chuẩn bị dữ liệu cho PcCoiThi từ dữ liệu Excel đầy đủ
                     const pcCoiThiData = [];
 
+                    // RESET currentLoaiKyThi về giá trị ban đầu cho vòng lặp thứ 2
+                    currentLoaiKyThi = initialLoaiKyThi; // KHÔI PHỤC GIÁ TRỊ BAN ĐẦU
+                    console.log(`🔄 RESET currentLoaiKyThi for PcCoiThi processing: "${currentLoaiKyThi}" (from initialLoaiKyThi: "${initialLoaiKyThi}")`);
+
                     // Xử lý lại từ jsonData để lấy đầy đủ thông tin
                     for (let i = dataStartIndex; i < jsonData.length; i++) {
                         const row = jsonData[i];
                         if (!row || row.length === 0) continue;
+
+                        // Kiểm tra xem có phải dòng header với đợt không (GIỐNG VỚI VÒNG LẶP 1)
+                        const rowText = row.join(' ');
+                        console.log(`🔍 PcCoiThi Row ${i} (${row.length} cells):`, rowText);
+
+                        // Debug: Hiển thị từng cell nếu chứa đợt
+                        if (rowText.toLowerCase().includes('đợt')) {
+                            console.log(`🔍 PcCoiThi Row ${i} contains 'đợt', cells:`, row.map((cell, idx) => `[${idx}]: "${cell}"`));
+                        }
+
+                        // Kiểm tra nếu dòng này chứa thông tin đợt - CẢI THIỆN LOGIC
+                        const lowerRowText = rowText.toLowerCase();
+                        const isDotRow = (
+                            lowerRowText.includes('đợt kết thúc') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('học phần') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('2024-2025') ||
+                            lowerRowText.includes('đợt') && lowerRowText.includes('năm học') ||
+                            // THÊM: Nhận diện format "Đợt học kỳ X, đợt Y"
+                            lowerRowText.includes('đợt') && lowerRowText.includes('học kỳ') ||
+                            // THÊM: Nhận diện bất kỳ dòng nào chứa "đợt" và có số
+                            lowerRowText.includes('đợt') && /đợt\s*\d+/.test(lowerRowText)
+                        );
+
+                        if (isDotRow) {
+                            // Tìm số đợt trong dòng này - tìm tất cả các số sau "đợt"
+                            const dotMatches = rowText.match(/[Đđ]ợt\s*(\d+)/g);
+                            console.log(`🎯 FOUND DOT ROW in PcCoiThi at ${i}:`, rowText);
+                            console.log(`🔍 Dot matches found:`, dotMatches);
+
+                            if (dotMatches && dotMatches.length > 0) {
+                                // Lấy số đợt cuối cùng (thường là đợt chính xác nhất)
+                                const lastDotMatch = dotMatches[dotMatches.length - 1];
+                                const dotNumber = lastDotMatch.match(/(\d+)/)[1];
+                                console.log(`🔄 PcCoiThi UPDATING loaiKyThi from "${currentLoaiKyThi}" to "${dotNumber}" (from: ${lastDotMatch})`);
+                                currentLoaiKyThi = dotNumber;
+                            }
+                            continue; // Skip header row
+                        }
 
                         const rowData = {
                             maHocPhan: columnIndexes.maHocPhan !== -1 ? (row[columnIndexes.maHocPhan] || '') : '',
@@ -460,7 +595,23 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             vaiTro: columnIndexes.vaiTro !== -1 ? (row[columnIndexes.vaiTro] || '') : ''
                         };
 
-                        if (!rowData.tenHocPhan || !rowData.ngayThi) continue;
+                        // Skip empty rows
+                        if (!rowData.tenHocPhan && !rowData.maHocPhan) {
+                            console.log(`⏭️ Skipping empty PcCoiThi row ${i}`);
+                            continue;
+                        }
+
+                        // Skip table header rows
+                        const lowerRowData = rowData.tenHocPhan.toString().toLowerCase();
+                        if (lowerRowData.includes('stt') || lowerRowData.includes('mã học phần') || lowerRowData.includes('tên học phần')) {
+                            console.log(`⏭️ Skipping table header PcCoiThi row ${i}:`, lowerRowData);
+                            continue;
+                        }
+
+                        if (!rowData.tenHocPhan || !rowData.ngayThi) {
+                            console.log(`⏭️ Skipping PcCoiThi row ${i} - missing tenHocPhan or ngayThi`);
+                            continue;
+                        }
 
                         // Xử lý ngày thi cho PcCoiThi
                         let formattedNgayThi = '';
@@ -539,7 +690,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             cbo2 = [];
                         }
 
-                        pcCoiThiData.push({
+                        const itemData = {
                             maHocPhan: rowData.maHocPhan.toString().trim(),
                             hocPhan: [rowData.tenHocPhan.toString().trim()],
                             lop: rowData.lopHP ? [rowData.lopHP.toString().trim()] : [],
@@ -550,11 +701,36 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             cbo2: cbo2,
                             hinhThuc: [], // Để trống
                             thoiGian: rowData.thoiGianThi ? [rowData.thoiGianThi.toString().trim()] : [],
-                            loaiKyThi: loaiKyThi,
-                            type: type === 'chinh-quy' ? 'Chính quy' : 'Liên thông vlvh',
+                            loaiKyThi: currentLoaiKyThi,
+                            type: type === 'chinh-quy' ? 'chinh-quy' : 'lien-thong-vlvh',
                             namHoc: namHoc,
                             ky: kyFromFile
+                        };
+
+                        console.log(`📝 Creating item at row ${i}:`, {
+                            tenHocPhan: rowData.tenHocPhan,
+                            currentLoaiKyThi: currentLoaiKyThi,
+                            itemLoaiKyThi: itemData.loaiKyThi,
+                            shouldMatch: currentLoaiKyThi === itemData.loaiKyThi,
+                            rowText: row.join(' ').substring(0, 50) + '...'
                         });
+
+                        if (currentLoaiKyThi !== itemData.loaiKyThi) {
+                            console.error('❌ MISMATCH: currentLoaiKyThi !== itemData.loaiKyThi');
+                            console.error('❌ This should not happen! Check logic above.');
+                        }
+
+                        // Đặc biệt debug cho Lập trình Python
+                        if (rowData.tenHocPhan && rowData.tenHocPhan.toString().includes('Lập trình Python')) {
+                            console.log('🐍 PYTHON DEBUG:', {
+                                tenHocPhan: rowData.tenHocPhan,
+                                currentLoaiKyThi: currentLoaiKyThi,
+                                finalLoaiKyThi: itemData.loaiKyThi,
+                                rowIndex: i
+                            });
+                        }
+
+                        pcCoiThiData.push(itemData);
                     }
 
                     console.log('PcCoiThi data prepared:', pcCoiThiData);
@@ -570,7 +746,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     type: type,
                                     user: currentUser._id,
                                     namHoc,
-                                    ky
+                                    ky: kyFromFile
                                 }),
                                 headers: { "Content-Type": "application/json" },
                             }),
@@ -579,10 +755,9 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 method: "POST",
                                 body: JSON.stringify({
                                     items: pcCoiThiData,
-                                    type: type,
-                                    user: currentUser._id,
+                                    type: type === 'chinh-quy' ? 'chinh-quy' : 'lien-thong-vlvh',
                                     namHoc,
-                                    ky
+                                    ky: kyFromFile
                                 }),
                                 headers: { "Content-Type": "application/json" },
                             })
@@ -634,6 +809,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             toast.success(successMessage);
                         }
                         toast.dismiss('excel-import');
+
+                        // Refresh data sau khi import thành công
+                        if (onUpdateCongTacCoiThi) {
+                            onUpdateCongTacCoiThi();
+                        }
+
+                        // Refresh table data
+                        fetchData();
 
                     } catch (err) {
                         console.error('Bulk import Error:', err);
@@ -803,8 +986,16 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     <span className="text-green-600 font-medium">{text}</span>
                 );
             },
-            width: '30%',
+            width: '25%',
             ellipsis: true
+        },
+        {
+            title: <span className="font-semibold">Kỳ</span>,
+            dataIndex: 'ky',
+            key: 'ky',
+            render: (text) => <span className="font-medium">{text}</span>,
+            width: '8%',
+            align: 'center',
         },
         {
             title: <span className="font-semibold">Thời gian (phút)</span>,

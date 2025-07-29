@@ -13,7 +13,9 @@ export const POST = async (req) => {
       return new Response("Invalid items data", { status: 400 });
     }
 
-    console.log(items);
+    console.log('📦 Bulk import received', items.length, 'items');
+    console.log('📋 Sample item:', items[0]);
+
     const results = {
       success: [],
       duplicates: [],
@@ -56,29 +58,24 @@ export const POST = async (req) => {
         const existingRecord = await PcCoiThi.findOne(duplicateQuery);
 
         if (existingRecord) {
-          // Cập nhật bản ghi hiện có với logic merge thông minh cho cbo1/cbo2
+          // Cập nhật bản ghi hiện có - chỉ cập nhật trường tương ứng
           try {
-            // Xử lý merge cbo1 và cbo2
+            // Giữ nguyên dữ liệu cũ
             let newCbo1 = existingRecord.cbo1 || [];
             let newCbo2 = existingRecord.cbo2 || [];
 
-            // Nếu có dữ liệu cbo1 mới và chưa tồn tại
+            // Chỉ cập nhật trường có dữ liệu mới - KHÔNG MERGE
             if (cbo1 && Array.isArray(cbo1) && cbo1.length > 0) {
-              cbo1.forEach(cb => {
-                if (cb && !newCbo1.includes(cb)) {
-                  newCbo1.push(cb);
-                }
-              });
+              console.log('Updating cbo1 only:', { old: newCbo1, new: cbo1 });
+              newCbo1 = [...cbo1]; // Chỉ lấy dữ liệu mới, không merge với cũ
             }
 
-            // Nếu có dữ liệu cbo2 mới và chưa tồn tại
             if (cbo2 && Array.isArray(cbo2) && cbo2.length > 0) {
-              cbo2.forEach(cb => {
-                if (cb && !newCbo2.includes(cb)) {
-                  newCbo2.push(cb);
-                }
-              });
+              console.log('Updating cbo2 only:', { old: newCbo2, new: cbo2 });
+              newCbo2 = [...cbo2]; // Chỉ lấy dữ liệu mới, không merge với cũ
             }
+
+            console.log('Final cbo values (NO MERGE):', { newCbo1, newCbo2 });
 
             const updatedRecord = await PcCoiThi.findByIdAndUpdate(
               existingRecord._id,

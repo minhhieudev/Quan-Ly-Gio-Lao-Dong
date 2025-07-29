@@ -10,26 +10,62 @@ export const GET = async (req) => {
     await connectToDB();
     
     const { searchParams } = new URL(req.url);
-    const namHoc = searchParams.get('namHoc');
-    const ky = searchParams.get('ky');
-    const type = searchParams.get('type');
-    const loaiKyThi = searchParams.get('loaiKyThi');
+    let namHoc = searchParams.get('namHoc');
+    let ky = searchParams.get('ky');
+    let type = searchParams.get('type');
+    let loaiKyThi = searchParams.get('loaiKyThi');
+    let userName = searchParams.get('userName'); // Tên user để tìm trong cbo1/cbo2
+    console.log('userName:', userName);
+
+    // Normalize: nếu là 'undefined' hoặc rỗng thì set về undefined
+    if (namHoc === '' || namHoc === 'undefined') namHoc = undefined;
+    if (ky === '' || ky === 'undefined') ky = undefined;
+    if (type === '' || type === 'undefined') type = undefined;
+    if (loaiKyThi === '' || loaiKyThi === 'undefined') loaiKyThi = undefined;
+    if (userName === '' || userName === 'undefined') userName = undefined;
 
     let query = {};
-    if (namHoc !== null && namHoc !== undefined) query.namHoc = namHoc;
-    if (ky !== null && ky !== undefined) query.ky = ky;
-    if (type !== null && type !== undefined) query.type = type;
-    if (loaiKyThi !== null && loaiKyThi !== undefined) query.loaiKyThi = loaiKyThi;
+    if (namHoc !== null && namHoc !== undefined && namHoc !== '' && namHoc !== 'undefined') query.namHoc = namHoc;
+    if (ky !== null && ky !== undefined && ky !== '' && ky !== 'undefined') query.ky = ky;
+    if (type !== null && type !== undefined && type !== '' && type !== 'undefined') query.type = type;
+    if (loaiKyThi !== null && loaiKyThi !== undefined && loaiKyThi !== '' && loaiKyThi !== 'undefined') query.loaiKyThi = loaiKyThi;
 
+    // Tìm theo user trong cbo1 hoặc cbo2
+    if (userName) {
+      console.log('Searching for userName:', userName);
+      query.$or = [
+        { cbo1: { $elemMatch: { $regex: userName, $options: 'i' } } },
+        { cbo2: { $elemMatch: { $regex: userName, $options: 'i' } } }
+      ];
+    }
+
+    // Chỉ log các filter thực sự có giá trị
+    const logFilters = {};
+    if (namHoc !== undefined && namHoc !== null) logFilters.namHoc = namHoc;
+    if (ky !== undefined && ky !== null) logFilters.ky = ky;
+    if (type !== undefined && type !== null) logFilters.type = type;
+    if (loaiKyThi !== undefined && loaiKyThi !== null) logFilters.loaiKyThi = loaiKyThi;
+    if (userName !== undefined && userName !== null) logFilters.userName = userName;
     console.log('PcCoiThi API Query:', {
-      namHoc, ky, type, loaiKyThi, query
+      ...logFilters,
+      query
     });
 
     const pcCoiThiList = await PcCoiThi.find(query)
       //.populate('user', 'name email')
       .sort({ ngayThi: 1, tenHocPhan: 1 });
 
-    return new Response(JSON.stringify(pcCoiThiList), { 
+    console.log('📊 Found', pcCoiThiList.length, 'records');
+    if (pcCoiThiList.length > 0) {
+      console.log('📋 Sample record:', {
+        hocPhan: pcCoiThiList[0].hocPhan,
+        loaiKyThi: pcCoiThiList[0].loaiKyThi,
+        cbo1: pcCoiThiList[0].cbo1,
+        cbo2: pcCoiThiList[0].cbo2
+      });
+    }
+
+    return new Response(JSON.stringify(pcCoiThiList), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
