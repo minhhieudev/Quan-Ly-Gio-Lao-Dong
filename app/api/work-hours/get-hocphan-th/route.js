@@ -16,7 +16,7 @@ export const GET = async (req) => {
      
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
-    console.error("Error fetching PhanCongKiemNhiem:", err);
+    console.error("Lỗi lưu học phần mới:", err);
     return new Response(`Lỗi: ${err.message}`, { status: 500 });
   }
 };

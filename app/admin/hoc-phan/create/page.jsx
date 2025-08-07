@@ -63,13 +63,7 @@ const TeachingAssignmentForm = () => {
     setEditRecord(null);
   };
 
-  const generateUniqueId = (() => {
-    let counter = 0; // Biến đếm để đảm bảo giá trị không trùng lặp
-    return () => {
-      counter += 1;
-      return `HP${Date.now()}${counter}`; // Kết hợp thời gian hiện tại và biến đếm
-    };
-  })();
+
 
   // Cập nhật hàm chuẩn hóa khoảng trắng
   const normalizeWhitespace = (str) => {
@@ -85,7 +79,7 @@ const TeachingAssignmentForm = () => {
 
     reader.onload = (event) => {
       const data = event.target.result;
-      const workbook = XLSX.read(data, { type: "binary" });
+      const workbook = XLSX.read(data, { type: "array" });
 
       let ListData = [];
       let khoa = "";
@@ -96,12 +90,11 @@ const TeachingAssignmentForm = () => {
         const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
         // Lặp qua từng dòng trong sheet
-        rawData.forEach((row, index) => {
+        rawData.forEach((row) => {
           // Kiểm tra nếu dòng chứa thông tin khoa
-          if (row[0] && typeof row[0] === 'string' && 
+          if (row[0] && typeof row[0] === 'string' &&
               /^\d+\.?\s*K(?:hoa|HOA)(?:\s+K(?:hoa|HOA))?\s/i.test(row[0])) {
-            
-            
+
             const khoaMatch = row[0].match(/^\d+\.?\s*K(?:hoa|HOA)\s+((?:K(?:hoa|HOA)\s+)?.*?)(?:\s*:|\s*$)/i);
             if (khoaMatch) {
               khoa = normalizeWhitespace(khoaMatch[1]);
@@ -109,23 +102,27 @@ const TeachingAssignmentForm = () => {
             return;
           }
 
-          // Chỉ bỏ qua các dòng tiêu đề thực sự
-          if (row[0] === "TT" || !row[0] || !row[1] || !row[2]) {
+          // Bỏ qua các dòng tiêu đề và dòng trống
+          if (row[0] === "MÃ HỌC PHẦN" || row[0] === "TT" || !row[0] || !row[1]) {
             return;
           }
 
-          ListData.push({
-            maMH: generateUniqueId(),
-            tenMH: row[1] || "",
-            soTC: row[2] || 0,
-            soTietLT: row[3] || 0,
-            soTietTH: row[4] || 0,
-            trinhDo: row[5] || "",
-            soLuong: row[6] || "",
-            heSo: row[7] || "",
-            ghiChu: row[8] || "",
-            khoa: khoa
-          });
+          // Kiểm tra xem có phải là dòng dữ liệu hợp lệ không
+          // Dòng dữ liệu phải có ít nhất mã học phần và tên môn học
+          if (typeof row[0] === 'string' && row[0].trim() && row[1] && row[1].trim()) {
+            ListData.push({
+              maMH: row[0].toString().trim() || "", // Cột A: Mã học phần
+              tenMH: row[1] || "", // Cột B: Tên môn học
+              soTC: parseInt(row[2]) || 0, // Cột C: Số tín chỉ
+              soTietLT: parseInt(row[3]) || 0, // Cột D: Số tiết LT
+              soTietTH: parseInt(row[4]) || 0, // Cột E: Số tiết TH
+              trinhDo: row[5] || "Đại học", // Cột F: Trình độ
+              soLuong: row[6] || "", // Cột G: Số lượng
+              heSo: row[7] || "", // Cột H: Hệ số
+              ghiChu: row[8] || "", // Cột I: Ghi chú
+              khoa: khoa
+            });
+          }
         });
       });
 
@@ -133,7 +130,7 @@ const TeachingAssignmentForm = () => {
       if (ListData.length > 0) {
         createMany(ListData);
       } else {
-        toast.error("No data found in file.");
+        toast.error("Không tìm thấy dữ liệu trong file.");
       }
     };
 
@@ -141,7 +138,7 @@ const TeachingAssignmentForm = () => {
       toast.error("Đã xảy ra lỗi khi đọc file Excel");
     };
 
-    reader.readAsBinaryString(file);
+    reader.readAsArrayBuffer(file);
   };
 
 

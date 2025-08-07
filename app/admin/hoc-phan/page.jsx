@@ -11,7 +11,6 @@ const { Option } = Select;
 
 const TeachingAssignmentTable = () => {
   const [dataList, setDataList] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
@@ -20,39 +19,41 @@ const TeachingAssignmentTable = () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/admin/hoc-phan?page=${current}&pageSize=${pageSize}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-        if (res.ok) {
-          const { assignments, total } = await res.json();
-          setDataList(assignments);
-          setFilteredData(assignments);
-          setTotal(total);
-        } else {
-          toast.error("Không thể tải dữ liệu học phần");
-        }
-        setLoading(false);
-      } catch (err) {
-        toast.error("Lỗi khi tải dữ liệu học phần");
-        setLoading(false);
+  const fetchData = async (search = "") => {
+    try {
+      setLoading(true);
+      const searchParam = search ? `&search=${encodeURIComponent(search)}` : "";
+      const res = await fetch(`/api/admin/hoc-phan?page=${current}&pageSize=${pageSize}${searchParam}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const { assignments, total } = await res.json();
+        setDataList(assignments);
+        setTotal(total);
+      } else {
+        toast.error("Không thể tải dữ liệu học phần");
       }
-    };
+      setLoading(false);
+    } catch (err) {
+      toast.error("Lỗi khi tải dữ liệu học phần");
+      setLoading(false);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    fetchData(searchTerm);
   }, [current, pageSize]);
 
+  // Debounce search để tránh gọi API quá nhiều lần
   useEffect(() => {
-    const filtered = dataList.filter((item) =>
-      item?.maMH?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item?.tenMH?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredData(filtered);
-  }, [searchTerm, dataList]);
+    const timeoutId = setTimeout(() => {
+      setCurrent(1); // Reset về trang đầu khi tìm kiếm
+      fetchData(searchTerm);
+    }, 500); // Delay 500ms
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   const handleDelete = async (id) => {
     try {
@@ -63,8 +64,9 @@ const TeachingAssignmentTable = () => {
       });
 
       if (res.ok) {
-        setDataList((prevData) => prevData.filter((item) => item._id !== id));
         toast.success("Xoá thành công!");
+        // Refresh lại dữ liệu sau khi xóa
+        fetchData(searchTerm);
       } else {
         toast.error("Xoá thất bại!");
       }
@@ -76,7 +78,7 @@ const TeachingAssignmentTable = () => {
   const exportToExcel = () => {
     try {
       toast.loading('Đang xuất file Excel...');
-      exportHocPhan(filteredData)
+      exportHocPhan(dataList)
         .then(() => {
           toast.dismiss();
           toast.success('Xuất file Excel thành công!');
@@ -97,7 +99,7 @@ const TeachingAssignmentTable = () => {
     {
       title: 'STT',
       dataIndex: 'index',
-      render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
+      render: (_, __, index) => <span style={{ fontWeight: 'bold' }}>{(current - 1) * pageSize + index + 1}</span>,
     },
     {
       title: 'Mã MH',
@@ -202,7 +204,7 @@ const TeachingAssignmentTable = () => {
         <div className="flex-grow overflow-auto mt-2" style={{ maxHeight: 'calc(85vh - 80px)' }}>
           <Table
             columns={columns}
-            dataSource={filteredData}
+            dataSource={dataList}
             rowKey="_id"
             pagination={false} // Tắt phân trang trên Table
           />
