@@ -17,7 +17,7 @@ const TopBar = () => {
   const user = session?.user;
 
   return (
-    <div className="topbar container mx-auto max-w-[1600px] px-2">
+    <div className="topbar  mx-auto px-2">
       <div className="flex items-center gap-2">
         <Link href="/home">
           <img src="https://upload.wikimedia.org/wikipedia/vi/2/2e/Dai_hoc_phu_yen_logo.png" alt="logo" className="logo" />

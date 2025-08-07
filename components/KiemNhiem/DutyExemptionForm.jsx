@@ -867,7 +867,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
         e.preventDefault();
 
         // Validate các trường bắt buộc
-        if (!formDaLuu.chucVuCongViec || !formDaLuu.user || !formDaLuu.thoiGianTinh) {
+        if (!formDaLuu.chucVuCongViec || !formDaLuu.user || !formDaLuu.thoiGianTinh || !formDaLuu.soTietQC) {
             toast.error('Vui lòng nhập đầy đủ thông tin bắt buộc!');
             return;
         }
@@ -877,6 +877,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             chucVuCongViec: formDaLuu.chucVuCongViec,
             user: formDaLuu.user,
             thoiGianTinh: formDaLuu.thoiGianTinh,
+            tyLeMienGiam: formDaLuu.tyLeMienGiam,
+            soTietQC: formDaLuu.soTietQC,
             ghiChu: formDaLuu.ghiChu,
             _id: formDaLuu._id || formDaLuu.id, // ĐÚNG TÊN
         };
@@ -1091,6 +1093,25 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 value={formDaLuu.thoiGianTinh || ''}
                                 onChange={e => setFormDaLuu(f => ({ ...f, thoiGianTinh: e.target.value }))}
                                 placeholder="Nhập thời gian tính (VD: 01/09/2024 - 31/05/2025)"
+                                required
+                            />
+                            <div className="font-bold mb-1">Tỷ lệ % miễn giảm</div>
+                            <input
+                                className="input-text w-full border px-2 py-1 rounded"
+                                type="number"
+                                step="0.01"
+                                value={formDaLuu.tyLeMienGiam || ''}
+                                onChange={e => setFormDaLuu(f => ({ ...f, tyLeMienGiam: parseFloat(e.target.value) || 0 }))}
+                                placeholder="Nhập tỷ lệ % miễn giảm"
+                            />
+                            <div className="font-bold mb-1">Số tiết quy chuẩn <span className="text-red-600">*</span></div>
+                            <input
+                                className="input-text w-full border px-2 py-1 rounded"
+                                type="number"
+                                step="0.01"
+                                value={formDaLuu.soTietQC || ''}
+                                onChange={e => setFormDaLuu(f => ({ ...f, soTietQC: parseFloat(e.target.value) || 0 }))}
+                                placeholder="Nhập số tiết quy chuẩn"
                                 required
                             />
                             <div className="font-bold mb-1">Ghi chú</div>

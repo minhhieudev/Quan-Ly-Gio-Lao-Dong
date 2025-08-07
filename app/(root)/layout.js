@@ -16,10 +16,13 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${inter.className} bg-gray-200`}>
         <Provider>
-          <div className="container mx-auto max-w-[1600px] px-2 min-h-screen">
+          <div className=" px-2 min-h-screen">
             <TopBar />
-            {children}
+            <div className="container mx-auto max-w-[1600px]">
+              {children}
+            </div>
           </div>
+
           <Toaster
             position="top-right"
             reverseOrder={false}

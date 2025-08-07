@@ -168,12 +168,29 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
   const handleAddNewClick = () => {
     setIsAddingNew(!isAddingNew);
+    // Reset input khi đóng form
+    if (isAddingNew) {
+      setNewHocPhan("");
+    }
   };
 
   const handleSaveNewHocPhan = async () => {
+    const currentMaHP = watch("maMH");
+
+    // Kiểm tra mã học phần từ form
+    if (!currentMaHP || currentMaHP.trim() === "") {
+      toast.error("Vui lòng nhập mã học phần!");
+      return;
+    }
+
+    // Kiểm tra tên học phần
+    if (!newHocPhan || newHocPhan.trim() === "") {
+      toast.error("Vui lòng nhập tên học phần!");
+      return;
+    }
 
     try {
-      const res = await fetch(`/api/work-hours/get-hocphan-th/?name=${newHocPhan}`, {
+      const res = await fetch(`/api/work-hours/get-hocphan-th/?maHP=${encodeURIComponent(currentMaHP)}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
@@ -181,8 +198,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         const data = await res.json();
 
         const newHocPhanObj = {
-          _id: Math.random().toString(36).substr(2, 9),
-          tenMH: newHocPhan,
+          _id: Math.random().toString(36).substring(2, 11),
+          maMH: currentMaHP.trim(),
+          tenMH: newHocPhan.trim(),
           soTC: 0,
           lop: "",
           soSVDK: 0,
@@ -200,12 +218,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         setIsAddingNew(false);
         setNewHocPhan("");
 
+        toast.success("Thêm học phần mới thành công!");
+
       } else {
         toast.error("Có lỗi khi lấy dữ liệu HPTH !");
       }
     } catch (err) {
       console.log(err)
-      toast.error("An error occurred while fetching data HPTH");
+      toast.error("Có lỗi xảy ra khi lấy dữ liệu HPTH");
     }
 
   };
@@ -251,7 +271,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [namHoc, ky, currentUser, type]);
+  }, [namHoc, ky, type]);
 
   useEffect(() => {
     if (!namHoc || !ky || !currentUser?.username) return;
@@ -279,7 +299,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [namHoc, ky, currentUser]);
+  }, [namHoc, ky]);
 
 
   const calculateTotals = () => {
@@ -596,7 +616,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             <Form.Item
               label={
                 <span className="font-semibold text-base text-gray-700">
-                  Học phần giảng dạy <span className="text-red-600">*</span>
+                  Học phần <span className="text-red-600">*</span>
                 </span>
               }
               className="w-full mb-0"
@@ -614,7 +634,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         showSearch
                         allowClear
                         className="rounded-md"
-                        style={{ width: '110px' }}
+                        style={{ width: '170px' }}
                         dropdownStyle={{ width: 'auto', minWidth: '350px' }}
                         listHeight={300}
                         placeholder="Nhập hoặc chọn tên học phần..."
@@ -645,19 +665,19 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             </Form.Item>
             {isAddingNew && (
               <Form.Item
-                label={<span className="font-semibold text-base text-gray-700">Thêm học phần mới</span>}
+                label={<span className="font-semibold text-base text-gray-700">Thêm</span>}
                 className="flex w-full mb-0 bg-blue-50 px-3 py-1 rounded-lg border border-blue-100"
               >
-                <Space className="flex w-[60%]">
+                <Space className="flex w-[100%]">
                   <Input
                     value={newHocPhan}
                     onChange={(e) => setNewHocPhan(e.target.value)}
                     placeholder="Nhập tên học phần mới..."
                     className="min-w-0 rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                   />
-                  <Button 
-                  size="small"
-                    type="primary" 
+                  <Button
+                    size="small"
+                    type="primary"
                     onClick={handleSaveNewHocPhan}
                     className="bg-blue-600 hover:bg-blue-700"
                   >

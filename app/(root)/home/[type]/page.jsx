@@ -486,7 +486,7 @@ const Pages = () => {
     };
 
     fetchAllDataOnLoad();
-  }, [currentUser, namHoc, kyHoc, type]);
+  }, [ namHoc, kyHoc, type]);
 
   return (
     <div className=" mx-auto px-2 py-2">

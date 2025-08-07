@@ -9,14 +9,28 @@ export const GET = async (req) => {
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     const name = url.searchParams.get('name');
+    const maHP = url.searchParams.get('maHP');
 
-    const data = await HocPhan.find({ 
-      tenMH: { $regex: new RegExp(name, 'i') }
-    });
-     
+    let query = {};
+
+    // Tìm kiếm theo mã học phần (ưu tiên)
+    if (maHP) {
+      query = {
+        maMH: { $regex: new RegExp(maHP, 'i') }
+      };
+    }
+    // Tìm kiếm theo tên học phần (fallback)
+    else if (name) {
+      query = {
+        tenMH: { $regex: new RegExp(name, 'i') }
+      };
+    }
+
+    const data = await HocPhan.find(query);
+
     return new Response(JSON.stringify(data), { status: 200 });
   } catch (err) {
-    console.error("Lỗi lưu học phần mới:", err);
-    return new Response(`Lỗi: ${err.message}`, { status: 500 });
+    console.error("Lỗi lấy dữ liệu học phần:", err);
+    return new Response(JSON.stringify({ message: `Lỗi: ${err.message}` }), { status: 500 });
   }
 };
