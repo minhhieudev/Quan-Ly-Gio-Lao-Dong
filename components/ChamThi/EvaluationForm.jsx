@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcChamThi from "./TablePcChamThi";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -315,29 +315,27 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        onClick={() => handleEdit(record)} 
-                        size="small" 
+                    <Button
+                        onClick={() => handleEdit(record)}
+                        size="small"
                         type="primary"
                         className="bg-blue-500 hover:bg-blue-600"
-                        icon={<span className="mr-1">✎</span>}
-                    >
-                        Sửa
-                    </Button>
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button 
-                            type="primary" 
-                            size="small" 
+                        <Button
+                            type="primary"
+                            size="small"
                             danger
-                            icon={<span className="mr-1">✕</span>}
-                        >
-                            Xoá
-                        </Button>
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),

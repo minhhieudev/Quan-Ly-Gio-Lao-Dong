@@ -24,7 +24,7 @@ import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
 import * as XLSX from 'xlsx';
 import { exportPCKiemNhiem } from "@lib/fileExport";
-import { SaveOutlined, UploadOutlined, ExclamationCircleOutlined, SearchOutlined, FileExcelOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { SaveOutlined, UploadOutlined, ExclamationCircleOutlined, SearchOutlined, FileExcelOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -105,13 +105,14 @@ const KiemNhiemForm = () => {
 
     const [confirmImportVisible, setConfirmImportVisible] = useState(false);
 
-    // Thay thế useEffect bằng cách sử dụng useMemo để tính toán giá trị mặc định
+    // Tạo giá trị mặc định cho form sử dụng useMemo
     const defaultFormValues = useMemo(() => {
-        if (!editRecord && schoolYearStart && schoolYearEnd) {
+        // Nếu không phải edit mode và có ngày bắt đầu năm học
+        if (!editRecord && schoolYearStart) {
             return {
                 ...formSchema,
-                startTime: schoolYearStart,
-                endTime: schoolYearEnd,
+                startTime: schoolYearStart, // Sử dụng ngày bắt đầu năm học làm giá trị mặc định
+                endTime: schoolYearEnd || null, // Ngày kết thúc có thể để null
             };
         }
         return formSchema;
@@ -122,18 +123,18 @@ const KiemNhiemForm = () => {
         defaultValues: defaultFormValues,
     });
 
-    // Hoặc sử dụng useEffect với dependency array chính xác hơn
+    // useEffect để xử lý reset form và tự động điền ngày bắt đầu
     useEffect(() => {
-        if (showForm && !editRecord) {
-            // Chỉ reset khi mở form mới và không phải edit
+        if (showForm && !editRecord && schoolYearStart) {
+            // Reset form khi mở form mới (không phải edit) và có ngày bắt đầu năm học
             const newValues = {
                 ...formSchema,
-                startTime: schoolYearStart || null,
-                endTime: schoolYearEnd || null,
+                startTime: schoolYearStart, // Luôn lấy ngày bắt đầu năm học
+                endTime: null, // Để trống ngày kết thúc cho người dùng chọn
             };
             reset(newValues);
         }
-    }, [showForm, editRecord]); // Bỏ schoolYearStart, schoolYearEnd khỏi dependency
+    }, [showForm, editRecord, schoolYearStart, reset]);
 
     // Add this function to handle date range changes
     const handleDateRangeChange = (dates) => {
@@ -330,11 +331,12 @@ const KiemNhiemForm = () => {
     const onReset = () => {
         const resetValues = {
             ...formSchema,
-            startTime: schoolYearStart || null,
-            endTime: schoolYearEnd || null,
+            startTime: schoolYearStart, // Luôn lấy ngày bắt đầu năm học
+            endTime: null, // Reset ngày kết thúc về null
         };
         reset(resetValues);
         setEditRecord(null);
+        setShowForm(false);
     };
     const onReset2 = () => {
         reset({
@@ -503,14 +505,26 @@ const KiemNhiemForm = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button
+                        size="small"
+                        onClick={() => handleEdit(record)}
+                        type="primary"
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button size="small" type="primary" danger>Xoá</Button>
+                        <Button
+                            size="small"
+                            type="primary"
+                            danger
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),
@@ -838,7 +852,14 @@ const KiemNhiemForm = () => {
                                     control={control}
                                     rules={{ required: "Ngày bắt đầu là bắt buộc" }}
                                     render={({ field }) => (
-                                        <DatePicker {...field} value={field.value} placeholder="Chọn ngày bắt đầu" />
+                                        <DatePicker 
+                                            {...field} 
+                                            value={field.value} 
+                                            placeholder="Chọn hoặc nhập ngày bắt đầu"
+                                            format="DD/MM/YYYY"
+                                            style={{ width: '100%' }}
+                                            inputReadOnly={false}
+                                        />
                                     )}
                                 />
                             </Form.Item>
@@ -887,7 +908,7 @@ const KiemNhiemForm = () => {
                                 htmlType="submit"
                                 icon={<SaveOutlined />}
                             >
-                                {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                                {editRecord ? "Lưu" : "Thêm"}
                             </Button>
                             <Button onClick={() => onReset()}>Hủy</Button>
                             <Spin spinning={isUploading}>

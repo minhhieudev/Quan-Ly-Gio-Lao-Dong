@@ -5,8 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Space, Typography, Table, Popconfirm, InputNumber, Select, Spin, Pagination } from "antd";
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
-import { SearchOutlined } from '@ant-design/icons'
-import { UploadOutlined } from '@ant-design/icons';
+import { SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
 
 const { Title } = Typography;
@@ -161,18 +160,31 @@ const ChucVuForm = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button 
+                        size="small"
+                        type="link"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEdit(record)}
+                        style={{ color: '#1890ff' }}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button size="small" type="primary" danger>Xoá</Button>
+                        <Button 
+                            size="small"
+                            type="link"
+                            icon={<DeleteOutlined />}
+                            style={{ color: '#ff4d4f' }}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),
-            width: 140
+            width: 100
         },
     ];
 

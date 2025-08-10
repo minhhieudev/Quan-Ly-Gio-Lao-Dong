@@ -1,6 +1,6 @@
 "use client";
 
-import { SaveOutlined } from '@ant-design/icons';
+import { SaveOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Divider, Form, Popconfirm, Select, Space, Spin, Table, Tabs, Typography } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
@@ -708,7 +708,13 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             width: 120,
             render: (_, record) => (
                 <Space>
-                    <Button size="small" onClick={() => handleEditDaLuu(record)}>Sửa</Button>
+                    <Button
+                        size="small"
+                        onClick={() => handleEditDaLuu(record)}
+                        type="primary"
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xóa?"
                         onConfirm={() => handleDelete(record._id)}
@@ -716,7 +722,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                         cancelText="Hủy"
                         getPopupContainer={trigger => trigger.parentNode}
                     >
-                        <Button danger size="small">Xóa</Button>
+                        <Button
+                            danger
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),

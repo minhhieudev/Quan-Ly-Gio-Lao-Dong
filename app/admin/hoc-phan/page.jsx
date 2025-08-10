@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { FileExcelOutlined } from '@ant-design/icons';
+import { FileExcelOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { exportHocPhan } from '@/lib/fileExport';
 
 const { Option } = Select;
@@ -75,19 +75,39 @@ const TeachingAssignmentTable = () => {
     }
   };
 
-  const exportToExcel = () => {
+  const exportToExcel = async () => {
     try {
+      toast.loading('Đang lấy dữ liệu để xuất file...');
+
+      // Lấy toàn bộ dữ liệu không phân trang để xuất
+      const searchParam = searchTerm ? `&search=${encodeURIComponent(searchTerm)}` : "";
+      const res = await fetch(`/api/admin/hoc-phan?page=1&pageSize=10000${searchParam}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (!res.ok) {
+        toast.dismiss();
+        toast.error('Không thể lấy dữ liệu để xuất!');
+        return;
+      }
+
+      const { assignments } = await res.json();
+
+      if (!assignments || assignments.length === 0) {
+        toast.dismiss();
+        toast.error('Không có dữ liệu để xuất!');
+        return;
+      }
+
+      toast.dismiss();
       toast.loading('Đang xuất file Excel...');
-      exportHocPhan(dataList)
-        .then(() => {
-          toast.dismiss();
-          toast.success('Xuất file Excel thành công!');
-        })
-        .catch((error) => {
-          toast.dismiss();
-          console.error('Error exporting to Excel:', error);
-          toast.error('Lỗi khi xuất file Excel!');
-        });
+
+      await exportHocPhan(assignments);
+
+      toast.dismiss();
+      toast.success('Xuất file Excel thành công!');
+
     } catch (error) {
       toast.dismiss();
       console.error('Error exporting to Excel:', error);
@@ -112,6 +132,7 @@ const TeachingAssignmentTable = () => {
       dataIndex: 'tenMH',
       key: 'tenMH',
       render: (text) => <span style={{ color: 'green', fontWeight: 'bold' }}>{text}</span>,
+      width: 300
     },
     {
       title: 'Số TC',
@@ -160,14 +181,26 @@ const TeachingAssignmentTable = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size="small" onClick={() => router.push(`/admin/hoc-phan/edit/${record._id}`)} type="primary">Sửa</Button>
+          <Button
+            size="small"
+            onClick={() => router.push(`/admin/hoc-phan/edit/${record._id}`)}
+            type="primary"
+            icon={<EditOutlined />}
+            title="Sửa"
+          />
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size="small" type="primary" danger>Xoá</Button>
+            <Button
+              size="small"
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),

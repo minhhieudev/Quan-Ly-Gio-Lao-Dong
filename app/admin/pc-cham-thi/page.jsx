@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { FileExcelOutlined } from '@ant-design/icons';
+import { FileExcelOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { exportChamThi } from '@/lib/fileExport';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
@@ -177,14 +177,26 @@ const PcChamThiTable = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size="small" onClick={() => router.push(`/admin/pc-cham-thi/edit/${record._id}`)} type="primary">Sửa</Button>
+          <Button 
+            size="small" 
+            onClick={() => router.push(`/admin/pc-cham-thi/edit/${record._id}`)} 
+            type="primary"
+            icon={<EditOutlined />}
+            title="Sửa"
+          />
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size="small" type="primary" danger>Xoá</Button>
+            <Button 
+              size="small" 
+              type="primary" 
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),

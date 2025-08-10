@@ -1,8 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { FileExcelOutlined, PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { exportPcCoiThi } from "@lib/fileExport";
 import { Table, Button, Modal, Form, Input, Select, Space, Popconfirm, message } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
+import {  SaveOutlined, CloseOutlined } from '@ant-design/icons';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
 const { Option } = Select;
@@ -17,9 +19,9 @@ const PcCoiThiManagement = () => {
     // Filters
     const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
     const [namHoc, setNamHoc] = useState(defaultNamHoc);
-    const [ky, setKy] = useState('1');
+    const [ky, setKy] = useState('');
     const [type, setType] = useState('Coi thi');
-    const [loaiKyThi, setLoaiKyThi] = useState('1');
+    const [loaiKyThi, setLoaiKyThi] = useState('');
     const [loai, setLoai] = useState('chinh-quy');
 
     // Inline editing
@@ -451,20 +453,29 @@ const PcCoiThiManagement = () => {
     ];
 
     return (
-        <div className="p-6">
-            <div className="flex justify-between items-center mb-4">
+        <div className=" py-2">
+            <div className="flex justify-between items-center mb-2">
                 <h2 className="text-2xl font-bold">Quản lý Phân công Coi thi</h2>
-                <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={handleCreate}
-                >
-                    Thêm mới
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        className="button-lien-thong-vlvh text-white font-bold shadow-md"
+                        onClick={() => exportPcCoiThi(dataList, ky, namHoc, loaiKyThi)}
+                        icon={<FileExcelOutlined />}
+                    >
+                        Xuất Excel
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={handleCreate}
+                    >
+                        Thêm mới
+                    </Button>
+                </div>
             </div>
 
             {/* Filters */}
-            <div className="grid grid-cols-4 gap-4 mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-4 gap-4 mb-4 px-4 py-2 bg-gray-50 rounded-lg">
                 <div>
                     <label className="block text-sm font-medium mb-1">Loại:</label>
                     <Select
@@ -536,6 +547,7 @@ const PcCoiThiManagement = () => {
                         pageSize: 20,
                         showSizeChanger: true,
                         showQuickJumper: true,
+                        pageSizeOptions: ['10', '20', '50', '100', '200', '500', '1000'],
                         showTotal: (total) => `Tổng ${total} bản ghi`,
                     }}
                 />

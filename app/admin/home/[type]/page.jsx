@@ -233,8 +233,15 @@ const App = () => {
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) => {
+      let fieldValue;
+      if (dataIndex === 'user.username') {
+        fieldValue = record.user?.username;
+      } else {
+        fieldValue = record[dataIndex];
+      }
+      return (fieldValue ? fieldValue.toString().toLowerCase() : '').includes(value.toLowerCase());
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -266,7 +273,7 @@ const App = () => {
 
     },
     {
-      title: 'Họ và tên giảng viên',
+      title: 'Giảng viên',
       dataIndex: 'username',
       width: 120, // Giảm width
       ...getColumnSearchProps('user.username'),
@@ -332,7 +339,7 @@ const App = () => {
       className: 'text-center'
     },
     {
-      title: 'Tổng giảng dạy',
+      title: 'Tổng',
       dataIndex: 'congTacGiangDay',
       key: 'congTacGiangDay.tong',
       render: (text, record) => record.congTacGiangDay.tong,
@@ -461,7 +468,7 @@ const App = () => {
             break;
           case 3:
             color = 'red';
-            text = 'Yêu cầu chỉnh sửa';
+            text = 'Chỉnh sửa';
             break;
           default:
             color = 'default';
@@ -471,7 +478,7 @@ const App = () => {
           <Select
             size="small"
             value={typeof value === 'number' ? value : 0}
-            style={{ width: 140 }}
+            style={{ width: 110 }}
             onChange={val => handleUpdateTrangThai(record._id, val)}
             dropdownMatchSelectWidth={false}
             disabled={updatingStatusId === record._id}
@@ -487,7 +494,7 @@ const App = () => {
               <Tag color="green">Trường duyệt</Tag>
             </Select.Option>
             <Select.Option value={3}>
-              <Tag color="red">Yêu cầu chỉnh sửa</Tag>
+              <Tag color="red">Chỉnh sửa</Tag>
             </Select.Option>
           </Select>
         );
@@ -927,7 +934,7 @@ const App = () => {
           </Select>
         </div>
 
-        <div className="w-[25%] flex items-center gap-2 font-bold">
+        <div className="w-[35%] flex items-center gap-2 font-bold">
           <div className="text-base-bold">Khoa:</div>
           <Select size="small"
             className="w-[40%]"
@@ -955,7 +962,7 @@ const App = () => {
               Khoa duyệt: {filteredDataList.filter(item => item.trangThai == 1).length}
             </div>
             <div className="bg-red-100 rounded p-1 font-semibold">
-              Yêu cầu chỉnh sửa: {filteredDataList.filter(item => item.trangThai == 3).length}
+              Chỉnh sửa: {filteredDataList.filter(item => item.trangThai == 3).length}
             </div>
           </div>
         </div>
@@ -984,7 +991,7 @@ const App = () => {
         pagination={{
           ...tableParams.pagination,
           showSizeChanger: true,
-          pageSizeOptions: ['5', '10', '50', '100', '500'],
+          pageSizeOptions: ['5', '50', '100', '500', '1000'],
           showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} bản ghi`
         }}
         loading={loading}

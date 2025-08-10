@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import Loader from "./Loader";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -203,14 +204,26 @@ const TrainingTypeForm = ({ namHoc, ky }) => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+          <Button
+            size="small"
+            onClick={() => handleEdit(record)}
+            type="primary"
+            icon={<EditOutlined />}
+            title="Sửa"
+          />
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size= 'small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),

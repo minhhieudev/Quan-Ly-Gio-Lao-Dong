@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useParams } from "next/navigation";
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
-import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import * as XLSX from 'xlsx';
 
 const { Title } = Typography;
@@ -1088,13 +1088,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     </span>
                 ) : (
                     <Space size="small">
-                        <Button 
-                            onClick={() => edit(record)} 
-                            size="small" 
+                        <Button
+                            onClick={() => edit(record)}
+                            size="small"
                             type="primary"
                             className="bg-blue-500 hover:bg-blue-600"
-                            icon={<span className="mr-1">✎</span>}
+                            icon={<EditOutlined />}
                             disabled={editingKey !== ''}
+                            title="Sửa"
                         />
                         <Popconfirm
                             title="Bạn có chắc chắn muốn xoá?"
@@ -1102,14 +1103,15 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             okText="Có"
                             cancelText="Không"
                         >
-                            <Button 
-                                type="primary" 
-                                size="small" 
+                            <Button
+                                type="primary"
+                                size="small"
                                 danger
-                                icon={<span className="mr-1">✕</span>}
+                                icon={<DeleteOutlined />}
                                 disabled={editingKey !== ''}
-                            >
-                            </Button>
+                                title="Xóa"
+                            />
+                        </Popconfirm>
                         </Popconfirm>
                     </Space>
                 );

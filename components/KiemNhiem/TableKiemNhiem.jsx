@@ -6,6 +6,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { Button, Popconfirm } from "antd";
+import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 
@@ -104,18 +105,18 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
               type="primary"
               danger
               className="flex items-center"
-              icon={<span className="mr-1">🗑️</span>}
-            >
-            </Button>
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
           <Button
             size="small"
             onClick={() => handleEdit(record)}
             type="primary"
             className="bg-blue-500 hover:bg-blue-600 flex items-center"
-            icon={<span className="mr-1">✏️</span>}
-          >
-          </Button>
+            icon={<EditOutlined />}
+            title="Sửa"
+          />
         </Space>
       )
     },

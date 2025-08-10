@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import Loader from "./Loader";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -261,30 +262,28 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
             align: 'center',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        size="small" 
-                        onClick={() => handleEdit(record)} 
+                    <Button
+                        size="small"
+                        onClick={() => handleEdit(record)}
                         type="primary"
                         className="bg-blue-500 hover:bg-blue-600 flex items-center"
-                        icon={<span className="mr-1">✏️</span>}
-                    >
-                        Sửa
-                    </Button>
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button 
-                            size="small" 
-                            type="primary" 
+                        <Button
+                            size="small"
+                            type="primary"
                             danger
                             className="flex items-center"
-                            icon={<span className="mr-1">🗑️</span>}
-                        >
-                            Xoá
-                        </Button>
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),

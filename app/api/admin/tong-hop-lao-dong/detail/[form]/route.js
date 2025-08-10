@@ -38,11 +38,10 @@ export const GET = async (req, { params }) => {
       namHoc: namHoc,
     };
 
-    if (form !== 'CongTacKiemNhiem') {
+    if (form !== 'CongTacKiemNhiem' && kiHoc !== 'undefined' && kiHoc !== '') {
       query.ky = kiHoc;
     }
-
-    const records = await model.find(query).populate('user', 'username khoa');
+    const records = await model.find(query).populate('user', 'username maKhoa');
 
     return new Response(JSON.stringify(records), { status: 200 });
   } catch (err) {

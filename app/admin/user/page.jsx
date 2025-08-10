@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Space, Typography, Select, Modal, Table, Popconfirm, Spin, Pagination } from "antd";
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
 import * as XLSX from 'xlsx';
@@ -319,14 +319,26 @@ const UserForm = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button
+                        size="small"
+                        onClick={() => handleEdit(record)}
+                        type="primary"
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button size="small" type="primary" danger>Xoá</Button>
+                        <Button
+                            size="small"
+                            type="primary"
+                            danger
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),
@@ -554,7 +566,7 @@ const UserForm = () => {
                     </div>
                 </Modal>
             )}
-            <div className="p-2 shadow-xl bg-white rounded-xl ">
+            <div className="py-2 px-4 shadow-xl bg-white rounded-xl ">
                 <div className="flex flex-col gap-0 justify-between items-center mb-0">
                     <Title level={4} className="text-center text-[18px]">DANH SÁCH NGƯỜI DÙNG</Title>
                     <div className="flex gap-3 justify-between w-full mb-2">

@@ -5,7 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { Button, Input, Form, Space, Typography, Table, Popconfirm } from "antd";
 import toast from "react-hot-toast";
 import Loader from "../../../components/Loader";
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons'
 
 const { Title } = Typography;
 
@@ -144,14 +144,26 @@ const KhoaForm = () => {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button  size="small" onClick={() => handleEdit(record)} type="primary">Sửa</Button>
+                    <Button
+                        size="small"
+                        onClick={() => handleEdit(record)}
+                        type="primary"
+                        icon={<EditOutlined />}
+                        title="Sửa"
+                    />
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
                         onConfirm={() => handleDelete(record._id)}
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button danger size="small" type="primary" >Xoá</Button>
+                        <Button
+                            danger
+                            size="small"
+                            type="primary"
+                            icon={<DeleteOutlined />}
+                            title="Xóa"
+                        />
                     </Popconfirm>
                 </Space>
             ),

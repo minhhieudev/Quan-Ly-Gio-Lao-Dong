@@ -473,14 +473,19 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button 
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -554,7 +559,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -620,14 +631,19 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button 
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -707,14 +723,19 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button 
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -800,14 +821,19 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button 
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -915,14 +941,19 @@ const Pages = () => {
       key: 'action',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button size='small' onClick={() => handleEdit(record)} type="primary">Sửa</Button> */}
           <Popconfirm
             title="Bạn có chắc chắn muốn xoá?"
             onConfirm={() => handleDelete(record._id)}
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button 
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),

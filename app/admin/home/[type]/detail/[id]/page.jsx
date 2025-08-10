@@ -1,16 +1,15 @@
 'use client'
-import React, { useEffect, useState, useRef, useMemo } from 'react'
-import { useParams } from "next/navigation";
-import { Table, Input, Button, Space, Popconfirm, Modal, Select } from 'antd';
-import { SearchOutlined, EyeFilled, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
-import moment from 'moment';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { useRouter } from "next/navigation";
-import { exportToExcelChiTiet, exportTongHopLaoDongDetail } from '../../../../../../lib/fileExport'
-import { CldUploadButton } from "next-cloudinary";
-import { useSession } from "next-auth/react";
+import { ArrowLeftOutlined, DeleteOutlined, FileExcelOutlined, SearchOutlined } from '@ant-design/icons';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
+import { Button, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
+import moment from 'moment';
+import { useSession } from "next-auth/react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Highlighter from 'react-highlight-words';
 import toast from "react-hot-toast";
+import { exportTongHopLaoDongDetail } from '../../../../../../lib/fileExport';
+const { Option } = Select;
 
 const Pages = () => {
   const { type } = useParams();
@@ -19,7 +18,11 @@ const Pages = () => {
   const [tableParams, setTableParams] = useState({
     pagination: {
       current: 1,
-      pageSize: 5,
+      pageSize: 10,
+      showSizeChanger: true,
+      showQuickJumper: true,
+      showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+      pageSizeOptions: ['10', '20', '50', '100','500'],
     },
   });
   const [searchText, setSearchText] = useState('');
@@ -31,7 +34,7 @@ const Pages = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
 
-  const [kiHoc, setKiHoc] = useState("1");
+  const [kiHoc, setKiHoc] = useState("");
   const [khoaOptions, setKhoaOptions] = useState([]);
   const [selectedKhoa, setSelectedKhoa] = useState("");
 
@@ -48,7 +51,7 @@ const Pages = () => {
     const fetchData = async () => {
       try {
         const res = await fetch(`/api/admin/tong-hop-lao-dong/detail/${idDetail.current}/?type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&kiHoc=${encodeURIComponent(kiHoc)}`, {
-          method: "GET", 
+          method: "GET",
           headers: { "Content-Type": "application/json" },
         });
         if (res.ok) {
@@ -75,9 +78,8 @@ const Pages = () => {
         });
         if (res.ok) {
           const data = await res.json();
-          // Chỉ lấy thuộc tính 'tenKhoa' từ dữ liệu
-          const tenKhoaList = data.map(khoa => khoa.tenKhoa);
-          setKhoaOptions(tenKhoaList);
+
+          setKhoaOptions(data);
         } else {
           toast.error("Failed to get khoa");
         }
@@ -88,7 +90,7 @@ const Pages = () => {
 
     getListKhoa();
   }, []);
-  
+
   const getColumns = () => {
     switch (idDetail.current) {
       case 'CongTacGiangDay':
@@ -208,7 +210,7 @@ const Pages = () => {
       dataIndex: 'index',
       align: 'center',
       width: '1%',
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -275,7 +277,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -288,7 +296,7 @@ const Pages = () => {
       dataIndex: 'index',
       align: 'center',
       width: '1%',
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -343,7 +351,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -355,7 +369,7 @@ const Pages = () => {
       dataIndex: 'index',
       align: 'center',
       width: '1%',
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -416,7 +430,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -429,7 +449,7 @@ const Pages = () => {
       width: '1%',
       align: 'center',
 
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -513,7 +533,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -526,7 +552,7 @@ const Pages = () => {
       width: '1%',
       align: 'center',
 
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -601,7 +627,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -613,7 +645,7 @@ const Pages = () => {
       dataIndex: 'index',
       align: 'center',
       width: '1%',
-      render: (text, record, index) => index + 1,
+      render: (_, __, index) => (tableParams.pagination.current - 1) * tableParams.pagination.pageSize + index + 1,
     },
     {
       title: 'Họ và tên giảng viên',
@@ -716,7 +748,13 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button size='small' type="primary" danger>Xoá</Button>
+            <Button
+              size='small'
+              type="primary"
+              danger
+              icon={<DeleteOutlined />}
+              title="Xóa"
+            />
           </Popconfirm>
         </Space>
       ),
@@ -805,46 +843,15 @@ const Pages = () => {
   email @example.com
   0123 456 789
   `
-  const sendEmail = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          idUser: currentUser._id,
-          subject: 'Thông báo về Bảng tổng hợp lao động giảng viên',
-          text: contentEmail,
-          attachments: [
-            {
-              filename: `BẢNG TỔNG HỢP CÔNG TÁC ${getTitle2()} - ${getTitle1()}.xlsx`,
-              path: fileUrl, // Đảm bảo rằng fileUrl là đường dẫn hợp lệ
-              contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            }
-          ]
-        })
-      });
-
-      if (res.ok) {
-        setIsModalVisible(true);
-        setLoading(false);
-      } else {
-        console.log('Lỗi');
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  }
-  const uploadPhoto = async (result) => {
-    const url = result?.info?.secure_url;
-    setFileUrl(url);
-    await sendEmail();
-  };
 
   // Sử dụng useMemo để lọc dataList
   const filteredDataList = useMemo(() => {
     if (!selectedKhoa) return dataList;
-    return dataList.filter(item => item.user?.khoa === selectedKhoa);
+    return dataList.filter(item => {
+      // Kiểm tra nhiều trường hợp có thể có khoa
+      const userKhoa = item.user?.maKhoa;
+      return userKhoa === selectedKhoa;
+    });
   }, [dataList, selectedKhoa]);
 
   const handleDelete = async (id) => {
@@ -902,13 +909,15 @@ const Pages = () => {
         </div>
 
         <div className="w-[25%] flex items-center gap-2">
-          <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
+          <label className="block text-sm font-semibold mb-1">Kỳ:</label>
           <Select
             size='small'
             placeholder="Chọn học kỳ:"
             onChange={(value) => setKiHoc(value)}
             className="w-[50%]"
             value={kiHoc}
+            allowClear
+            onClear={() => setKiHoc("")}
           >
             <Option value="1">1</Option>
             <Option value="2">2</Option>
@@ -925,8 +934,8 @@ const Pages = () => {
             onChange={value => setSelectedKhoa(value)}
           >
             {khoaOptions.map(khoa => (
-              <Option key={khoa} value={khoa}>
-                {khoa}
+              <Option key={khoa.maKhoa} value={khoa.maKhoa}>
+                {khoa.tenKhoa}
               </Option>
             ))}
           </Select>
@@ -946,7 +955,7 @@ const Pages = () => {
       <div className="mt-2 flex justify-center gap-6">
         <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
-          onClick={() => exportTongHopLaoDongDetail(filteredDataList, idDetail.current, getType(),namHoc, selectedKhoa)}
+          onClick={() => exportTongHopLaoDongDetail(filteredDataList, idDetail.current, getType(), namHoc, selectedKhoa)}
         ><FileExcelOutlined />
           Xuất file Excel
         </Button>
@@ -961,7 +970,7 @@ const Pages = () => {
       </div>
       <Modal
         title="Thông Báo"
-        visible={isModalVisible}
+        open={isModalVisible}
         onOk={() => setIsModalVisible(false)}
         onCancel={() => setIsModalVisible(false)}
       >
