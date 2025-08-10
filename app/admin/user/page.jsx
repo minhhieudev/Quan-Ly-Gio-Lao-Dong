@@ -42,7 +42,7 @@ const UserForm = () => {
     const quyenOptions = [
         { label: "Giảng viên", value: "user" },
         { label: "Khoa", value: "khoa" },
-        { label: "Admin", value: "admin" }
+        //{ label: "Admin", value: "admin" }
     ];
 
     const fileInputRef = useRef(null);
@@ -149,6 +149,7 @@ const UserForm = () => {
                 toast.success(editRecord ? "Chỉnh sửa thành công" : "Thêm mới thành công");
                 fetchData();  // Gọi lại API để cập nhật danh sách sau khi thành công
                 onReset();    // Reset form
+                setShowForm(!showForm)
             } else {
                 toast.error("Failed to save record");
             }
@@ -340,7 +341,7 @@ const UserForm = () => {
         <div className=" mt-1 h-[92vh]">
             {showForm && (
                 <Modal
-                    title={editRecord ? "CHỈNH SỬA NGƯỜI DÙNG" : "THÊM MỚI NGƯỜI DÙNG"}
+                    title={editRecord ? "CHỈNH SỬA THÔNG TIN" : "THÊM MỚI"}
                     visible={showForm}
                     onCancel={() => {
                         setShowForm(false);
@@ -515,7 +516,7 @@ const UserForm = () => {
 
                                 <div className="flex justify-between">
                                     <Button className="bg-blue-500 hover:bg-blue-700" loading={isSubmitting} type="primary" htmlType="submit">
-                                        {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                                        {editRecord ? "Lưu" : "Thêm"}
                                     </Button>
                                     <Button danger className="ml-4" htmlType="button" onClick={onReset}>
                                         Reset
@@ -609,7 +610,7 @@ const UserForm = () => {
                                 }}
                                 className="primary"
                             >
-                                {showForm ? 'Đóng' : 'Tạo mới'}
+                                {showForm ? 'Đóng' : 'Thêm'}
                             </Button>
                         </div>
 
@@ -642,7 +643,7 @@ const UserForm = () => {
                             setCurrent(page);
                             setPageSize(size);
                         }}
-                        pageSizeOptions={['10', '25', '50', '100', '200']}
+                        pageSizeOptions={['10', '50', '100', '200', '1000']}
                         showSizeChanger
                         className="flex justify-end"
                     />
