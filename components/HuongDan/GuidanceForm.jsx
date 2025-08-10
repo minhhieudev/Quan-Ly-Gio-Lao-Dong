@@ -239,7 +239,6 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         className="bg-blue-500 hover:bg-blue-600"
                         icon={<span className="mr-1">✎</span>}
                     >
-                        Sửa
                     </Button>
                     <Popconfirm
                         title="Bạn có chắc chắn muốn xoá?"
@@ -253,7 +252,6 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                             danger
                             icon={<span className="mr-1">✕</span>}
                         >
-                            Xoá
                         </Button>
                     </Popconfirm>
                 </Space>
@@ -469,7 +467,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     loading={isSubmitting}
                                     className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                 >
-                                    {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu dữ liệu")}
+                                    {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu")}
                                 </Button>
                                 <Button 
                                     type="default" 

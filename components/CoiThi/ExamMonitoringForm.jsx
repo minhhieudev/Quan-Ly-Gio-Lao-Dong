@@ -1112,7 +1112,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 title="Xóa"
                             />
                         </Popconfirm>
-                        </Popconfirm>
                     </Space>
                 );
             },
@@ -1146,14 +1145,19 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         <div className="flex gap-2 max-sm:flex-col h-full overflow-hidden">
             {showForm && (
                 <div className="flex flex-col flex-[30%]">
-                    <Button onClick={() => setShowForm(v => !v)} className="mb-2 w-full">
-                        Ẩn Form
+                    <Button 
+                        onClick={() => setShowForm(v => !v)} 
+                        className="mb-4 w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg h-10 shadow-sm transition duration-200"
+                    >
+                        <span className="flex items-center justify-center">
+                            Ẩn Form
+                        </span>
                     </Button>
-                    <div className="p-5 shadow-lg bg-white rounded-xl border border-gray-100 overflow-auto">
-                        <div className="border-b border-blue-500 pb-2 mb-2">
-                            <Title className="text-center text-blue-600" level={4}>CÔNG TÁC COI THI</Title>
+                    <div className="p-6 shadow-lg bg-white rounded-xl border border-gray-200 overflow-auto">
+                        <div className="border-b border-blue-500 pb-3 mb-4">
+                            <Title className="text-center text-blue-600 !mb-0" level={4}>CÔNG TÁC COI THI</Title>
                         </div>
-                        <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-2">
+                        <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-4">
                             <Space direction="vertical" className="w-full" size={0}>
                                 <div className="bg-gray-50 p-3 rounded-lg mb-2">
                                     {!isAddingNew && (
@@ -1355,7 +1359,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                             loading={isSubmitting}
                                             className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                         >
-                                            {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu dữ liệu")}
+                                            {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu")}
                                         </Button>
                                         <Button
                                             type="default"
@@ -1395,7 +1399,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     </Button>
                 </div>
             )}
-            <div className={`p-4 shadow-lg bg-white rounded-xl text-center border border-gray-100 overflow-y-auto transition-all duration-300 ${showForm ? 'flex-[75%]' : 'flex-[100%] w-full'}`}>
+            <div className={`p-6 shadow-lg bg-white rounded-xl text-center border border-gray-200 overflow-y-auto transition-all duration-300 ${showForm ? 'flex-[75%]' : 'flex-[100%] w-full'}`}>
                 <Tabs 
                     activeKey={selectedTab} 
                     onChange={handleTabChange}

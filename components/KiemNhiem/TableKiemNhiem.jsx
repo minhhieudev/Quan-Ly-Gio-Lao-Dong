@@ -10,7 +10,7 @@ import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 
-const TableKiemNhiem = ({ data, handleEdit }) => {
+const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -129,20 +129,32 @@ const TableKiemNhiem = ({ data, handleEdit }) => {
 
   const handleDelete = async (id) => {
     try {
+      setLoading(true);
       const res = await fetch("/api/users/kiem-nhiem-user", {
         method: "DELETE",
         body: JSON.stringify({ id }),
         headers: { "Content-Type": "application/json" },
       });
 
-      if (res.ok) {
-        toast.success("Đã xóa chức vụ !");
-        setDataList(prevData => prevData.filter(item => item._id !== id));
-      } else {
-        toast.error("Xóa thất bại");
+      if (!res.ok) {
+        throw new Error("Xóa thất bại");
       }
+      
+      toast.success("Đã xóa chức vụ!");
+      
+      // Thông báo cho component cha cập nhật lại data
+      if (onDelete) {
+        await onDelete(id);
+      }
+      
+      // Reset về trang đầu sau khi xóa
+      setCurrent(1);
+      
     } catch (err) {
-      toast.error("An error occurred while deleting data");
+      console.error("Delete error:", err);
+      toast.error(err.message || "Có lỗi xảy ra khi xóa dữ liệu");
+    } finally {
+      setLoading(false);
     }
   };
 

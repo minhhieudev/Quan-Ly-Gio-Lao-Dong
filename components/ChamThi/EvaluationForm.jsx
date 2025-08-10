@@ -663,7 +663,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     loading={isSubmitting}
                                     className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                 >
-                                    {editRecord ? "Cập nhật" : "Lưu dữ liệu"}
+                                    {editRecord ? "Cập nhật" : "Lưu"}
                                 </Button>
                                 <Button 
                                     type="default" 

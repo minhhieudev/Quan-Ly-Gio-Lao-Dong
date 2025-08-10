@@ -1055,7 +1055,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                         htmlType="submit"
                                         icon={<SaveOutlined />}
                                     >
-                                        {editRecord ? "Lưu chỉnh sửa" : "Thêm mới"}
+                                        {editRecord ? "Lưu" : "Thêm"}
                                     </Button>
                                     <Button onClick={onReset2}>Hủy</Button>
                                 </Space>
@@ -1140,7 +1140,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                         htmlType="submit"
                                         icon={<SaveOutlined />}
                                     >
-                                        Lưu chỉnh sửa
+                                        Lưu
                                     </Button>
                                     <Button onClick={onResetDaLuu}>Hủy</Button>
                                 </Space>
@@ -1214,7 +1214,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     }
                                 }}
                             >
-                                Lưu danh sách
+                                Lưu
                             </Button>
                         </div>
                         {loading ? <Spin size="large" /> :
@@ -1241,34 +1241,8 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 scroll={{ x: 'max-content', y: 'calc(85vh - 400px)' }}
                                 summary={() => (
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
-                                            Tổng số tiết quy chuẩn:
-                                        </Table.Summary.Cell>
-                                        <Table.Summary.Cell className="font-bold text-lg text-red-600">
-                                            {isEditingTotal ? (
-                                                <input
-                                                    type="number"
-                                                    value={editableTotal ?? finalResult ?? 0}
-                                                    onChange={e => setEditableTotal(Number(e.target.value))}
-                                                    onBlur={() => setIsEditingTotal(false)}
-                                                    onKeyDown={e => {
-                                                        if (e.key === 'Enter') setIsEditingTotal(false);
-                                                    }}
-                                                    style={{ width: 80, textAlign: 'right' }}
-                                                    autoFocus
-                                                />
-                                            ) : (
-                                                <span
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => {
-                                                        setEditableTotal(finalResult ?? 0);
-                                                        setIsEditingTotal(true);
-                                                    }}
-                                                    title="Nhấn để sửa"
-                                                >
-                                                    {editableTotal ?? finalResult ?? 0}
-                                                </span>
-                                            )}
+                                        <Table.Summary.Cell colSpan={5} className="font-bold text-lg text-center">
+                                            Tổng số tiết quy chuẩn: <span className="text-red-600">{finalResult ?? 0}</span>
                                         </Table.Summary.Cell>
                                     </Table.Summary.Row>
                                 )}
@@ -1282,7 +1256,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     >
                         {loadings ? <Spin size="large" /> : (
                             <>
-                                <TableKiemNhiem data={dataListSelect} handleEdit={handleEdit} />
+                                <TableKiemNhiem 
+                                data={dataListSelect} 
+                                handleEdit={handleEdit}
+                                onDelete={async (deletedId) => {
+                                    // Cập nhật state sau khi xóa thành công
+                                    setDataListSelect(prev => prev.filter(item => item._id !== deletedId));
+                                    setDataList([]);
+                                    // Gọi lại API để lấy dữ liệu mới nếu cần
+                                    await fetchData2();
+                                }}
+                            />
                                 {/* Kết quả dưới Table */}
                                 {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
                               <div className="border-b border-blue-500 pb-2 mb-2">
@@ -1347,10 +1331,10 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 scroll={{ x: 'max-content', y: 'calc(85vh - 380px)' }}
                                 summary={() => (
                                     <Table.Summary.Row>
-                                        <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-right">
-                                            Tổng số tiết quy chuẩn:
+                                        <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-center">
+                                            Tổng số tiết quy chuẩn (Nhấn để chỉnh sửa):
                                         </Table.Summary.Cell>
-                                        <Table.Summary.Cell className="font-bold text-lg text-red-600">
+                                        <Table.Summary.Cell colSpan={3} className="font-bold text-lg text-red-600">
                                             {isEditingTotal ? (
                                                 <input
                                                     type="number"
@@ -1376,7 +1360,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                                         setEditableTotal(finalResult ?? 0);
                                                         setIsEditingTotal(true);
                                                     }}
-                                                    title="Nhấn để sửa"
+                                                    title="Nhấp để sửa giá trị" className="cursor-pointer hover:text-blue-600 transition-colors"
                                                 >
                                                     {editableTotal ?? finalResult ?? 0}
                                                 </span>

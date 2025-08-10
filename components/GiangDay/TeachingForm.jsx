@@ -868,7 +868,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 loading={isSubmitting}
                 className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
               >
-                {isSubmitting ? <Spin size="small" /> : "Lưu dữ liệu"}
+                {isSubmitting ? <Spin size="small" /> : "Lưu"}
               </Button>
               <Button 
                 type="default" 
@@ -893,7 +893,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
           items={[
             {
               key: 'Kết quả giảng dạy',
-              label: <span className="font-semibold text-base">KẾT QUẢ GIẢNG DẠY</span>,
+              label: <span className="font-semibold text-base">KẾT QUẢ</span>,
               children: loadings ? 
                 <div className="flex justify-center items-center h-40">
                   <Spin size="large" />
