@@ -22,7 +22,7 @@ const Pages = () => {
       showSizeChanger: true,
       showQuickJumper: true,
       showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
-      pageSizeOptions: ['10', '20', '50', '100','500'],
+      pageSizeOptions: ['10', '20', '50', '100','1000'],
     },
   });
   const [searchText, setSearchText] = useState('');
@@ -33,6 +33,19 @@ const Pages = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
+
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters, confirm) => {
+    clearFilters();
+    setSearchText('');
+    setSearchedColumn('');
+    confirm();
+  };
 
   const [kiHoc, setKiHoc] = useState("");
   const [khoaOptions, setKhoaOptions] = useState([]);
@@ -141,7 +154,7 @@ const Pages = () => {
             Search
           </Button>
           <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
+            onClick={() => clearFilters && handleReset(clearFilters, confirm)}
             size="small"
             style={{
               width: 90,
@@ -181,8 +194,17 @@ const Pages = () => {
         }}
       />
     ),
-    onFilter: (value, record) =>
-      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilter: (value, record) => {
+      // Handle nested properties (e.g., 'user.username')
+      const path = dataIndex.split('.');
+      let recordValue = record;
+      for (const key of path) {
+        recordValue = recordValue?.[key];
+      }
+      return recordValue
+        ? recordValue.toString().toLowerCase().includes(value.toLowerCase())
+        : '';
+    },
     onFilterDropdownOpenChange: (visible) => {
       if (visible) {
         setTimeout(() => searchInput.current?.select(), 100);
@@ -761,18 +783,7 @@ const Pages = () => {
     },
   ];
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    setTableParams({
-      pagination,
-      filters,
-      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-      sortField: Array.isArray(sorter) ? undefined : sorter.field,
-    });
 
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setDataList([]);
-    }
-  };
   const getTitle1 = () => {
     switch (type) {
       case 'chinh-quy':
@@ -845,6 +856,22 @@ const Pages = () => {
   `
 
   // Sử dụng useMemo để lọc dataList
+  const handleTableChange = (pagination, filters, sorter) => {
+    // Update the table parameters with the new pagination state
+    setTableParams({
+      pagination: {
+        ...pagination,
+        // Ensure we keep the existing options
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
+        pageSizeOptions: ['10', '20', '50', '100', '1000'],
+      },
+      filters,
+      ...sorter,
+    });
+  };
+
   const filteredDataList = useMemo(() => {
     if (!selectedKhoa) return dataList;
     return dataList.filter(item => {
