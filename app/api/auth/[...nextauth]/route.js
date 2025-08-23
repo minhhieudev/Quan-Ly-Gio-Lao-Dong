@@ -5,6 +5,8 @@ import { connectToDB } from "@mongodb";
 import User from "@models/User";
 import MaNgach from "@models/MaNgach";
 import Khoa from "@models/Khoa";
+import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
+import ChucVu from "@models/ChucVu";
 
 const handler = NextAuth({
   providers: [
@@ -67,6 +69,15 @@ const handler = NextAuth({
             session.user.tenKhoa = khoaInfo.tenKhoa;
           }
         }
+
+        // Lấy thông tin kiêm nhiệm
+        const kiemNhiemInfo = await PhanCongKiemNhiem.find({ user: mongodbUser._id }).populate('chucVu');
+        if (kiemNhiemInfo && kiemNhiemInfo.length > 0) {
+          session.user.kiemNhiem = kiemNhiemInfo.map(item => ({
+            tenCV: item.chucVu.tenCV,
+            loaiCV: item.chucVu.loaiCV
+          }));
+        }
       }
 
       return session;
@@ -75,3 +86,4 @@ const handler = NextAuth({
 });
 
 export { handler as GET, handler as POST };
+

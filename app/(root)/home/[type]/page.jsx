@@ -105,7 +105,7 @@ const Pages = () => {
         const data = await res.json();
         setAllData(data);
         if (data) {
-          exportTongHopLaoDongForUser(data, currentUser.tenKhoa, namHoc, kiemNhiem)
+          exportTongHopLaoDongForUser(data, currentUser, namHoc, kiemNhiem)
         }
         toast.success("Xuất Excel thành công!");
       } else {

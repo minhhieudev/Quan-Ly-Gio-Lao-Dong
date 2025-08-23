@@ -73,18 +73,19 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     const endDate = data[0].schoolYearEnd ? dayjs(data[0].schoolYearEnd) : null;
                     setSchoolYearStart(startDate);
                     setSchoolYearEnd(endDate);
-
-                    // Set default startTime to schoolYearStart
-                    if (startDate) {
-                        setValue('startTime', startDate);
-                    }
                 }
             } catch (err) {
                 // Có thể show message lỗi nếu cần
             }
         };
         fetchSchoolYear();
-    }, [setValue]);
+    }, []);
+
+    useEffect(() => {
+        if (schoolYearStart && !watch('startTime')) {
+            setValue('startTime', schoolYearStart);
+        }
+    }, [schoolYearStart, setValue, watch]);
 
     // Set default user to current user
     useEffect(() => {
@@ -1014,7 +1015,14 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                         name="startTime"
                                         control={control}
                                         render={({ field }) => (
-                                            <DatePicker {...field} placeholder="Mặc định: Ngày bắt đầu năm học" />
+                                            <DatePicker
+                                                {...field}
+                                                value={field.value ? dayjs(field.value) : schoolYearStart}
+                                                onChange={(date) => {
+                                                    field.onChange(date);
+                                                }}
+                                                placeholder="Mặc định: Ngày bắt đầu năm học"
+                                            />
                                         )}
                                     />
                                 </Form.Item>

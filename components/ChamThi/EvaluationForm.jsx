@@ -433,11 +433,15 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                                     listHeight={300}
                                                     placeholder="Nhập hoặc chọn tên học phần..."
                                                     {...field}
-                                                    options={listSelect.map(item => ({
-                                                        value: item.hocPhan,
-                                                        label: item.hocPhan,
-                                                        className: 'text-base py-1'
-                                                    }))}
+                                                    options={listSelect
+                                                        .filter((item, index, self) =>
+                                                            index === self.findIndex(t => t.hocPhan === item.hocPhan)
+                                                        )
+                                                        .map(item => ({
+                                                            value: item.hocPhan,
+                                                            label: item.hocPhan,
+                                                            className: 'text-base py-1'
+                                                        }))}
                                                     filterOption={(input, option) =>
                                                         option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
                                                     }

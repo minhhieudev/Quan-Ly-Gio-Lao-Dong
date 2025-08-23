@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import {
     Button,
@@ -105,31 +105,18 @@ const KiemNhiemForm = () => {
 
     const [confirmImportVisible, setConfirmImportVisible] = useState(false);
 
-    // Tạo giá trị mặc định cho form sử dụng useMemo
-    const defaultFormValues = useMemo(() => {
-        // Nếu không phải edit mode và có ngày bắt đầu năm học
-        if (!editRecord && schoolYearStart) {
-            return {
-                ...formSchema,
-                startTime: schoolYearStart, // Sử dụng ngày bắt đầu năm học làm giá trị mặc định
-                endTime: schoolYearEnd || null, // Ngày kết thúc có thể để null
-            };
-        }
-        return formSchema;
-    }, [editRecord, schoolYearStart, schoolYearEnd]);
-
-    // Sử dụng defaultFormValues trong useForm
+    // Sử dụng useForm với defaultValues đơn giản
     const { control, handleSubmit, setValue, reset, formState: { errors, isSubmitting } } = useForm({
-        defaultValues: defaultFormValues,
+        defaultValues: formSchema,
     });
 
-    // useEffect để xử lý reset form và tự động điền ngày bắt đầu
+    // useEffect để xử lý reset form và tự động điền ngày bắt đầu khi mở form mới
     useEffect(() => {
-        if (showForm && !editRecord && schoolYearStart) {
-            // Reset form khi mở form mới (không phải edit) và có ngày bắt đầu năm học
+        if (showForm && !editRecord) {
+            // Reset form khi mở form mới (không phải edit)
             const newValues = {
                 ...formSchema,
-                startTime: schoolYearStart, // Luôn lấy ngày bắt đầu năm học
+                startTime: schoolYearStart || null, // Luôn lấy ngày bắt đầu năm học nếu có
                 endTime: null, // Để trống ngày kết thúc cho người dùng chọn
             };
             reset(newValues);
@@ -329,24 +316,17 @@ const KiemNhiemForm = () => {
     };
 
     const onReset = () => {
+        // Luôn reset với giá trị mặc định từ ngày bắt đầu năm học
         const resetValues = {
             ...formSchema,
-            startTime: schoolYearStart, // Luôn lấy ngày bắt đầu năm học
+            startTime: schoolYearStart || null, // Luôn lấy ngày bắt đầu năm học
             endTime: null, // Reset ngày kết thúc về null
         };
         reset(resetValues);
         setEditRecord(null);
         setShowForm(false);
     };
-    const onReset2 = () => {
-        reset({
-            ...formSchema,
-            startTime: schoolYearStart,
-        });
-        setEditRecord(null);
-        setEditSource(null);
-        setDidInitForm(true);
-    };
+
     const handleEdit = (record) => {
         setEditRecord(record);
         setShowForm(true);
@@ -357,24 +337,7 @@ const KiemNhiemForm = () => {
         setValue("ghiChu", record.ghiChu);
     };
 
-    // Reset form when opening modal thêm mới (not edit)
-    useEffect(() => {
-        if (showForm && !editRecord) {
-            reset(formSchema);
-        }
-    }, [showForm, editRecord, reset]);
 
-    useEffect(() => {
-        if (schoolYearStart && !editRecord && !didInitForm) {
-            reset({
-                ...formSchema,
-                startTime: schoolYearStart,
-            });
-            setDidInitForm(true);
-        }
-        // Reset lại cờ khi chuyển sang edit hoặc khi schoolYearStart đổi
-        if (editRecord) setDidInitForm(false);
-    }, [schoolYearStart, editRecord, reset]);
 
     const handleDelete = async (id) => {
         try {
@@ -872,11 +835,11 @@ const KiemNhiemForm = () => {
                                 <Controller
                                     name="endTime"
                                     control={control}
-                                    defaultValue={schoolYearEnd}
+
                                     render={({ field }) => (
                                         <DatePicker 
                                             {...field} 
-                                            value={field.value || schoolYearEnd} 
+                                            value={field.value}
                                             placeholder="Chọn hoặc nhập ngày kết thúc"
                                             format="DD/MM/YYYY"
                                             allowClear
