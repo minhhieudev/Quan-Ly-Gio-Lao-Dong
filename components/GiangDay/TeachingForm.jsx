@@ -95,6 +95,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
         }
 
         const calculatedSoTietQCLT = soTietLT * (hsm + hsf + hst);
+
         setValue("soTietQCLT", calculatedSoTietQCLT);
       }
     }
@@ -434,7 +435,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       width: '20%',
       ellipsis: true
     },
-   
+
     {
       title: <span className="font-semibold">Số TC</span>,
       dataIndex: 'soTinChi',
@@ -599,14 +600,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                     name="maMH"
                     control={control}
                     //rules={{ required: "Mã học phần là bắt buộc" }}
-                    render={({ field }) => <Input 
-                      className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500 shadow-sm" 
+                    render={({ field }) => <Input
+                      className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500 shadow-sm"
                       onBlur={(e) => {
                         field.onBlur(); // Gọi hàm mặc định của react-hook-form
                         handleBlur(e.target.value); // Thêm xử lý của bạn khi rời khỏi input
-                      }} 
-                      placeholder="Nhập mã học phần..." 
-                      {...field} 
+                      }}
+                      placeholder="Nhập mã học phần..."
+                      {...field}
                     />}
                   />
                 </div>
@@ -698,10 +699,10 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                   name="lopHocPhan"
                   control={control}
                   rules={{ required: "Lớp học phần là bắt buộc" }}
-                  render={({ field }) => <Input 
-                    className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                    placeholder="Nhập lớp..." 
-                    {...field} 
+                  render={({ field }) => <Input
+                    className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                    placeholder="Nhập lớp..."
+                    {...field}
                   />}
                 />
               </Form.Item>
@@ -716,9 +717,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                   name="soTinChi"
                   control={control}
                   rules={{ required: "Số TC là bắt buộc", min: { value: 1, message: "Số TC phải lớn hơn 0" } }}
-                  render={({ field }) => <InputNumber 
-                    className="w-full rounded-md border-gray-300" 
-                    {...field} 
+                  render={({ field }) => <InputNumber
+                    className="w-full rounded-md border-gray-300"
+                    {...field}
                   />}
                 />
               </Form.Item>
@@ -733,9 +734,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                   name="soSV"
                   control={control}
                   rules={{ required: "Số SV là bắt buộc", min: { value: 1, message: "Số SV phải lớn hơn 0" } }}
-                  render={({ field }) => <InputNumber 
-                    className="w-full rounded-md border-gray-300" 
-                    {...field} 
+                  render={({ field }) => <InputNumber
+                    className="w-full rounded-md border-gray-300"
+                    {...field}
                   />}
                 />
               </Form.Item>
@@ -755,9 +756,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         name="soTietLT"
                         control={control}
                         rules={{ required: "Số tiết LT là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
-                        render={({ field }) => <InputNumber 
-                          className="w-20 rounded-md border-gray-300" 
-                          {...field} 
+                        render={({ field }) => <InputNumber
+                          className="w-20 rounded-md border-gray-300"
+                          {...field}
                         />}
                       />
                     </Form.Item>
@@ -772,16 +773,16 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         name="soTietTH"
                         control={control}
                         //rules={{ required: "Số tiết TH là bắt buộc", min: { value: 1, message: "Số tiết phải lớn hơn 0" } }}
-                        render={({ field }) => <Input 
-                          className="w-20 rounded-md border-gray-300" 
-                          {...field} 
+                        render={({ field }) => <Input
+                          className="w-20 rounded-md border-gray-300"
+                          {...field}
                         />}
                       />
                     </Form.Item>
                   </div>
                 </Form.Item>
               </div>
-              
+
               <div className="flex-1">
                 <Form.Item label={<span className="font-semibold text-base text-gray-700 block mb-1">Số tiết quy chuẩn</span>} className="w-full mb-0">
                   <div className="flex gap-6">
@@ -795,9 +796,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                         name="soTietQCLT"
                         control={control}
                         rules={{ required: "Số tiết quy chuẩn LT là bắt buộc" }}
-                        render={({ field }) => <InputNumber 
-                          className="w-20 rounded-md border-gray-300 bg-gray-100" 
-                          {...field} 
+                        render={({ field }) => <InputNumber
+                          className="w-20 rounded-md border-gray-300 bg-gray-100"
+                          {...field}
                         />} // Disable input
                       />
                     </Form.Item>
@@ -810,9 +811,9 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                       <Controller
                         name="soTietQCTH"
                         control={control}
-                        render={({ field }) => <InputNumber 
-                          className="w-20 rounded-md border-gray-300" 
-                          {...field} 
+                        render={({ field }) => <InputNumber
+                          className="w-20 rounded-md border-gray-300"
+                          {...field}
                         />}
                       />
                     </Form.Item>
@@ -822,23 +823,23 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             </div>
 
             <div className="flex justify-between gap-4 mb-2">
-              <Form.Item 
+              <Form.Item
                 label={<span className="font-semibold text-base text-gray-700">Tổng cộng</span>}
                 className="w-1/3 mb-0"
               >
                 <Controller
                   name="tongCong"
                   control={control}
-                  render={({ field }) => 
-                    <InputNumber 
-                      size="large" 
-                      className="text-red-700 font-bold text-lg w-full rounded-md border-gray-300 bg-red-50" 
-                      {...field} 
+                  render={({ field }) =>
+                    <InputNumber
+                      size="large"
+                      className="text-red-700 font-bold text-lg w-full rounded-md border-gray-300 bg-red-50"
+                      {...field}
                     />
                   }
                 />
               </Form.Item>
-              
+
               <div className="flex-1">
                 <div className="mb-1">
                   <span className="font-semibold text-base text-gray-700">Ghi chú</span>
@@ -846,13 +847,13 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                 <Controller
                   name="ghiChu"
                   control={control}
-                  render={({ field }) => 
-                    <Input.TextArea 
-                      className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                  render={({ field }) =>
+                    <Input.TextArea
+                      className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                       placeholder="Nhập ghi chú nếu cần..."
                       autoSize={{ minRows: 2, maxRows: 3 }}
                       style={{ resize: 'none' }}
-                      {...field} 
+                      {...field}
                     />
                   }
                 />
@@ -862,18 +863,18 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
           <Form.Item className="flex justify-center mt-2">
             <Space size="middle">
-              <Button 
-                type="primary" 
-                htmlType="submit" 
+              <Button
+                type="primary"
+                htmlType="submit"
                 loading={isSubmitting}
                 className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
               >
                 {isSubmitting ? <Spin size="small" /> : "Lưu"}
               </Button>
-              <Button 
-                type="default" 
-                danger 
-                onClick={onReset} 
+              <Button
+                type="default"
+                danger
+                onClick={onReset}
                 disabled={isSubmitting}
                 className="h-8 px-6 font-medium text-base"
               >
@@ -885,8 +886,8 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
       </div>
       <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-y-auto">
 
-        <Tabs 
-          activeKey={selectedTab} 
+        <Tabs
+          activeKey={selectedTab}
           onChange={handleTabChange}
           type="card"
           className="custom-tabs"
@@ -894,7 +895,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             {
               key: 'Kết quả giảng dạy',
               label: <span className="font-semibold text-base">KẾT QUẢ</span>,
-              children: loadings ? 
+              children: loadings ?
                 <div className="flex justify-center items-center h-40">
                   <Spin size="large" />
                 </div> :
@@ -902,10 +903,10 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
                   columns={columns}
                   dataSource={dataList}
                   rowKey="_id"
-                  pagination={{ 
-                    current, 
-                    pageSize, 
-                    total: dataList.length, 
+                  pagination={{
+                    current,
+                    pageSize,
+                    total: dataList.length,
                     onChange: handleTableChange,
                     showSizeChanger: true,
                     pageSizeOptions: ['5', '10', '20'],
@@ -919,14 +920,14 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
             {
               key: 'Phân công giảng dạy',
               label: <span className="font-semibold text-base">PHÂN CÔNG GIẢNG DẠY</span>,
-              children: loadings ? 
+              children: loadings ?
                 <div className="flex justify-center items-center h-40">
                   <Spin size="large" />
                 </div> :
-                <TablePcGiangDay 
-                  namHoc={namHoc || ''} 
-                  ky={ky || ''} 
-                  listSelect={listSelect || []} 
+                <TablePcGiangDay
+                  namHoc={namHoc || ''}
+                  ky={ky || ''}
+                  listSelect={listSelect || []}
                 />
             }
           ]}

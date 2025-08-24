@@ -442,7 +442,8 @@ const App = () => {
         const gioChuan = Number(record.gioChuan) || 0;
         const kiemNhiem = Number(record.kiemNhiem) || 0;
         const chuanNamHoc = gioChuan - kiemNhiem;
-        return chuanNamHoc - tongGioChinhQuy;
+        const result = chuanNamHoc - tongGioChinhQuy;
+        return result.toFixed(2);
       }
     },
     {

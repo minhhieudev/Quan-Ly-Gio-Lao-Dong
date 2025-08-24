@@ -8,7 +8,6 @@ export const GET = async (req) => {
     await connectToDB();
 
     const url = new URL(req.url, `http://${req.headers.host}`);
-    const name = url.searchParams.get('name');
     const maHP = url.searchParams.get('maHP');
 
     let query = {};
@@ -17,12 +16,6 @@ export const GET = async (req) => {
     if (maHP) {
       query = {
         maMH: { $regex: new RegExp(maHP, 'i') }
-      };
-    }
-    // Tìm kiếm theo tên học phần (fallback)
-    else if (name) {
-      query = {
-        tenMH: { $regex: new RegExp(name, 'i') }
       };
     }
 

@@ -1,14 +1,11 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { FileExcelOutlined } from '@ant-design/icons';
+import { Pagination, Spin, Table } from "antd";
 import { useSession } from "next-auth/react";
+import { useState } from "react";
 
-const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
+const TablePcCoiThi = ({ namHoc, ky, listSelect }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +13,6 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
   const [pageSize, setPageSize] = useState(5);
 
   const { data: session } = useSession();
-  const user = session?.user;
 
   const columns = [
     {
@@ -88,14 +84,14 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
       key: 'phong',
       width: '10%',
       align: 'center',
-      render: (text) => <span className="font-medium">{text.join(' - ')}</span>,
+      render: (text) => <span className="font-medium">{Array.isArray(text) ? text.join(' - ') : text}</span>,
     },
     {
       title: <span className="font-semibold">Cán bộ 1</span>,
       dataIndex: 'cbo1',
       key: 'cbo1',
       width: '10%',
-      render: (text) => <span className="text-blue-600 font-medium">{text.join(' - ')}</span>,
+      render: (text) => <span className="text-blue-600 font-medium">{Array.isArray(text) ? text.join(' - ') : text}</span>,
       ellipsis: true
     },
     {
@@ -103,7 +99,7 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
       dataIndex: 'cbo2',
       key: 'cbo2',
       width: '10%',
-      render: (text) => <span className="text-blue-600 font-medium">{text.join(' - ')}</span>,
+      render: (text) => <span className="text-blue-600 font-medium">{Array.isArray(text) ? text.join(' - ') : text}</span>,
       ellipsis: true
     },
     {
@@ -163,7 +159,7 @@ const TablePcCoiThi = ({ namHoc, ky ,listSelect}) => {
               scroll={{ x: 'max-content' }}
             />
           </div>
-          
+
           <div className="bg-gray-50 p-3 border-t border-gray-200">
             <Pagination
               current={current}

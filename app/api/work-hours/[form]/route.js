@@ -36,33 +36,33 @@ export const POST = async (req, { params }) => {
 
     await connectToDB();
     const body = await req.json();
-
     const model = models[form];
 
     // Kiểm tra xem bản ghi đã tồn tại chưa
-    const { hocPhan, namHoc, user, ky, ngayThi } = body;
+    const { hocPhan, namHoc, user, ky, ngayThi, lopHocPhan } = body;
+      console.log('body:',body)
 
     // Tạo query để kiểm tra trùng lặp
-    let duplicateQuery = { hocPhan, namHoc, user, ky };
+    let duplicateQuery = {}
+    if (lopHocPhan) {
+      console.log('kkkk:',lopHocPhan)
+      duplicateQuery = { hocPhan, namHoc, user, ky, lopHocPhan };
+
+    }
+    else {
+      duplicateQuery = { hocPhan, namHoc, user, ky };
+    }
 
     // Đối với CongTacCoiThi, thêm ngayThi vào query để tránh trùng lặp
     if (form === 'CongTacCoiThi' && ngayThi) {
       duplicateQuery.ngayThi = ngayThi;
     }
 
-    const existingRecord = await model.findOne(duplicateQuery);
+    // Thực hiện tìm và cập nhật (hoặc tạo mới nếu không tìm thấy)
+    const options = { new: true, upsert: true, setDefaultsOnInsert: true };
+    const updatedOrCreatedRecord = await model.findOneAndUpdate(duplicateQuery, body, options);
 
-    if (existingRecord) {
-      // Nếu bản ghi đã tồn tại, trả về bản ghi hiện tại thay vì tạo mới
-      return new Response(JSON.stringify({
-        ...existingRecord.toObject(),
-        message: 'Bản ghi đã tồn tại, không tạo mới'
-      }), { status: 200 });
-    } else {
-      // Nếu không tồn tại, tạo bản ghi mới
-      const newRecord = await model.create(body);
-      return new Response(JSON.stringify(newRecord), { status: 200 });
-    }
+    return new Response(JSON.stringify(updatedOrCreatedRecord), { status: 200 });
   } catch (err) {
     console.log('POST Error:', err);
     const { form } = params;

@@ -202,12 +202,19 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
             if (res.ok) {
                 const newData = await res.json();
-                if (editRecord  || dataList.some(item => item.hocPhan === newData.hocPhan)) {
-                    setDataList(prevData => prevData.map(item => (item.hocPhan === newData.hocPhan ? newData : item)));
-                } else {
-                    setDataList(prevData => [...prevData, newData]);
-                }
-                toast.success("Thêm thành công!");
+                setDataList(prevData => {
+                    const existingIndex = prevData.findIndex(item => item._id === newData._id);
+                    if (existingIndex !== -1) {
+                        // Update existing record
+                        const updatedData = [...prevData];
+                        updatedData[existingIndex] = newData;
+                        return updatedData;
+                    } else {
+                        // Add new record
+                        return [...prevData, newData];
+                    }
+                });
+                toast.success("Lưu thành công!");
                 onReset(); // Reset form after success
             } else {
                 toast.error("Lưu thất bại!");
@@ -630,7 +637,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     rules={{ required: "Số tiết quy chuẩn là bắt buộc" }}
                                     render={({ field }) => (
                                         <InputNumber 
-                                            readOnly 
                                             className="w-full rounded-md border-gray-300 bg-gray-100" 
                                             min={0} 
                                             {...field} 

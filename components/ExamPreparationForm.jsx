@@ -58,6 +58,9 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
             if (hinhThuc == 'VĐ') {
                 gioChuan = 4
             }
+            if (hinhThuc == 'TH') {
+                gioChuan = 2
+            }
 
             setValue("soTietQuyChuan", gioChuan);
         }
