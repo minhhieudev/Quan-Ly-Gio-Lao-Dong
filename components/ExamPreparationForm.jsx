@@ -1,14 +1,13 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Radio, InputNumber, Table, Popconfirm, Select } from "antd";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Space, Table, Typography } from "antd";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Loader from "./Loader";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -23,14 +22,12 @@ const formSchema = {
     ghiChu: "",
 };
 
-const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
 const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
     const [pageSize] = useState(6);
-    const router = useRouter();
     const { control, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
@@ -42,7 +39,6 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
 
     const [listOptions, setListOptions] = useState([]);
 
-    const soTietQC = watch("soTietQuyChuan");
     const hinhThuc = watch("hinhThucThi");
 
     useEffect(() => {
@@ -326,11 +322,11 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         name="hocPhan"
                                         control={control}
                                         rules={{ required: "Học phần là bắt buộc" }}
-                                        render={({ field }) => 
-                                            <Input 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                                placeholder="Nhập học phần ..." 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <Input
+                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                                placeholder="Nhập học phần ..."
+                                                {...field}
                                             />
                                         }
                                     />
@@ -346,11 +342,11 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         name="soTC"
                                         control={control}
                                         rules={{ required: "Số TC là bắt buộc", min: { value: 1, message: "Số TC phải lớn hơn 0" } }}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                className="w-full rounded-md border-gray-300" 
-                                                min={1} 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                className="w-full rounded-md border-gray-300"
+                                                min={1}
+                                                {...field}
                                             />
                                         }
                                     />
@@ -370,11 +366,11 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         name="lopHocPhan"
                                         control={control}
                                         rules={{ required: "Lớp học phần là bắt buộc" }}
-                                        render={({ field }) => 
-                                            <Input 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                                placeholder="Nhập lớp học phần ..." 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <Input
+                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                                placeholder="Nhập lớp học phần ..."
+                                                {...field}
                                             />
                                         }
                                     />
@@ -458,31 +454,31 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         name="soTietQuyChuan"
                                         control={control}
                                         rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                readOnly 
-                                                {...field} 
-                                                className="w-full rounded-md border-gray-300 text-red-600 font-medium bg-gray-100" 
-                                                min={1} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                readOnly
+                                                {...field}
+                                                className="w-full rounded-md border-gray-300 text-red-600 font-medium bg-gray-100"
+                                                min={1}
                                             />
                                         }
                                     />
                                 </Form.Item>
 
-                                <Form.Item 
+                                <Form.Item
                                     label={<span className="font-semibold text-base text-gray-700">Ghi chú</span>}
                                     className="w-full md:w-[48%] mb-2"
                                 >
                                     <Controller
                                         name="ghiChu"
                                         control={control}
-                                        render={({ field }) => 
-                                            <Input.TextArea 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                        render={({ field }) =>
+                                            <Input.TextArea
+                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                                 placeholder="Nhập ghi chú nếu cần..."
                                                 autoSize={{ minRows: 1, maxRows: 3 }}
                                                 style={{ resize: 'none' }}
-                                                {...field} 
+                                                {...field}
                                             />
                                         }
                                     />
@@ -493,19 +489,19 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                         <div className="text-center mt-3">
                             <Form.Item>
                                 <Space size="middle">
-                                    <Button 
-                                        type="primary" 
-                                        htmlType="submit" 
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
                                         loading={isSubmitting}
                                         className="bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600 rounded-md px-6 h-10 flex items-center justify-center"
                                         icon={<span className="mr-1">💾</span>}
                                     >
                                         {isSubmitting ? "Đang lưu..." : "Lưu"}
                                     </Button>
-                                    <Button 
-                                        type="default" 
-                                        danger 
-                                        onClick={onReset} 
+                                    <Button
+                                        type="default"
+                                        danger
+                                        onClick={onReset}
                                         disabled={isSubmitting}
                                         className="border-gray-300 hover:border-red-500 rounded-md px-6 h-10 flex items-center justify-center"
                                         icon={<span className="mr-1">🔄</span>}
@@ -528,9 +524,9 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                     columns={columns}
                     dataSource={dataList}
                     rowKey="id"
-                    pagination={{ 
-                        current, 
-                        pageSize, 
+                    pagination={{
+                        current,
+                        pageSize,
                         total: dataList.length,
                         showSizeChanger: true,
                         pageSizeOptions: ['5', '10', '20'],

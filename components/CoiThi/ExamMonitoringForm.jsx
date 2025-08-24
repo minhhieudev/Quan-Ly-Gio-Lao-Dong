@@ -1,20 +1,18 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber, Radio, Table, Popconfirm, Tabs, Spin, Select, Upload } from "antd";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-import { useSession } from "next-auth/react";
+import { DeleteOutlined, EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Space, Spin, Table, Tabs, Typography, Upload } from "antd";
 import moment from 'moment';
+import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import * as XLSX from 'xlsx';
 import Loader from "../Loader";
 import TablePcCoiThi from "./TablePcCoiThi";
-import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import * as XLSX from 'xlsx';
 
 const { Title } = Typography;
-const { TabPane } = Tabs;
 
 const formSchema = {
     soTietQuyChuan: 0,
@@ -24,7 +22,6 @@ const formSchema = {
     ngayThi: ''
 };
 
-const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
 
 const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
@@ -32,7 +29,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
     const [pageSize, setPageSize] = useState(6);
-    const router = useRouter();
     const { control, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
@@ -50,7 +46,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     const [currentHocPhan, setCurrentHocPhan] = useState(null);
     const [showForm, setShowForm] = useState(true);
 
-    const soTietQC = watch("soTietQuyChuan");
     const ngayThi = watch("ngayThi");
     const thoiGian = watch("thoiGianThi");
 
@@ -167,7 +162,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     // Định nghĩa fetchData bên ngoài useEffect để có thể gọi từ nhiều nơi
     const fetchData = async () => {
-       
+
         if (!namHoc || !currentUser?.username) return;
 
         try {
@@ -861,14 +856,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     const handleEdit = (record) => {
         console.log('record:', record);
-        
+
         // Đổ dữ liệu vào form
         setValue("user", record.user);
         setValue("ky", record.ky);
         setValue("hocPhan", record.hocPhan);
         setValue("thoiGianThi", record.thoiGianThi);
         setValue("soTietQuyChuan", record.soTietQuyChuan);
-        
+
         // Đảm bảo rằng ngayThi được thiết lập đúng cách
         setValue("ngayThi", new Date(record.ngayThi).toISOString().split('T')[0]); // Chuyển đổi định dạng ngày
     };
@@ -1145,8 +1140,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
         <div className="flex gap-2 max-sm:flex-col h-full overflow-hidden">
             {showForm && (
                 <div className="flex flex-col flex-[30%]">
-                    <Button 
-                        onClick={() => setShowForm(v => !v)} 
+                    <Button
+                        onClick={() => setShowForm(v => !v)}
                         className="mb-4 w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg h-10 shadow-sm transition duration-200"
                     >
                         <span className="flex items-center justify-center">
@@ -1222,8 +1217,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                     placeholder="Nhập tên học phần mới..."
                                                     className="flex-grow rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                                 />
-                                                <Button 
-                                                    type="primary" 
+                                                <Button
+                                                    type="primary"
                                                     onClick={handleSaveNewHocPhan}
                                                     className="bg-blue-600 hover:bg-blue-700"
                                                 >
@@ -1320,16 +1315,16 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                 name="soTietQuyChuan"
                                                 control={control}
                                                 rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
-                                                render={({ field }) => 
-                                                    <InputNumber 
-                                                        className="w-full rounded-md border-gray-300 text-red-600 font-medium" 
-                                                        min={1} 
-                                                        {...field} 
+                                                render={({ field }) =>
+                                                    <InputNumber
+                                                        className="w-full rounded-md border-gray-300 text-red-600 font-medium"
+                                                        min={1}
+                                                        {...field}
                                                     />
                                                 }
                                             />
                                         </Form.Item>
-                                        
+
                                         <Form.Item
                                             label={<span className="font-semibold text-base text-gray-700">Ghi chú</span>}
                                             className="w-full md:w-[48%] mb-2"
@@ -1337,13 +1332,13 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                             <Controller
                                                 name="ghiChu"
                                                 control={control}
-                                                render={({ field }) => 
-                                                    <Input.TextArea 
-                                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                                render={({ field }) =>
+                                                    <Input.TextArea
+                                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                                         placeholder="Nhập ghi chú nếu cần..."
                                                         autoSize={{ minRows: 2, maxRows: 3 }}
                                                         style={{ resize: 'none' }}
-                                                        {...field} 
+                                                        {...field}
                                                     />
                                                 }
                                             />
@@ -1400,8 +1395,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 </div>
             )}
             <div className={`p-6 shadow-lg bg-white rounded-xl text-center border border-gray-200 overflow-y-auto transition-all duration-300 ${showForm ? 'flex-[75%]' : 'flex-[100%] w-full'}`}>
-                <Tabs 
-                    activeKey={selectedTab} 
+                <Tabs
+                    activeKey={selectedTab}
                     onChange={handleTabChange}
                     type="card"
                     className="custom-tabs"
@@ -1409,7 +1404,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         {
                             key: 'Kết quả coi thi',
                             label: <span className="font-semibold text-base">KẾT QUẢ COI THI</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :
@@ -1432,9 +1427,9 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     <Table
                                         columns={columns}
                                         dataSource={dataList}
-                                        pagination={{ 
-                                            current, 
-                                            pageSize, 
+                                        pagination={{
+                                            current,
+                                            pageSize,
                                             total: dataList.length,
                                             onChange: handleTableChange,
                                             showSizeChanger: true,
@@ -1451,14 +1446,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         {
                             key: 'Phân công coi thi',
                             label: <span className="font-semibold text-base">PHÂN CÔNG COI THI</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :
-                                <TablePcCoiThi 
-                                    namHoc={namHoc || ''} 
-                                    ky={ky || ''} 
-                                    listSelect={listSelect || []} 
+                                <TablePcCoiThi
+                                    namHoc={namHoc || ''}
+                                    ky={ky || ''}
+                                    listSelect={listSelect || []}
                                 />
                         }
                     ]}

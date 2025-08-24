@@ -18,7 +18,6 @@ export const GET = async (request) => {
     const user = searchParams.get('user');
     const type = searchParams.get('type');
     const namHoc = searchParams.get('namHoc');
-    const ky = searchParams.get('ky');
 
     let info = {}
 
@@ -48,12 +47,12 @@ export const GET = async (request) => {
       kiemNhiem,
       raDe
     ] = await Promise.all([
-      CongTacGiangDay.find({ user, type, namHoc, ky }).populate('user'),
-      CongTacChamThi.find({ user, type, namHoc, ky }).populate('user'),
-      CongTacCoiThi.find({ user, type, namHoc, ky }).populate('user'),
-      CongTacHuongDan.find({ user, type, namHoc, ky }).populate('user'),
+      CongTacGiangDay.find({ user, type, namHoc }).populate('user'),
+      CongTacChamThi.find({ user, type, namHoc }).populate('user'),
+      CongTacCoiThi.find({ user, type, namHoc }).populate('user'),
+      CongTacHuongDan.find({ user, type, namHoc }).populate('user'),
       CongTacKiemNhiem.find({ user, type, namHoc }).populate('user'),
-      CongTacRaDe.find({ user, type, namHoc, ky }).populate('user')
+      CongTacRaDe.find({ user, type, namHoc }).populate('user')
     ]);
 
     const responseData = {

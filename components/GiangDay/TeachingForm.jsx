@@ -1,16 +1,15 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Radio, InputNumber, Table, Popconfirm, Tabs, Spin, Select } from "antd";
-import toast from "react-hot-toast";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Space, Spin, Table, Tabs, Typography } from "antd";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Loader from "../Loader";
 import TablePcGiangDay from "./TablePcGiangDay";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
-const { TabPane } = Tabs;
 
 const { Title } = Typography;
 
@@ -31,7 +30,6 @@ const formSchema = {
 const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const [dataList, setDataList] = useState([]);
   const [listSelect, setListSelect] = useState([]);
-  const [dataHPTH, setDataHPTH] = useState('');
   const [editRecord, setEditRecord] = useState(null);
   const { control, handleSubmit, setValue, reset, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: formSchema,
@@ -306,7 +304,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
   const calculateTotals = () => {
     const totals = dataList.reduce((acc, item) => {
       acc.soTietLT += item.soTietLT || 0;
-      acc.soTietTH += item.soTietTH || 0;
+      acc.soTietTH += parseFloat(item.soTietTH) || 0;
       acc.soTietQCLT += item.soTietQCLT || 0;
       acc.soTietQCTH += item.soTietQCTH || 0;
       acc.tong += item.tongCong || 0;

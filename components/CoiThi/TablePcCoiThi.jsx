@@ -2,17 +2,14 @@
 "use client";
 
 import { Pagination, Spin, Table } from "antd";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 
 const TablePcCoiThi = ({ namHoc, ky, listSelect }) => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const { data: session } = useSession();
 
   const columns = [
     {

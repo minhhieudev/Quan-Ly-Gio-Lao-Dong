@@ -1,22 +1,15 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
-import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
-import { FileExcelOutlined } from '@ant-design/icons';
-import { useSession } from "next-auth/react";
+import { Pagination, Spin, Table } from "antd";
+import { useState } from "react";
 
-const TablePcGiangDay = ({ namHoc, ky ,listSelect}) => {
-  const [searchTerm, setSearchTerm] = useState("");
+const TablePcGiangDay = ({ namHoc, ky, listSelect }) => {
   const [loading, setLoading] = useState(false);
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const { data: session } = useSession();
-  const user = session?.user;
 
   const columns = [
     // {

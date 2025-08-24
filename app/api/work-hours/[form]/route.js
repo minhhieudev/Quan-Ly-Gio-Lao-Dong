@@ -1,19 +1,14 @@
 export const dynamic = 'force-dynamic';
 
-import mongoose from "mongoose";
-import { connectToDB } from "@mongodb";
-import CongTacGiangDay from "@models/CongTacGiangDay";
 import BoiDuong from "@models/BoiDuong";
 import CongTacChamThi from "@models/CongTacChamThi";
 import CongTacCoiThi from "@models/CongTacCoiThi";
+import CongTacGiangDay from "@models/CongTacGiangDay";
 import CongTacHuongDan from "@models/CongTacHuongDan";
 import CongTacKiemNhiem from "@models/CongTacKiemNhiem";
 import CongTacRaDe from "@models/CongTacRaDe";
-import PhanCongKiemNhiem from "@models/PhanCongKiemNhiem";
-import MaNgach from "@models/MaNgach";
+import { connectToDB } from "@mongodb";
 
-import User from "@models/User";
-import ChucVu from "@models/ChucVu";
 
 const models = {
   CongTacGiangDay,

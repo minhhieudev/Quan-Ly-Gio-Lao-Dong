@@ -1,30 +1,30 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { DeleteOutlined, EditOutlined, ExclamationCircleOutlined, FileExcelOutlined, SaveOutlined, SearchOutlined, UploadOutlined } from '@ant-design/icons';
+import { exportPCKiemNhiem } from "@lib/fileExport";
 import {
+    Alert,
+    Modal as AntdModal,
     Button,
+    DatePicker,
+    Divider,
+    Drawer,
     Form,
     Input,
-    Select,
-    DatePicker,
-    Table,
-    Space,
-    Popconfirm,
-    Modal as AntdModal,
-    Spin,
-    Alert,
-    Typography,
     Pagination,
-    Divider,
-    Drawer
+    Popconfirm,
+    Select,
+    Space,
+    Spin,
+    Table,
+    Typography
 } from 'antd';
 import dayjs from "dayjs";
+import { useEffect, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import Loader from "../../../components/Loader";
 import * as XLSX from 'xlsx';
-import { exportPCKiemNhiem } from "@lib/fileExport";
-import { SaveOutlined, UploadOutlined, ExclamationCircleOutlined, SearchOutlined, FileExcelOutlined, CheckCircleOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import Loader from "../../../components/Loader";
 
 const { TextArea } = Input;
 
@@ -46,7 +46,6 @@ const KiemNhiemForm = () => {
     const [dataList, setDataList] = useState([]);
     const [listChucVu, setListChucVu] = useState([]);
     const [listUser, setListUser] = useState([]);
-    const [total, setTotal] = useState(0);
     const [editRecord, setEditRecord] = useState(null);
     const [searchName, setSearchName] = useState("");
     const [loading, setLoading] = useState(true);

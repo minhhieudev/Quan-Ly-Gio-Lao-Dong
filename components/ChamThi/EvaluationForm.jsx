@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, InputNumber, Radio, Table, Popconfirm, Tabs, Spin, Select } from "antd";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Form, Input, InputNumber, Popconfirm, Radio, Select, Space, Spin, Table, Tabs, Typography } from "antd";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Loader from "../Loader";
 import TablePcChamThi from "./TablePcChamThi";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -32,7 +31,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
     const [editRecord, setEditRecord] = useState(null);
     const [current, setCurrent] = useState(1);
     const [pageSize] = useState(6);
-    const router = useRouter();
     const { control, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
@@ -60,7 +58,6 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         setIsAddingNew(!isAddingNew);
     };
 
-    const soTietQC = watch("soTietQuyChuan");
     const soBai = watch("soBaiCham");
     const hinhThucs = watch("hinhThuc");
 
@@ -268,7 +265,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             width: '12%',
             ellipsis: true
         },
-       
+
         {
             title: <span className="font-semibold">Cán bộ chấm thi</span>,
             dataIndex: 'canBoChamThi',
@@ -393,7 +390,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
     useEffect(() => {
         handleSelectChange2(hinhThucs);
-    }, [soBai,hinhThucs]);
+    }, [soBai, hinhThucs]);
 
     const handleSelectChange2 = (value) => {
         const selected = listOptions.find(item => item?.ten.toLowerCase() == value?.toLowerCase());
@@ -473,9 +470,9 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                                 placeholder="Nhập tên học phần mới..."
                                                 className="min-w-0 rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                             />
-                                            <Button 
+                                            <Button
                                                 size="small"
-                                                type="primary" 
+                                                type="primary"
                                                 onClick={handleSaveNewHocPhan}
                                                 className="bg-blue-600 hover:bg-blue-700"
                                             >
@@ -531,10 +528,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     name="lopHocPhan"
                                     control={control}
                                     rules={{ required: "Lớp học phần là bắt buộc" }}
-                                    render={({ field }) => <Input 
-                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                        placeholder="Nhập lớp..." 
-                                        {...field} 
+                                    render={({ field }) => <Input
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                        placeholder="Nhập lớp..."
+                                        {...field}
                                     />}
                                 />
                             </Form.Item>
@@ -616,10 +613,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Số bài chấm là bắt buộc" }}
                                     render={({ field }) => (
-                                        <InputNumber 
-                                            className="w-full rounded-md border-gray-300" 
-                                            min={0} 
-                                            {...field} 
+                                        <InputNumber
+                                            className="w-full rounded-md border-gray-300"
+                                            min={0}
+                                            {...field}
                                         />
                                     )}
                                 />
@@ -636,10 +633,10 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Số tiết quy chuẩn là bắt buộc" }}
                                     render={({ field }) => (
-                                        <InputNumber 
-                                            className="w-full rounded-md border-gray-300 bg-gray-100" 
-                                            min={0} 
-                                            {...field} 
+                                        <InputNumber
+                                            className="w-full rounded-md border-gray-300 bg-gray-100"
+                                            min={0}
+                                            {...field}
                                         />
                                     )}
                                 />
@@ -653,13 +650,13 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                             <Controller
                                 name="ghiChu"
                                 control={control}
-                                render={({ field }) => 
-                                    <Input.TextArea 
-                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                render={({ field }) =>
+                                    <Input.TextArea
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                         placeholder="Nhập ghi chú nếu cần..."
                                         autoSize={{ minRows: 2, maxRows: 3 }}
                                         style={{ resize: 'none' }}
-                                        {...field} 
+                                        {...field}
                                     />
                                 }
                             />
@@ -667,18 +664,18 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
                         <div className="flex justify-center mt-2">
                             <Space size="middle">
-                                <Button 
-                                    type="primary" 
-                                    htmlType="submit" 
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
                                     loading={isSubmitting}
                                     className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                 >
                                     {editRecord ? "Cập nhật" : "Lưu"}
                                 </Button>
-                                <Button 
-                                    type="default" 
-                                    danger 
-                                    onClick={onReset} 
+                                <Button
+                                    type="default"
+                                    danger
+                                    onClick={onReset}
                                     disabled={isSubmitting}
                                     className="h-8 px-6 font-medium text-base"
                                 >
@@ -691,8 +688,8 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             </div>
 
             <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-auto">
-                <Tabs 
-                    activeKey={selectedTab} 
+                <Tabs
+                    activeKey={selectedTab}
                     onChange={handleTabChange}
                     type="card"
                     className="custom-tabs"
@@ -700,7 +697,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         {
                             key: 'Kết quả chấm thi',
                             label: <span className="font-semibold text-base">KẾT QUẢ CHẤM THI</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :
@@ -709,9 +706,9 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                         columns={columns}
                                         dataSource={dataList}
                                         pagination={{
-                                            current, 
-                                            pageSize, 
-                                            total: dataList.length, 
+                                            current,
+                                            pageSize,
+                                            total: dataList.length,
                                             onChange: handleTableChange,
                                             showSizeChanger: true,
                                             pageSizeOptions: ['5', '10', '20'],
@@ -731,14 +728,14 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                         {
                             key: 'Phân công chấm thi',
                             label: <span className="font-semibold text-base">PHÂN CÔNG CHẤM THI</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :
-                                <TablePcChamThi 
-                                    namHoc={namHoc || ''} 
-                                    ky={ky || ''} 
-                                    listSelect={listSelect || []} 
+                                <TablePcChamThi
+                                    namHoc={namHoc || ''}
+                                    ky={ky || ''}
+                                    listSelect={listSelect || []}
                                 />
                         }
                     ]}

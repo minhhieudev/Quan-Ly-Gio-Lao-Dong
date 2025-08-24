@@ -1,18 +1,14 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Button, Input, Form, Space, Typography, Select, InputNumber, Tabs, Table, Popconfirm, Spin } from "antd";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { Button, Form, Input, InputNumber, Popconfirm, Select, Space, Spin, Table, Tabs, Typography } from "antd";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Loader from "../Loader";
-import { set } from "mongoose";
 import TableHuongDan from "./TableHuongDan";
-import TextArea from "antd/es/input/TextArea";
 
-const { TabPane } = Tabs;
 
 
 const { Title } = Typography;
@@ -28,8 +24,6 @@ const formSchema = {
     ghiChu: "",
 };
 
-const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
-
 const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
     const [dataList, setDataList] = useState([]);
     const [dataListSelect, setDataListSelect] = useState([]);
@@ -40,7 +34,6 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
     const [selectedTab, setSelectedTab] = useState('Danh sách công việc');
     const [loadings, setLoadings] = useState(true);
 
-    const router = useRouter();
     const { control, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
         defaultValues: formSchema,
     });
@@ -232,9 +225,9 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
             key: 'action',
             render: (_, record) => (
                 <Space size="small">
-                    <Button 
-                        onClick={() => handleEdit(record)} 
-                        size="small" 
+                    <Button
+                        onClick={() => handleEdit(record)}
+                        size="small"
                         type="primary"
                         className="bg-blue-500 hover:bg-blue-600"
                         icon={<span className="mr-1">✎</span>}
@@ -246,9 +239,9 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         okText="Có"
                         cancelText="Không"
                     >
-                        <Button 
-                            type="primary" 
-                            size="small" 
+                        <Button
+                            type="primary"
+                            size="small"
                             danger
                             icon={<span className="mr-1">✕</span>}
                         >
@@ -342,11 +335,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                         name="soSVSoNhom"
                                         control={control}
                                         rules={{ required: "Số SV/Số nhóm là bắt buộc" }}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                className="w-full rounded-md border-gray-300" 
-                                                min={1} 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                className="w-full rounded-md border-gray-300"
+                                                min={1}
+                                                {...field}
                                             />
                                         }
                                     />
@@ -366,11 +359,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                         name="lopHocPhan"
                                         control={control}
                                         rules={{ required: "Lớp học phần là bắt buộc" }}
-                                        render={({ field }) => 
-                                            <Input 
-                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
-                                                placeholder="Nhập lớp học phần ..." 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <Input
+                                                className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                                placeholder="Nhập lớp học phần ..."
+                                                {...field}
                                             />
                                         }
                                     />
@@ -385,11 +378,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     <Controller
                                         name="thoiGian"
                                         control={control}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                className="w-full rounded-md border-gray-300" 
-                                                min={0} 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                className="w-full rounded-md border-gray-300"
+                                                min={0}
+                                                {...field}
                                             />
                                         }
                                     />
@@ -408,11 +401,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     <Controller
                                         name="soBuoi"
                                         control={control}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                className="w-full rounded-md border-gray-300" 
-                                                min={0} 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                className="w-full rounded-md border-gray-300"
+                                                min={0}
+                                                {...field}
                                             />
                                         }
                                     />
@@ -428,11 +421,11 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                         name="soTietQuyChuan"
                                         control={control}
                                         rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
-                                        render={({ field }) => 
-                                            <InputNumber 
-                                                className="w-full rounded-md border-gray-300 text-red-600 font-medium" 
-                                                min={1} 
-                                                {...field} 
+                                        render={({ field }) =>
+                                            <InputNumber
+                                                className="w-full rounded-md border-gray-300 text-red-600 font-medium"
+                                                min={1}
+                                                {...field}
                                             />
                                         }
                                     />
@@ -447,13 +440,13 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                             <Controller
                                 name="ghiChu"
                                 control={control}
-                                render={({ field }) => 
-                                    <Input.TextArea 
-                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500" 
+                                render={({ field }) =>
+                                    <Input.TextArea
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                         placeholder="Nhập ghi chú nếu cần..."
                                         autoSize={{ minRows: 2, maxRows: 3 }}
                                         style={{ resize: 'none' }}
-                                        {...field} 
+                                        {...field}
                                     />
                                 }
                             />
@@ -461,18 +454,18 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
 
                         <div className="flex justify-center mt-4">
                             <Space size="middle">
-                                <Button 
-                                    type="primary" 
-                                    htmlType="submit" 
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
                                     loading={isSubmitting}
                                     className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
                                 >
                                     {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu")}
                                 </Button>
-                                <Button 
-                                    type="default" 
-                                    danger 
-                                    onClick={onReset} 
+                                <Button
+                                    type="default"
+                                    danger
+                                    onClick={onReset}
                                     disabled={isSubmitting}
                                     className="h-8 px-6 font-medium text-base"
                                 >
@@ -485,8 +478,8 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
             </div>
 
             <div className="p-4 shadow-lg bg-white rounded-xl flex-[70%] text-center border border-gray-100 overflow-y-auto">
-                <Tabs 
-                    activeKey={selectedTab} 
+                <Tabs
+                    activeKey={selectedTab}
                     onChange={handleTabChange}
                     type="card"
                     className="custom-tabs"
@@ -494,7 +487,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         {
                             key: 'Danh sách công việc',
                             label: <span className="font-semibold text-base">DANH SÁCH CÔNG VIỆC</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :
@@ -503,9 +496,9 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                         columns={columns}
                                         dataSource={dataList}
                                         rowKey="id"
-                                        pagination={{ 
-                                            current, 
-                                            pageSize, 
+                                        pagination={{
+                                            current,
+                                            pageSize,
                                             total: dataList.length,
                                             onChange: handleTableChange,
                                             showSizeChanger: true,
@@ -524,7 +517,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                         {
                             key: 'Phụ lục công việc',
                             label: <span className="font-semibold text-base">PHỤ LỤC CÔNG VIỆC</span>,
-                            children: loadings ? 
+                            children: loadings ?
                                 <div className="flex justify-center items-center h-40">
                                     <Spin size="large" />
                                 </div> :

@@ -1,19 +1,17 @@
 
 "use client";
 
+import { Pagination, Spin, Table } from "antd";
 import { useState } from "react";
-import {  Table, Spin, Pagination } from "antd";
-import { useSession } from "next-auth/react";
 
 
 
-const TableHuongDan = ({ data}) => {
+const TableHuongDan = ({ data }) => {
   const [loading, setLoading] = useState(false);
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const { data: session } = useSession();
 
   const columns = [
     {
@@ -74,7 +72,7 @@ const TableHuongDan = ({ data}) => {
               className="custom-table"
             />
           </div>
-          
+
           <div className="bg-gray-50 p-3 border-t border-gray-200">
             <Pagination
               current={current}

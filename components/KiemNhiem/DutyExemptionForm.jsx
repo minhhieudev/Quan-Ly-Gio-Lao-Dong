@@ -1,12 +1,12 @@
 "use client";
 
-import { SaveOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
 import { Button, DatePicker, Divider, Form, Popconfirm, Select, Space, Spin, Table, Tabs, Typography } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import toast from "react-hot-toast";
 import Loader from "../Loader";
@@ -140,7 +140,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log('DATA:', data)
 
                 // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
                 const listNghiDH = data.filter(
@@ -325,11 +324,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             setMienGiam(result);
             onSubmitMienGiam(dataListSelect3[0], result);
 
-            console.log('result:', result)
-            console.log('weeks:', weeks)
-            console.log('gvalue:', gvalue)
-            console.log('GCGD:', GCGD)
-
             return;
         }
 
@@ -372,22 +366,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 if (item.chucVu.soMien < 1) {
 
                     const gValueT = item.chucVu.soMien * GCGD;
-                    console.log('item.chucVu.soMien:', item.chucVu.soMien)
-                    console.log('GCGD:', GCGD)
-                    console.log('gValueT:', gValueT)
-
 
                     const diffTime = Math.abs(dateEnd - dateStart);
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                     const weeks = Math.round((diffDays / 7) * 10) / 10;
 
                     gValue = Math.round(((weeks * gValueT) / 44) * 10) / 10;
-
-                    console.log('gValue:', gValue)
-                    console.log('weeks:', weeks)
-
-                    console.log('diffDays[0]:', GCGD)
-
 
                     // Tạo object theo cấu trúc columns và thêm vào dataList (bổ sung đủ trường)
                     const endTime = item.endTime || schoolYearEnd;
@@ -527,13 +511,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             const weeks = Math.round((diffDays / 7) * 10) / 10;
 
-            console.log('weeks:', weeks)
-            console.log('result:', result)
-
             const gValue = Math.round(((weeks * result) / 44) * 10) / 10;
-
-            console.log('gValue:', gValue)
-
 
             setMienGiam(gValue);
             onSubmitMienGiam(dataListSelect3[0], gValue);
@@ -829,7 +807,6 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 schoolYearStart,
                 schoolYearEnd,
             };
-            console.log(payload);
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/users/kiem-nhiem-user", {
                 method,

@@ -1,12 +1,11 @@
 "use client";
 
 import { Pagination, Space, Spin, Table } from "antd";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Button, Popconfirm } from "antd";
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 
@@ -15,7 +14,6 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const { data: session } = useSession();
 
   const columns = [
     // {
@@ -139,17 +137,17 @@ const TableKiemNhiem = ({ data, handleEdit, onDelete }) => {
       if (!res.ok) {
         throw new Error("Xóa thất bại");
       }
-      
+
       toast.success("Đã xóa chức vụ!");
-      
+
       // Thông báo cho component cha cập nhật lại data
       if (onDelete) {
         await onDelete(id);
       }
-      
+
       // Reset về trang đầu sau khi xóa
       setCurrent(1);
-      
+
     } catch (err) {
       console.error("Delete error:", err);
       toast.error(err.message || "Có lỗi xảy ra khi xóa dữ liệu");

@@ -223,6 +223,7 @@ const Pages = () => {
   };
 
   const updateCongTacGiangDay = useCallback((data) => {
+    console.log('777777777777')
     setCongTacGiangDay(data);
   }, []);
 
