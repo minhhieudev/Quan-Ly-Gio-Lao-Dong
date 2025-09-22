@@ -11,7 +11,7 @@ export const GET = async (req) => {
     // Lấy các tham số từ query
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
-    const ky = searchParams.get('ky');
+    //const ky = searchParams.get('ky');
     const gvGiangDay = searchParams.get('gvGiangDay');
     const maGV = searchParams.get('maGV');
 
@@ -24,9 +24,9 @@ export const GET = async (req) => {
     }
 
     // Nếu có tham số ky, thêm vào điều kiện tìm kiếm
-    if (ky && ky !== 'null' && ky !== 'undefined') {
-      filter.ky = ky;
-    }
+    // if (ky && ky !== 'null' && ky !== 'undefined') {
+    //   filter.ky = ky;
+    // }
 
     if (gvGiangDay) {
       filter.gvGiangDay = { $regex: new RegExp(gvGiangDay, 'i') };

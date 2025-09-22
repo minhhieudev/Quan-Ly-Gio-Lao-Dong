@@ -251,7 +251,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
 
     const fetchData = async () => {
       try {
-        const res = await fetch(`/api/work-hours/CongTacGiangDay/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(ky)}`, {
+        const res = await fetch(`/api/work-hours/CongTacGiangDay/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -270,15 +270,15 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [namHoc, ky, type]);
+  }, [namHoc, type]);
 
   useEffect(() => {
-    if (!namHoc || !ky || !currentUser?.username) return;
+    if (!namHoc ||  !currentUser?.username) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/giaovu/pc-giang-day/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser.username}`, {
+        const res = await fetch(`/api/giaovu/pc-giang-day/get-for-gv/?namHoc=${namHoc}&gvGiangDay=${currentUser.username}`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
         });
@@ -298,7 +298,7 @@ const TeachingForm = ({ onUpdateCongTacGiangDay, namHoc, ky }) => {
     };
 
     fetchData();
-  }, [namHoc, ky]);
+  }, [namHoc]);
 
 
   const calculateTotals = () => {

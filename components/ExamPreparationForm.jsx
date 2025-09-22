@@ -456,7 +456,6 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         rules={{ required: "Số tiết quy chuẩn là bắt buộc", min: { value: 1, message: "Số tiết quy chuẩn phải lớn hơn 0" } }}
                                         render={({ field }) =>
                                             <InputNumber
-                                                readOnly
                                                 {...field}
                                                 className="w-full rounded-md border-gray-300 text-red-600 font-medium bg-gray-100"
                                                 min={1}

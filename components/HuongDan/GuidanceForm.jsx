@@ -56,6 +56,17 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         setValue("tongCong", watch("soTietQuyChuan"));
     }, [watch("soTietQuyChuan"), setValue]);
 
+    // Add this useEffect after your other useEffect hooks
+    useEffect(() => {
+        const noiDungCongViec = watch("noiDungCongViec");
+        const soSVSoNhom = watch("soSVSoNhom") || 0;
+        const selectedItem = dataListSelect.find(item => item.tenCV === noiDungCongViec);
+        if (selectedItem) {
+            const quyChuan = selectedItem.soGio * soSVSoNhom;
+            setValue("soTietQuyChuan", quyChuan);
+        }
+    }, [watch("soSVSoNhom")]);
+
     const fetchData = async () => {
         try {
             const res = await fetch(`/api/work-hours/CongTacHuongDan/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
@@ -259,7 +270,9 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
     };
 
     const handleSelectChange = (value) => {
-        setValue("soTietQuyChuan", value.soGio);
+        const soSVSoNhom = watch("soSVSoNhom") || 0;
+        const quyChuan = value.soGio * soSVSoNhom;
+        setValue("soTietQuyChuan", quyChuan);
     };
 
     const handleTabChange = (key) => {

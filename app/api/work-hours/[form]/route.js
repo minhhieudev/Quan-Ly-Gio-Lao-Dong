@@ -123,7 +123,7 @@ export const GET = async (req, { params }) => {
     const user = url.searchParams.get('user');
     const type1 = url.searchParams.get('type');
     const namHoc = url.searchParams.get('namHoc');
-    const ky = url.searchParams.get('ky');
+    //const ky = url.searchParams.get('ky');
     let type = ''
 
     //  await PhanCongKiemNhiem.updateMany(
@@ -149,13 +149,14 @@ export const GET = async (req, { params }) => {
       query.namHoc = namHoc;
     }
 
-    if (ky) {
-      query.ky = ky;
-    }
+    // if (ky) {
+    //   query.ky = ky;
+    // }
 
     if (type1) {
       query.type = type1;
     }
+    console.log('ĐK:',query)
     const records = await models[form].find(query).populate('user', 'username');
 
     return new Response(JSON.stringify(records), { status: 200 });

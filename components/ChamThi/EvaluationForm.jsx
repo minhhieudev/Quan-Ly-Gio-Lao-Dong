@@ -124,7 +124,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
 
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${ky}`, {
+                const res = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -143,7 +143,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [namHoc, ky]);
+    }, [namHoc]);
 
     useEffect(() => {
         if (!namHoc && !ky) return;
@@ -152,7 +152,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
             try {
                 setLoading(true);
 
-                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&ky=${ky}&gvGiangDay=${currentUser?.username}`, {
+                const res = await fetch(`/api/giaovu/pc-cham-thi/get-for-gv/?namHoc=${namHoc}&gvGiangDay=${currentUser?.username}`, {
                     method: "GET",
                     headers: { "Content-Type": "application/json" },
                 });
@@ -174,7 +174,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         };
 
         fetchData();
-    }, [namHoc, ky]);
+    }, [namHoc]);
 
     const calculateTotals = () => {
         onUpdateCongTacChamThi(totalHours);

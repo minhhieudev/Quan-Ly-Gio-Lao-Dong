@@ -22,7 +22,7 @@ const Pages = () => {
       showSizeChanger: true,
       showQuickJumper: true,
       showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} mục`,
-      pageSizeOptions: ['10', '20', '50', '100','1000'],
+      pageSizeOptions: ['10', '20', '50', '100', '1000'],
     },
   });
   const [searchText, setSearchText] = useState('');
@@ -977,6 +977,11 @@ const Pages = () => {
         pagination={tableParams.pagination}
         loading={loading}
         onChange={handleTableChange}
+        scroll={{
+          x: 'max-content',  // Cho phép scroll ngang khi bảng rộng
+          y: 500  // Cho phép scroll dọc với chiều cao cố định 500px
+        }}
+        className="overflow-x-auto" // Thêm class để xử lý overflow
       />
 
       <div className="mt-2 flex justify-center gap-6">

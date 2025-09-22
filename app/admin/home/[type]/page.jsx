@@ -441,8 +441,8 @@ const App = () => {
         const tongGioChinhQuy = Number(record.congTacGiangDay?.tong) + Number(record.congTacKhac?.tong);
         const gioChuan = Number(record.gioChuan) || 0;
         const kiemNhiem = Number(record.kiemNhiem) || 0;
-        //const chuanNamHoc = gioChuan - kiemNhiem;
-        const result = gioChuan - tongGioChinhQuy;
+        const chuanNamHoc = gioChuan - kiemNhiem;
+        const result = chuanNamHoc - tongGioChinhQuy;
         return Math.abs(result).toFixed(2);
       }
     },
