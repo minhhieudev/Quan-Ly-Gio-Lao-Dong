@@ -24,7 +24,6 @@ export const POST = async (req, { params }) => {
   try {
     const { form } = params;
 
-
     if (!models[form]) {
       return new Response("Invalid form name", { status: 400 });
     }
@@ -33,22 +32,28 @@ export const POST = async (req, { params }) => {
     const body = await req.json();
     const model = models[form];
 
-    // Kiểm tra xem bản ghi đã tồn tại chưa
-    const { hocPhan, namHoc, user, ky, ngayThi, lopHocPhan } = body;
-      console.log('body:',body)
+    const { namHoc, user, ky, ngayThi, lopHocPhan, hocPhan } = body;
+    console.log('body:', body)
 
     // Tạo query để kiểm tra trùng lặp
-    let duplicateQuery = {}
-    if (lopHocPhan) {
-      console.log('kkkk:',lopHocPhan)
-      duplicateQuery = { hocPhan, namHoc, user, ky, lopHocPhan };
+    let duplicateQuery = {};
 
-    }
-    else {
-      duplicateQuery = { hocPhan, namHoc, user, ky };
+    // Xử lý riêng cho CongTacHuongDan
+    if (form === 'CongTacHuongDan') {
+      duplicateQuery = { namHoc, user, ky };
+      if (lopHocPhan) {
+        duplicateQuery.lopHocPhan = lopHocPhan;
+      }
+    } else {
+      // Xử lý cho các form khác
+      if (lopHocPhan) {
+        duplicateQuery = { hocPhan, namHoc, user, ky, lopHocPhan };
+      } else {
+        duplicateQuery = { hocPhan, namHoc, user, ky };
+      }
     }
 
-    // Đối với CongTacCoiThi, thêm ngayThi vào query để tránh trùng lặp
+    // Đối với CongTacCoiThi, thêm ngayThi vào query
     if (form === 'CongTacCoiThi' && ngayThi) {
       duplicateQuery.ngayThi = ngayThi;
     }
