@@ -9,38 +9,73 @@ export const GET = async (req) => {
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
 
-    // Lấy tất cả các khoa và xử lý với aggregation
+    // Debug logs
+    console.log('1. Starting query with namHoc:', namHoc);
+
+    // Check if there's any data in TongHopLaoDong
+    const checkTongHop = await TongHopLaoDong.findOne({ namHoc });
+    console.log('2. TongHopLaoDong sample:', checkTongHop);
+
+    // Check if there's any data in Khoa
+    const checkKhoa = await Khoa.findOne({});
+    console.log('3. Khoa sample:', checkKhoa);
+
     const result = await Khoa.aggregate([
       {
         $lookup: {
-          from: "users", // Bảng User
-          localField: "maKhoa", // Mã khoa từ Khoa
-          foreignField: "maKhoa", // Mã khoa trong User
-          as: "usersInKhoa", // Kết hợp danh sách user theo khoa
+          from: "users",
+          localField: "maKhoa",
+          foreignField: "maKhoa",
+          as: "usersInKhoa",
         },
+      },
+      {
+        $lookup: {
+          from: "tonghoplaodongs",
+          let: { 
+            usersIds: "$usersInKhoa._id", 
+            namHoc: namHoc,
+            loai: "chinh-quy" // Add this to filter for chinh-quy only
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$namHoc", "$$namHoc"] },
+                    { $eq: ["$loai", "$$loai"] },
+                    { $in: ["$user", "$$usersIds"] }
+                  ]
+                }
+              }
+            },
+            {
+              $project: {
+                user: 1,
+                tongGioChinhQuy: {
+                  $add: [
+                    { $ifNull: [{ $sum: ["$congTacGiangDay.tong"] }, 0] },
+                    { $ifNull: [{ $sum: ["$congTacKhac.tong"] }, 0] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: "completedUsersData"
+        }
+      },
+      // Debug stage for tonghoplaodongs lookup
+      {
+        $addFields: {
+          debugStage2: {
+            completedCount: { $size: "$completedUsersData" },
+            firstCompleted: { $arrayElemAt: ["$completedUsersData", 0] }
+          }
+        }
       },
       {
         $addFields: {
           totalUsers: { $size: "$usersInKhoa" }, // Tổng số user trong khoa
-        },
-      },
-      {
-        $lookup: {
-          from: "tonghoplaodongs", // Bảng TongHopLaoDong
-          let: { usersIds: "$usersInKhoa._id", namHoc },
-          pipeline: [
-            { 
-              $match: { 
-                $expr: { 
-                  $and: [
-                    { $eq: ["$namHoc", "$$namHoc"] },
-                    { $in: ["$user", "$$usersIds"] },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "completedUsersData", // Danh sách giảng viên đã nộp trong khoa
         },
       },
       {
@@ -68,22 +103,31 @@ export const GET = async (req) => {
                             $filter: {
                               input: "$completedUsersData",
                               as: "data",
-                              cond: { $eq: ["$$data.user", "$$user._id"] },
-                            },
+                              cond: { $eq: ["$$data.user", "$$user._id"] }
+                            }
                           },
-                          0,
-                        ],
-                      },
+                          0
+                        ]
+                      }
                     },
-                    in: { $ifNull: ["$$userData.tongGioChinhQuy", 0] },
+                    in: { $ifNull: ["$$userData.tongGioChinhQuy", 0] }
                   }
                 }
-              },
-            },
-          },
-        },
+              }
+            }
+          }
+        }
       },
     ]);
+
+    console.log('4. Aggregation result first item:', JSON.stringify(result[0], null, 2));
+    console.log('5. Debug stages:', JSON.stringify({
+      stage1: result[0]?.debugStage1,
+      stage2: result[0]?.debugStage2
+    }, null, 2));
+
+    // Log kết quả để debug
+    console.log('First result:', JSON.stringify(result[0]?.debug, null, 2));
 
     // Định dạng lại kết quả trả về
     const formattedResult = result.reduce((acc, khoa) => {
@@ -96,9 +140,11 @@ export const GET = async (req) => {
     }, {});
 
     return new Response(JSON.stringify(formattedResult), { status: 200 });
-
   } catch (err) {
-    console.error("Lỗi khi lấy thống kê:", err);
+    console.error("Detailed error:", {
+      message: err.message,
+      stack: err.stack
+    });
     return new Response(JSON.stringify({ message: `Lỗi: ${err.message}` }), { status: 500 });
   }
 };

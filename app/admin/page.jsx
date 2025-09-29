@@ -28,7 +28,7 @@ const Dashboard = () => {
     const [dataList, setDataList] = useState([]);
     const [dataTable, setDataTable] = useState([]);
     const [dataCount, setDataCount] = useState([]);
-    const [namHoc, setNamHoc] = useState('2024-2025');
+    const [namHoc, setNamHoc] = useState(defaultNamHoc);
 
     const [searchText, setSearchText] = useState('');
     const [filteredData, setFilteredData] = useState([]);
