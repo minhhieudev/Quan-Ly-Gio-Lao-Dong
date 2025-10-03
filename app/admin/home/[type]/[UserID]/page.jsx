@@ -479,7 +479,7 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
+            <Button
               size='small'
               type="primary"
               danger
@@ -637,7 +637,7 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
+            <Button
               size='small'
               type="primary"
               danger
@@ -729,7 +729,7 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
+            <Button
               size='small'
               type="primary"
               danger
@@ -827,7 +827,7 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
+            <Button
               size='small'
               type="primary"
               danger
@@ -947,7 +947,7 @@ const Pages = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
+            <Button
               size='small'
               type="primary"
               danger
@@ -1171,14 +1171,17 @@ const Pages = () => {
         </div>
       </div>
 
-      <Table
-        columns={columns}
-        rowKey={(record) => record._id}
-        dataSource={dataList}
-        pagination={tableParams.pagination}
-        loading={loading}
-        onChange={handleTableChange}
-      />
+      <div style={{ maxHeight: "450px", overflowY: "auto" }}>
+        <Table
+          columns={columns}
+          rowKey={(record) => record._id}
+          dataSource={dataList}
+          pagination={tableParams.pagination}
+          loading={loading}
+          onChange={handleTableChange}
+        />
+      </div>
+
 
       <div className="mt-2 flex justify-center gap-6">
         <Button
