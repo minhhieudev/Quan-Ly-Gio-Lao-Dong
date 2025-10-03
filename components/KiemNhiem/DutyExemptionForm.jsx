@@ -516,7 +516,9 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             setMienGiam(gValue);
             onSubmitMienGiam(dataListSelect3[0], gValue);
         }
-        const resultFinal = Math.round((totalMax + mienGiam2 + mienGiam) * 100) / 100;
+
+        let resultFinal = totalMax + mienGiam2 + mienGiam;
+        resultFinal = Math.round(resultFinal);
         return resultFinal;
     };
 
@@ -798,7 +800,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 return;
             }
 
-          
+
             // Thêm ngày bắt đầu/kết thúc năm học vào data
             const payload = {
                 ...data,
@@ -1241,17 +1243,17 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                     >
                         {loadings ? <Spin size="large" /> : (
                             <>
-                                <TableKiemNhiem 
-                                data={dataListSelect} 
-                                handleEdit={handleEdit}
-                                onDelete={async (deletedId) => {
-                                    // Cập nhật state sau khi xóa thành công
-                                    setDataListSelect(prev => prev.filter(item => item._id !== deletedId));
-                                    setDataList([]);
-                                    // Gọi lại API để lấy dữ liệu mới nếu cần
-                                    await fetchData2();
-                                }}
-                            />
+                                <TableKiemNhiem
+                                    data={dataListSelect}
+                                    handleEdit={handleEdit}
+                                    onDelete={async (deletedId) => {
+                                        // Cập nhật state sau khi xóa thành công
+                                        setDataListSelect(prev => prev.filter(item => item._id !== deletedId));
+                                        setDataList([]);
+                                        // Gọi lại API để lấy dữ liệu mới nếu cần
+                                        await fetchData2();
+                                    }}
+                                />
                                 {/* Kết quả dưới Table */}
                                 {/* <div className="mt-4 bg-white rounded-lg p-2 shadow border border-gray-100 w-full max-w-md mx-auto">
                               <div className="border-b border-blue-500 pb-2 mb-2">
