@@ -42,28 +42,25 @@ const BieuMauPage = () => {
   // Hàm upload file
   const uploadFile = async (fileBlob) => {
     const formData = new FormData();
-    formData.append('file', fileBlob, 'data-sv.xlsx');
+    formData.append('file', fileBlob);
     formData.append('upload_preset', 'e0rggou2');
-    formData.append('source', 'uw');
-    formData.append('api_key', 'YOUR_API_KEY');
+    formData.append('use_filename', 'true');
+    formData.append('unique_filename', 'false');
+    formData.append('public_id', fileBlob.name.split('.')[0]); // giữ tên gốc
 
-    try {
-      const response = await fetch("https://api.cloudinary.com/v1_1/dpxcvonet/upload", {
-        method: "POST",
-        body: formData,
-      });
+    const response = await fetch("https://api.cloudinary.com/v1_1/dpxcvonet/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to upload file: ${errorData.error.message}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      throw error;
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Failed to upload file: ${errorData.error.message}`);
     }
+
+    return await response.json();
   };
+
 
   const handleFileUpload = async (file) => {
     try {
@@ -98,13 +95,18 @@ const BieuMauPage = () => {
   };
 
   const downloadFile = (url, filename) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    fetch(url)
+      .then(res => res.blob())
+      .then(blob => {
+        const link = document.createElement("a");
+        link.href = window.URL.createObjectURL(blob);
+        link.download = filename;   // ép tên gốc
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
   };
+
 
   // Thêm hàm xóa biểu mẫu
   const handleDelete = async (id) => {
@@ -212,10 +214,10 @@ const BieuMauPage = () => {
                       type="primary"
                       icon={<DownloadOutlined />}
                       onClick={() => downloadFile(bieuMau.url, bieuMau.filename)}
-                      className="bg-blue-500 hover:bg-blue-600 flex items-center gap-2"
                     >
                       Tải xuống
                     </Button>
+
 
                     <Popconfirm
                       title="Xóa biểu mẫu"
