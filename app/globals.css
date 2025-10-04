@@ -330,8 +330,8 @@
 .ant-tabs-tab{
   padding: 4px !important; 
 }
-.ant-form-item{
-  margin-bottom: 5px;
+.ant-form-item {
+  margin-bottom: 2px !important; /* giảm từ 24px xuống 8px */
 }
 
 

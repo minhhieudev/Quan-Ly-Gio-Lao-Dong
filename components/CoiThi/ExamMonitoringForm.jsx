@@ -274,14 +274,12 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     let foundKy = false;
                     let foundFirstDot = false; // QUAN TRỌNG: Chỉ lấy đợt đầu tiên
 
-                    console.log('🔍 Starting to scan file for ky and FIRST dot only...');
 
                     // Scan toàn bộ file để tìm kỳ học và đợt đầu tiên
                     for (let i = 0; i < Math.min(15, jsonData.length); i++) {
                         const row = jsonData[i];
                         if (row && row.length > 0) {
                             const cellText = row.join(' ');
-                            console.log(`📄 Header scan row ${i}:`, cellText);
 
                             // Tìm "kỳ" hoặc "Kỳ" theo sau bởi số - chỉ lấy lần đầu tiên
                             if (!foundKy) {
@@ -289,7 +287,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 if (kyMatch) {
                                     kyFromFile = kyMatch[1];
                                     foundKy = true;
-                                    console.log('✅ Detected ky from file:', kyFromFile, 'from row:', i);
                                 }
                             }
 
@@ -309,14 +306,10 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                                 if (isDotRowInHeader) {
                                     const dotMatches = cellText.match(/[Đđ]ợt\s*(\d+)/g);
-                                    console.log(`🔍 CHECKING DOT in header scan row ${i}:`, cellText);
-                                    console.log(`🔍 Dot matches found:`, dotMatches);
 
                                     if (dotMatches && dotMatches.length > 0) {
                                         const lastDotMatch = dotMatches[dotMatches.length - 1];
                                         const dotNumber = lastDotMatch.match(/(\d+)/)[1];
-                                        console.log(`🎯 FOUND FIRST DOT in header scan row ${i}:`, cellText);
-                                        console.log(`🔄 Setting initial loaiKyThi to "${dotNumber}" (from: ${lastDotMatch})`);
                                         currentLoaiKyThi = dotNumber;
                                         initialLoaiKyThi = dotNumber; // LƯU GIÁ TRỊ BAN ĐẦU
                                         foundFirstDot = true; // DỪNG TÌM KIẾM ĐỢT TIẾP THEO
@@ -325,9 +318,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             }
                         }
                     }
-
-                    console.log('🎯 Initial values after header scan:', { currentLoaiKyThi, kyFromFile });
-                    console.log('⚠️ Note: currentLoaiKyThi will be updated dynamically when processing data rows');
 
                     // Tìm hàng chứa "Tên học phần" để xác định header
                     for (let i = 0; i < jsonData.length; i++) {
@@ -368,8 +358,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         return;
                     }
 
-                    console.log('Column indexes found:', columnIndexes);
-
                     // Xử lý dữ liệu
                     const importedData = [];
                     for (let i = dataStartIndex; i < jsonData.length; i++) {
@@ -378,12 +366,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                         // Kiểm tra xem có phải dòng header với đợt không
                         const rowText = row.join(' ');
-                        console.log(`🔍 Row ${i} (${row.length} cells):`, rowText);
-
-                        // Debug: Hiển thị từng cell
-                        if (rowText.toLowerCase().includes('đợt')) {
-                            console.log(`🔍 Row ${i} contains 'đợt', cells:`, row.map((cell, idx) => `[${idx}]: "${cell}"`));
-                        }
 
                         // Kiểm tra nếu dòng này chứa thông tin đợt - CẢI THIỆN LOGIC
                         const lowerRowText = rowText.toLowerCase();
@@ -397,14 +379,11 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         if (isDotRow) {
                             // Tìm số đợt trong dòng này - tìm tất cả các số sau "đợt"
                             const dotMatches = rowText.match(/[Đđ]ợt\s*(\d+)/g);
-                            console.log(`🎯 FOUND DOT ROW at ${i}:`, rowText);
-                            console.log(`🔍 Dot matches found:`, dotMatches);
 
                             if (dotMatches && dotMatches.length > 0) {
                                 // Lấy số đợt cuối cùng (thường là đợt chính xác nhất)
                                 const lastDotMatch = dotMatches[dotMatches.length - 1];
                                 const dotNumber = lastDotMatch.match(/(\d+)/)[1];
-                                console.log(`🔄 UPDATING loaiKyThi from "${currentLoaiKyThi}" to "${dotNumber}" (from: ${lastDotMatch})`);
                                 currentLoaiKyThi = dotNumber;
                             }
                             continue; // Skip header row
@@ -415,12 +394,10 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         const secondCell = row[1] ? row[1].toString().toLowerCase() : '';
 
                         if (!row[0] || !row[1] || firstCell === '' || secondCell === '') {
-                            console.log(`⏭️ Skipping empty row ${i}`);
                             continue;
                         }
 
                         if (firstCell.includes('stt') || secondCell.includes('mã học phần') || secondCell.includes('tên học phần')) {
-                            console.log(`⏭️ Skipping table header row ${i}:`, firstCell, secondCell);
                             continue;
                         }
 
@@ -440,15 +417,11 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                         // Validate dữ liệu cơ bản
                         if (!rowData.tenHocPhan || rowData.tenHocPhan.toString().trim() === '') {
-                            console.log(`⏭️ Skipping row ${i} - no tenHocPhan`);
                             continue;
                         }
                         if (!rowData.ngayThi) {
-                            console.log(`⏭️ Skipping row ${i} - no ngayThi`);
                             continue;
                         }
-
-                        console.log('Processing row data:', rowData);
 
                         if (rowData.tenHocPhan && rowData.ngayThi) {
                             // Xử lý ngày thi
@@ -519,8 +492,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                     }
 
                     // Log kết quả importedData sau khi tính toán số tiết QC
-                    console.log('importedData sau khi tính toán:', importedData);
-
                     if (importedData.length === 0) {
                         toast.error('Không có dữ liệu hợp lệ để import!');
                         toast.dismiss('excel-import');
@@ -532,7 +503,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                     // RESET currentLoaiKyThi về giá trị ban đầu cho vòng lặp thứ 2
                     currentLoaiKyThi = initialLoaiKyThi; // KHÔI PHỤC GIÁ TRỊ BAN ĐẦU
-                    console.log(`🔄 RESET currentLoaiKyThi for PcCoiThi processing: "${currentLoaiKyThi}" (from initialLoaiKyThi: "${initialLoaiKyThi}")`);
 
                     // Xử lý lại từ jsonData để lấy đầy đủ thông tin
                     for (let i = dataStartIndex; i < jsonData.length; i++) {
@@ -541,11 +511,9 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                         // Kiểm tra xem có phải dòng header với đợt không (GIỐNG VỚI VÒNG LẶP 1)
                         const rowText = row.join(' ');
-                        console.log(`🔍 PcCoiThi Row ${i} (${row.length} cells):`, rowText);
 
                         // Debug: Hiển thị từng cell nếu chứa đợt
                         if (rowText.toLowerCase().includes('đợt')) {
-                            console.log(`🔍 PcCoiThi Row ${i} contains 'đợt', cells:`, row.map((cell, idx) => `[${idx}]: "${cell}"`));
                         }
 
                         // Kiểm tra nếu dòng này chứa thông tin đợt - CẢI THIỆN LOGIC
@@ -564,14 +532,11 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                         if (isDotRow) {
                             // Tìm số đợt trong dòng này - tìm tất cả các số sau "đợt"
                             const dotMatches = rowText.match(/[Đđ]ợt\s*(\d+)/g);
-                            console.log(`🎯 FOUND DOT ROW in PcCoiThi at ${i}:`, rowText);
-                            console.log(`🔍 Dot matches found:`, dotMatches);
 
                             if (dotMatches && dotMatches.length > 0) {
                                 // Lấy số đợt cuối cùng (thường là đợt chính xác nhất)
                                 const lastDotMatch = dotMatches[dotMatches.length - 1];
                                 const dotNumber = lastDotMatch.match(/(\d+)/)[1];
-                                console.log(`🔄 PcCoiThi UPDATING loaiKyThi from "${currentLoaiKyThi}" to "${dotNumber}" (from: ${lastDotMatch})`);
                                 currentLoaiKyThi = dotNumber;
                             }
                             continue; // Skip header row
@@ -592,19 +557,16 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
                         // Skip empty rows
                         if (!rowData.tenHocPhan && !rowData.maHocPhan) {
-                            console.log(`⏭️ Skipping empty PcCoiThi row ${i}`);
                             continue;
                         }
 
                         // Skip table header rows
                         const lowerRowData = rowData.tenHocPhan.toString().toLowerCase();
                         if (lowerRowData.includes('stt') || lowerRowData.includes('mã học phần') || lowerRowData.includes('tên học phần')) {
-                            console.log(`⏭️ Skipping table header PcCoiThi row ${i}:`, lowerRowData);
                             continue;
                         }
 
                         if (!rowData.tenHocPhan || !rowData.ngayThi) {
-                            console.log(`⏭️ Skipping PcCoiThi row ${i} - missing tenHocPhan or ngayThi`);
                             continue;
                         }
 
@@ -702,33 +664,13 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             ky: kyFromFile
                         };
 
-                        console.log(`📝 Creating item at row ${i}:`, {
-                            tenHocPhan: rowData.tenHocPhan,
-                            currentLoaiKyThi: currentLoaiKyThi,
-                            itemLoaiKyThi: itemData.loaiKyThi,
-                            shouldMatch: currentLoaiKyThi === itemData.loaiKyThi,
-                            rowText: row.join(' ').substring(0, 50) + '...'
-                        });
-
                         if (currentLoaiKyThi !== itemData.loaiKyThi) {
                             console.error('❌ MISMATCH: currentLoaiKyThi !== itemData.loaiKyThi');
                             console.error('❌ This should not happen! Check logic above.');
                         }
 
-                        // Đặc biệt debug cho Lập trình Python
-                        if (rowData.tenHocPhan && rowData.tenHocPhan.toString().includes('Lập trình Python')) {
-                            console.log('🐍 PYTHON DEBUG:', {
-                                tenHocPhan: rowData.tenHocPhan,
-                                currentLoaiKyThi: currentLoaiKyThi,
-                                finalLoaiKyThi: itemData.loaiKyThi,
-                                rowIndex: i
-                            });
-                        }
-
                         pcCoiThiData.push(itemData);
                     }
-
-                    console.log('PcCoiThi data prepared:', pcCoiThiData);
 
                     // Gọi cả 2 API song song
                     try {
@@ -855,7 +797,6 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     }
 
     const handleEdit = (record) => {
-        console.log('record:', record);
 
         // Đổ dữ liệu vào form
         setValue("user", record.user);
@@ -910,13 +851,11 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
 
     const edit = (record) => {
         let soTietQuyChuan = record.soTietQuyChuan;
-        console.log('Edit record:', record);
         if (
             (soTietQuyChuan === undefined || soTietQuyChuan === null || soTietQuyChuan === '') &&
             record.thoiGianThi && record.ngayThi
         ) {
             soTietQuyChuan = calcSoTietQuyChuan(record.thoiGianThi, record.ngayThi);
-            console.log('Auto-calc soTietQuyChuan:', soTietQuyChuan);
         }
         form.setFieldsValue({
             ...record,
@@ -1142,14 +1081,14 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 <div className="flex flex-col flex-[30%]">
                     <Button
                         onClick={() => setShowForm(v => !v)}
-                        className="mb-4 w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg h-10 shadow-sm transition duration-200"
+                        className="mb-1 w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg h-10 shadow-sm transition duration-200"
                     >
                         <span className="flex items-center justify-center">
                             Ẩn Form
                         </span>
                     </Button>
-                    <div className="p-6 shadow-lg bg-white rounded-xl border border-gray-200 overflow-auto">
-                        <div className="border-b border-blue-500 pb-3 mb-4">
+                    <div className="px-6 py-7 shadow-lg bg-white rounded-xl border border-gray-200 overflow-auto">
+                        <div className="border-b border-blue-500 pb-2 mb-1">
                             <Title className="text-center text-blue-600 !mb-0" level={4}>CÔNG TÁC COI THI</Title>
                         </div>
                         <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-5 mt-4">
@@ -1254,7 +1193,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                 </Form.Item> */}
 
                                 <div className="bg-gray-50 p-3 rounded-lg mb-2">
-                                    <div className="flex gap-2 flex-wrap">
+                                    <div className="flex gap-2">
                                         <Form.Item
                                             label={<span className="font-semibold text-base text-gray-700">Thời gian thi (Phút) <span className="text-red-600">*</span></span>}
                                             className="w-full md:w-1/2 mb-2"
@@ -1335,8 +1274,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                 render={({ field }) =>
                                                     <Input.TextArea
                                                         className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
-                                                        placeholder="Nhập ghi chú nếu cần..."
-                                                        autoSize={{ minRows: 2, maxRows: 3 }}
+                                                        placeholder="Nhập ghi chú ..."
+                                                        autoSize={{ minRows: 1, maxRows: 2}}
                                                         style={{ resize: 'none' }}
                                                         {...field}
                                                     />
@@ -1352,7 +1291,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                             type="primary"
                                             htmlType="submit"
                                             loading={isSubmitting}
-                                            className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
+                                            className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                         >
                                             {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu")}
                                         </Button>
@@ -1361,7 +1300,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                             danger
                                             onClick={onReset}
                                             disabled={isSubmitting}
-                                            className="h-8 px-6 font-medium text-base"
+                                            className="h-7 px-6 font-medium text-base"
                                         >
                                             Làm mới
                                         </Button>
@@ -1374,7 +1313,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                                 type="default"
                                                 loading={isImporting}
                                                 disabled={isSubmitting || isImporting}
-                                                className="bg-green-50 hover:bg-green-100 border-green-300 text-green-700 h-8 px-6 font-medium text-base"
+                                                className="bg-green-50 hover:bg-green-100 border-green-300 text-green-700 h-7 px-6 font-medium text-base"
                                                 icon={<UploadOutlined />}
                                             >
                                                 {isImporting ? "Đang import..." : "Import Excel"}
@@ -1414,10 +1353,8 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                                     onValuesChange={(changed, all) => {
                                         const thoiGian = all.thoiGianThi;
                                         const ngayThi = all.ngayThi;
-                                        console.log('onValuesChange:', { thoiGian, ngayThi });
                                         if (thoiGian && ngayThi) {
                                             const thqc = calcSoTietQuyChuan(thoiGian, ngayThi);
-                                            console.log('Auto-calc on change:', thqc);
                                             form.setFieldsValue({ soTietQuyChuan: thqc });
                                         } else {
                                             form.setFieldsValue({ soTietQuyChuan: undefined });

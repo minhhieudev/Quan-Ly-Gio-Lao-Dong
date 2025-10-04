@@ -291,8 +291,8 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full">
-            <div className="p-3 px-5 shadow-lg bg-white rounded-xl border border-gray-100" style={{ maxWidth: '100%', overflowX: 'auto' }}>
-                <Title className="text-center text-blue-600" level={3}>CÔNG TÁC HƯỚNG DẪN</Title>
+            <div className="py-2 px-5 shadow-lg bg-white rounded-xl border border-gray-100" style={{ maxWidth: '100%', overflowX: 'auto' }}>
+                <Title className="text-center text-blue-600" level={4}>CÔNG TÁC HƯỚNG DẪN</Title>
                 <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-4 mt-4">
                     <Space direction="vertical" className="w-full" size={0}>
                         <div className="bg-gray-50 p-3 rounded-lg mb-2">
@@ -457,7 +457,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     <Input.TextArea
                                         className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
                                         placeholder="Nhập ghi chú nếu cần..."
-                                        autoSize={{ minRows: 2, maxRows: 3 }}
+                                        autoSize={{ minRows: 1, maxRows: 3 }}
                                         style={{ resize: 'none' }}
                                         {...field}
                                     />
@@ -465,13 +465,13 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                             />
                         </div>
 
-                        <div className="flex justify-center mt-4">
+                        <div className="flex justify-center mt-1">
                             <Space size="middle">
                                 <Button
                                     type="primary"
                                     htmlType="submit"
                                     loading={isSubmitting}
-                                    className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
+                                    className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                 >
                                     {isSubmitting ? "Đang xử lý..." : (editRecord ? "Cập nhật" : "Lưu")}
                                 </Button>
@@ -480,7 +480,7 @@ const GuidanceForm = ({ onUpdateCongTacHuongDan, namHoc, ky }) => {
                                     danger
                                     onClick={onReset}
                                     disabled={isSubmitting}
-                                    className="h-8 px-6 font-medium text-base"
+                                    className="h-7 px-6 font-medium text-base"
                                 >
                                     Làm mới
                                 </Button>

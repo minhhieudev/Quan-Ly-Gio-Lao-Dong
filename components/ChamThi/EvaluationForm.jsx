@@ -407,13 +407,13 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
         <Loader />
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full overflow-hidden">
-            <div className="p-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
-                <div className="border-b border-blue-500 pb-2 mb-1">
-                    <Title className="text-center text-blue-600" level={4}>CÔNG TÁC CHẤM THI</Title>
+            <div className="py-2 px-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
+                <div className="border-b border-blue-500 pb-0 mb-0">
+                    <Title className="text-center text-blue-600" level={3}>CÔNG TÁC CHẤM THI</Title>
                 </div>
 
-                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-2">
-                    <Space direction="vertical" className="w-full" size="small">
+                <Form onFinish={handleSubmit(onSubmit)} layout="vertical" className="space-y-0">
+                    <Space direction="vertical" className="w-full text-base-medium" size="small">
                         <div className="flex justify-between max-sm:flex-col">
                             <div className="flex justify-between items-center w-full gap-3">
                                 {!isAddingNew && (
@@ -431,7 +431,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                                 <Select
                                                     showSearch
                                                     allowClear
-                                                    className="rounded-md"
+                                                    className="rounded-md h-7"
                                                     style={{ width: '100%' }}
                                                     dropdownStyle={{ width: 'auto', minWidth: '350px' }}
                                                     listHeight={300}
@@ -510,9 +510,9 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Cán bộ chấm thi là bắt buộc" }}
                                     render={({ field }) => (
-                                        <Radio.Group {...field} className="font-medium">
-                                            <Radio value="1">Cán bộ 1</Radio>
-                                            <Radio value="2">Cán bộ 2</Radio>
+                                        <Radio.Group {...field} className="font-medium flex h-7">
+                                            <Radio value="1">1</Radio>
+                                            <Radio value="2">2</Radio>
                                         </Radio.Group>
                                     )}
                                 />
@@ -529,7 +529,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     control={control}
                                     rules={{ required: "Lớp học phần là bắt buộc" }}
                                     render={({ field }) => <Input
-                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500 h-7"
                                         placeholder="Nhập lớp..."
                                         {...field}
                                     />}
@@ -551,7 +551,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                         <Select
                                             placeholder="Chọn thời gian thi..."
                                             allowClear
-                                            className="w-full rounded-md"
+                                            className="w-full rounded-md h-7"
                                             {...field}
                                             options={[
                                                 { value: '45', label: '45 phút' },
@@ -581,7 +581,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                         <Select
                                             showSearch
                                             allowClear
-                                            className="w-full rounded-md"
+                                            className="w-full rounded-md h-7"
                                             placeholder="Chọn hình thức thi..."
                                             {...field}
                                             options={listOptions.map(item => ({
@@ -614,7 +614,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     rules={{ required: "Số bài chấm là bắt buộc" }}
                                     render={({ field }) => (
                                         <InputNumber
-                                            className="w-full rounded-md border-gray-300"
+                                            className="w-full h-7 rounded-md border-gray-300"
                                             min={0}
                                             {...field}
                                         />
@@ -634,7 +634,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     rules={{ required: "Số tiết quy chuẩn là bắt buộc" }}
                                     render={({ field }) => (
                                         <InputNumber
-                                            className="w-full rounded-md border-gray-300 bg-gray-100"
+                                            className="w-full h-7 rounded-md border-gray-300 bg-gray-100"
                                             min={0}
                                             {...field}
                                         />
@@ -643,18 +643,18 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                             </Form.Item>
                         </div>
 
-                        <div className="mb-2">
-                            <div className="mb-1">
-                                <span className="font-semibold text-base text-gray-700">Ghi chú</span>
+                        <div className="mb-0 flex">
+                            <div className="mb-0 w-[30%]">
+                                <span className="font-semibold text-small-bold text-gray-700">Ghi chú:</span>
                             </div>
                             <Controller
                                 name="ghiChu"
                                 control={control}
                                 render={({ field }) =>
                                     <Input.TextArea
-                                        className="w-full rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500"
+                                        className=" rounded-md border-gray-300 hover:border-blue-500 focus:border-blue-500 "
                                         placeholder="Nhập ghi chú nếu cần..."
-                                        autoSize={{ minRows: 2, maxRows: 3 }}
+                                        autoSize={{ minRows: 1, maxRows: 3 }}
                                         style={{ resize: 'none' }}
                                         {...field}
                                     />
@@ -668,7 +668,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     type="primary"
                                     htmlType="submit"
                                     loading={isSubmitting}
-                                    className="bg-blue-600 hover:bg-blue-700 h-8 px-6 font-medium text-base"
+                                    className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                 >
                                     {editRecord ? "Cập nhật" : "Lưu"}
                                 </Button>
@@ -677,7 +677,7 @@ const EvaluationForm = ({ onUpdateCongTacChamThi, namHoc, ky }) => {
                                     danger
                                     onClick={onReset}
                                     disabled={isSubmitting}
-                                    className="h-8 px-6 font-medium text-base"
+                                    className="h-7 px-6 font-medium text-base"
                                 >
                                     Làm mới
                                 </Button>

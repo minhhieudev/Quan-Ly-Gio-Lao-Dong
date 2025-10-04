@@ -304,7 +304,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
     ) : (
         <div className="flex gap-4 max-sm:flex-col h-full overflow-hidden">
             <div className="p-4 shadow-lg bg-white rounded-xl flex-[30%] border border-gray-100 overflow-auto">
-                <div className="border-b border-blue-500 pb-2 mb-2">
+                <div className="border-b border-blue-500 pb-2 mb-0">
                     <Title className="text-center text-blue-600" level={4}>CÔNG TÁC RA ĐỀ THI</Title>
                 </div>
 
@@ -485,15 +485,14 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                             </div>
                         </div>
 
-                        <div className="text-center mt-3">
+                        <div className="text-center mt-0">
                             <Form.Item>
                                 <Space size="middle">
                                     <Button
                                         type="primary"
                                         htmlType="submit"
                                         loading={isSubmitting}
-                                        className="bg-blue-500 hover:bg-blue-600 border-blue-500 hover:border-blue-600 rounded-md px-6 h-10 flex items-center justify-center"
-                                        icon={<span className="mr-1">💾</span>}
+                                        className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                     >
                                         {isSubmitting ? "Đang lưu..." : "Lưu"}
                                     </Button>
@@ -502,8 +501,7 @@ const ExamPreparationForm = ({ onUpdateCongTacRaDe, namHoc, ky }) => {
                                         danger
                                         onClick={onReset}
                                         disabled={isSubmitting}
-                                        className="border-gray-300 hover:border-red-500 rounded-md px-6 h-10 flex items-center justify-center"
-                                        icon={<span className="mr-1">🔄</span>}
+                                        className="h-7 px-6 font-medium text-base"
                                     >
                                         Làm mới
                                     </Button>

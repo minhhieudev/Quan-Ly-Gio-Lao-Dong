@@ -1036,15 +1036,22 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                             <div className="flex justify-center items-center mt-4">
                                 <Space size="middle">
                                     <Button
-                                        className="bg-blue-500 hover:bg-blue-700"
-                                        loading={isSubmitting}
                                         type="primary"
                                         htmlType="submit"
-                                        icon={<SaveOutlined />}
+                                        loading={isSubmitting}
+                                        className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                     >
                                         {editRecord ? "Lưu" : "Thêm"}
                                     </Button>
-                                    <Button onClick={onReset2}>Hủy</Button>
+                                    <Button
+                                        type="default"
+                                        danger
+                                        onClick={onReset2}
+                                        disabled={isSubmitting}
+                                        className="h-7 px-6 font-medium text-base"
+                                    >
+                                        Làm mới
+                                    </Button>
                                 </Space>
                             </div>
                         </Form>
@@ -1052,12 +1059,12 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                 )}
                 {/* Form for DANH SÁCH ĐÃ LƯU edit */}
                 {editSource === 'da-luu' && (
-                    <>
-                        <div className="flex justify-between items-center mb-2">
-                            <Title className="text-center m-0" level={4}>SỬA DỮ LIỆU ĐÃ LƯU</Title>
+                    <div className="text-small-bold">
+                        <div className="flex justify-between items-center mb-0">
+                            <Title className="text-center m-0" level={3}>SỬA DỮ LIỆU ĐÃ LƯU</Title>
                         </div>
                         <Divider className="my-1" />
-                        <form onSubmit={onSubmitDaLuu} className="space-y-2 mt-3">
+                        <form onSubmit={onSubmitDaLuu} className="space-y-1 mt-1">
                             <div className="font-bold mb-1">Công việc / Chức vụ <span className="text-red-600">*</span></div>
                             {/* <Select
                                 className="input-select"
@@ -1119,21 +1126,28 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                 value={formDaLuu.ghiChu}
                                 onChange={e => setFormDaLuu(f => ({ ...f, ghiChu: e.target.value }))}
                             />
-                            <div className="flex justify-center items-center mt-4">
+                            <div className="flex justify-center items-center mt-2">
                                 <Space size="middle">
                                     <Button
-                                        className="bg-blue-500 hover:bg-blue-700"
                                         type="primary"
                                         htmlType="submit"
-                                        icon={<SaveOutlined />}
+                                        loading={isSubmitting}
+                                        className="bg-blue-600 hover:bg-blue-700 h-7 px-6 font-medium text-base"
                                     >
                                         Lưu
                                     </Button>
-                                    <Button onClick={onResetDaLuu}>Hủy</Button>
+                                    <Button
+                                        type="default"
+                                        danger
+                                        onClick={onResetDaLuu}
+                                        className="h-7 px-6 font-medium text-base"
+                                    >
+                                        Làm mới
+                                    </Button>
                                 </Space>
                             </div>
                         </form>
-                    </>
+                    </div>
                 )}
             </div>
 
