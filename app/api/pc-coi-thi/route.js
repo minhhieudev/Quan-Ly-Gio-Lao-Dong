@@ -15,7 +15,6 @@ export const GET = async (req) => {
     let type = searchParams.get('type');
     let loaiKyThi = searchParams.get('loaiKyThi');
     let userName = searchParams.get('userName'); // Tên user để tìm trong cbo1/cbo2
-    console.log('userName:', userName);
 
     // Normalize: nếu là 'undefined' hoặc rỗng thì set về undefined
     if (namHoc === '' || namHoc === 'undefined') namHoc = undefined;
@@ -32,7 +31,6 @@ export const GET = async (req) => {
 
     // Tìm theo user trong cbo1 hoặc cbo2
     if (userName) {
-      console.log('Searching for userName:', userName);
       query.$or = [
         { cbo1: { $elemMatch: { $regex: userName, $options: 'i' } } },
         { cbo2: { $elemMatch: { $regex: userName, $options: 'i' } } }
@@ -46,24 +44,10 @@ export const GET = async (req) => {
     if (type !== undefined && type !== null) logFilters.type = type;
     if (loaiKyThi !== undefined && loaiKyThi !== null) logFilters.loaiKyThi = loaiKyThi;
     if (userName !== undefined && userName !== null) logFilters.userName = userName;
-    console.log('PcCoiThi API Query:', {
-      ...logFilters,
-      query
-    });
 
     const pcCoiThiList = await PcCoiThi.find(query)
       //.populate('user', 'name email')
       .sort({ ngayThi: 1, tenHocPhan: 1 });
-
-    console.log('📊 Found', pcCoiThiList.length, 'records');
-    if (pcCoiThiList.length > 0) {
-      console.log('📋 Sample record:', {
-        hocPhan: pcCoiThiList[0].hocPhan,
-        loaiKyThi: pcCoiThiList[0].loaiKyThi,
-        cbo1: pcCoiThiList[0].cbo1,
-        cbo2: pcCoiThiList[0].cbo2
-      });
-    }
 
     return new Response(JSON.stringify(pcCoiThiList), {
       status: 200,

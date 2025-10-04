@@ -33,7 +33,6 @@ export const POST = async (req, { params }) => {
     const model = models[form];
 
     const { namHoc, user, ky, ngayThi, lopHocPhan, hocPhan } = body;
-    console.log('body:', body)
 
     // Tạo query để kiểm tra trùng lặp
     let duplicateQuery = {};
@@ -161,7 +160,6 @@ export const GET = async (req, { params }) => {
     if (type1) {
       query.type = type1;
     }
-    console.log('ĐK:',query)
     const records = await models[form].find(query).populate('user', 'username');
 
     return new Response(JSON.stringify(records), { status: 200 });

@@ -66,7 +66,6 @@ export const POST = async (req) => {
     await connectToDB();
     const body = await req.json();
     const { list } = body;
-    console.log('Data:',list);
     if (!Array.isArray(list) || list.length === 0) {
       return new Response('Thiếu dữ liệu list', { status: 400 });
     }

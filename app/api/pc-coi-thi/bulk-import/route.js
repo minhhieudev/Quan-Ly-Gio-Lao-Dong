@@ -13,9 +13,6 @@ export const POST = async (req) => {
       return new Response("Invalid items data", { status: 400 });
     }
 
-    console.log('📦 Bulk import received', items.length, 'items');
-    console.log('📋 Sample item:', items[0]);
-
     const results = {
       success: [],
       duplicates: [],
@@ -66,16 +63,12 @@ export const POST = async (req) => {
 
             // Chỉ cập nhật trường có dữ liệu mới - KHÔNG MERGE
             if (cbo1 && Array.isArray(cbo1) && cbo1.length > 0) {
-              console.log('Updating cbo1 only:', { old: newCbo1, new: cbo1 });
               newCbo1 = [...cbo1]; // Chỉ lấy dữ liệu mới, không merge với cũ
             }
 
             if (cbo2 && Array.isArray(cbo2) && cbo2.length > 0) {
-              console.log('Updating cbo2 only:', { old: newCbo2, new: cbo2 });
               newCbo2 = [...cbo2]; // Chỉ lấy dữ liệu mới, không merge với cũ
             }
-
-            console.log('Final cbo values (NO MERGE):', { newCbo1, newCbo2 });
 
             const updatedRecord = await PcCoiThi.findByIdAndUpdate(
               existingRecord._id,

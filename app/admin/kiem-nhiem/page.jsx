@@ -294,7 +294,6 @@ const KiemNhiemForm = () => {
                 schoolYearStart,
                 schoolYearEnd,
             };
-            console.log(payload);
             const method = editRecord ? "PUT" : "POST";
             const res = await fetch("/api/admin/kiem-nhiem", {
                 method,
@@ -512,7 +511,6 @@ const KiemNhiemForm = () => {
                     // Hiển thị lỗi chi tiết
                     toast.error(`Có ${result.errors.length} bản ghi bị bỏ qua!`);
                     // Có thể show chi tiết hơn bằng modal hoặc bảng
-                    console.log("Lỗi import:", result.errors);
                 }
 
                 onReset();
@@ -553,7 +551,6 @@ const KiemNhiemForm = () => {
                         row => Array.isArray(row) && row[0] && !isNaN(Number(row[0]))
                     );
                 }
-                console.log('dataRows:', dataRows);
 
                 const parseDate = (dateStr) => {
                     if (!dateStr) return null;
@@ -613,8 +610,6 @@ const KiemNhiemForm = () => {
                     schoolYearEnd: schoolYearEnd || null
                 }));
 
-                console.log("Dữ liệu thực sự:", dataWithSchoolYear);
-
                 if (dataRows.length > 0) {
                     createMany(dataWithSchoolYear);
                 } else {
@@ -654,8 +649,6 @@ const KiemNhiemForm = () => {
 
     // Hàm xử lý hiển thị modal import
     const showImportModal = () => {
-        console.log("schoolYearStart:", schoolYearStart);
-        console.log("schoolYearEnd:", schoolYearEnd);
 
         // Tạm thời bỏ qua điều kiện kiểm tra để xem modal có hiển thị không
         setIsImportModalVisible(true);
