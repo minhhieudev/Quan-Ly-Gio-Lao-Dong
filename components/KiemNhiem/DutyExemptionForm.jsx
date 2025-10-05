@@ -132,36 +132,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     }, [tyLeMienGiam, setValue, currentUser]);
 
 
-    const fetchData2 = async () => {
-        try {
-            const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}`, {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-            });
-            if (res.ok) {
-                const data = await res.json();
-
-                // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
-                const listNghiDH = data.filter(
-                    item => item.chucVu?.soMien === -1
-                    // item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
-                );
-                // Các item còn lại
-                const listKhac = data.filter(
-                    item => item.chucVu?.maCV?.startsWith('NGHIDH')
-                );
-
-                setDataListSelect(data);
-                setDataListSelect2(listNghiDH);
-                setDataListSelect3(listKhac);
-
-            } else {
-                toast.error("Failed to fetch data");
-            }
-        } catch (err) {
-            toast.error("An error occurred while fetching data");
-        }
-    };
+    
 
     useEffect(() => {
         if (!currentUser?._id) return;
@@ -186,13 +157,42 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             }
         };
 
-        //DỮ LIỆU PHỤ LỤC
+        const fetchData2 = async () => {
+            try {
+                const res = await fetch(`/api/work-hours/select/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}`, {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                });
+                if (res.ok) {
+                    const data = await res.json();
 
+                    // Lọc các item có soMien === -1 hoặc maCV bắt đầu bằng 'NGHIDH'
+                    const listNghiDH = data.filter(
+                        item => item.chucVu?.soMien === -1
+                        // item => item.chucVu?.soMien === -1 || item.chucVu?.maCV?.startsWith('NGHIDH')
+                    );
+                    // Các item còn lại
+                    const listKhac = data.filter(
+                        item => item.chucVu?.maCV?.startsWith('NGHIDH')
+                    );
+
+                    setDataListSelect(data);
+                    setDataListSelect2(listNghiDH);
+                    setDataListSelect3(listKhac);
+
+                } else {
+                    toast.error("Failed to fetch data");
+                }
+            } catch (err) {
+                toast.error("An error occurred while fetching data");
+            }
+        };
+
+        //DỮ LIỆU PHỤ LỤC
         fetchData2();
         fetchData();
 
-
-    }, [namHoc]);
+    }, [currentUser?._id, namHoc, type]);
 
 
 
@@ -516,6 +516,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
             setMienGiam(gValue);
             onSubmitMienGiam(dataListSelect3[0], gValue);
         }
+        alert(totalMax)
 
         let resultFinal = totalMax + mienGiam2 + mienGiam;
         resultFinal = Math.round(resultFinal);
@@ -1382,4 +1383,3 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 };
 
 export default DutyExemptionForm;
-
