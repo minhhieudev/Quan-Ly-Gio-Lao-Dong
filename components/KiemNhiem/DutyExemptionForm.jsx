@@ -917,6 +917,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     value={schoolYearStart}
                                     disabled
                                     placeholder="yy-mm-dd"
+                                    format="DD/MM/YYYY"
                                     style={{ width: '100%' }}
                                     className={!schoolYearStart ? 'border-red-300 hover:border-red-500' : ''}
                                 />
@@ -928,6 +929,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                     value={schoolYearEnd}
                                     disabled
                                     placeholder="yy-mm-dd"
+                                    format="DD/MM/YYYY"
                                     style={{ width: '100%' }}
                                     className={!schoolYearEnd ? 'border-red-300 hover:border-red-500' : ''}
                                 />
@@ -1000,6 +1002,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                                 onChange={(date) => {
                                                     field.onChange(date);
                                                 }}
+                                                format="DD/MM/YYYY"
                                                 placeholder="Mặc định: Ngày bắt đầu năm học"
                                             />
                                         )}
@@ -1015,7 +1018,7 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
                                         name="endTime"
                                         control={control}
                                         render={({ field }) => (
-                                            <DatePicker {...field} placeholder="Chọn ngày kết thúc" />
+                                            <DatePicker {...field} format="DD/MM/YYYY" placeholder="Chọn ngày kết thúc" />
                                         )}
                                     />
                                 </Form.Item>
