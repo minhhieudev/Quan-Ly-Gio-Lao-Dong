@@ -226,6 +226,34 @@ const Pages = () => {
     setCongTacGiangDay(data);
   }, []);
 
+  // Hàm để tải dữ liệu giảng dạy từ API
+  const fetchCongTacGiangDay = useCallback(async () => {
+    if (!currentUser?._id || !namHoc || !type) return;
+
+    try {
+      const res = await fetch(`/api/work-hours/CongTacGiangDay/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kyHoc || '')}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const totals = data.reduce((acc, item) => {
+          acc.soTietLT += item.soTietLT || 0;
+          acc.soTietTH += item.soTietTH || 0;
+          acc.soTietQCLT += item.soTietQCLT || 0;
+          acc.soTietQCTH += item.soTietQCTH || 0;
+          acc.tong += item.tongCong || 0;
+          return acc;
+        }, { soTietLT: 0, soTietTH: 0, soTietQCLT: 0, soTietQCTH: 0, tong: 0 });
+
+        setCongTacGiangDay(totals);
+      }
+    } catch (error) {
+      console.error("Error fetching congTacGiangDay:", error);
+    }
+  }, [currentUser?._id, namHoc, type, kyHoc]);
+
   const updateCongTacChamThi = useCallback((data) => {
     setCongTacKhac(pre => ({
       ...pre,
@@ -255,6 +283,7 @@ const Pages = () => {
   }, []);
 
   const updateCongTacKiemNhiem = useCallback((data) => {
+    alert(data)
     setKiemNhiem(data);
   }, []);
 
@@ -396,6 +425,11 @@ const Pages = () => {
     );
   };
 
+  // useEffect để tải dữ liệu giảng dạy khi cần thiết
+  useEffect(() => {
+    fetchCongTacGiangDay();
+  }, [fetchCongTacGiangDay]);
+
   // Thêm useEffect để tải tất cả dữ liệu khi component mount
   useEffect(() => {
     if (!currentUser?._id || !namHoc) return;
@@ -403,19 +437,7 @@ const Pages = () => {
     const fetchAllDataOnLoad = async () => {
       try {
         // Tải dữ liệu giảng dạy
-        const resGiangDay = await fetch(`/api/work-hours/CongTacGiangDay/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${encodeURIComponent(namHoc)}&ky=${encodeURIComponent(kyHoc || '')}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
-
-        if (resGiangDay.ok) {
-          const dataGiangDay = await resGiangDay.json();
-          const totalsGiangDay = dataGiangDay.reduce((acc, item) => {
-            acc.tong += item.tongCong || 0;
-            return acc;
-          }, { tong: 0 });
-          setCongTacGiangDay(totalsGiangDay);
-        }
+        await fetchCongTacGiangDay();
 
         // Tải dữ liệu chấm thi
         const resChamThi = await fetch(`/api/work-hours/CongTacChamThi/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}&ky=${kyHoc || ''}`, {
@@ -465,19 +487,19 @@ const Pages = () => {
           setCongTacKhac(prev => ({ ...prev, deThi: totalRaDe }));
         }
 
-        // // Nếu là chính quy, tải dữ liệu kiêm nhiệm
-        // if (type === 'chinh-quy') {
-        //   const resKiemNhiem = await fetch(`/api/work-hours/CongTacKiemNhiem/?user=${encodeURIComponent(currentUser._id)}&namHoc=${namHoc}`, {
-        //     method: "GET",
-        //     headers: { "Content-Type": "application/json" },
-        //   });
+        // Nếu là chính quy, tải dữ liệu kiêm nhiệm
+        if (type === 'chinh-quy') {
+          const resKiemNhiem = await fetch(`/api/work-hours/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
 
-        //   if (resKiemNhiem.ok) {
-        //     const dataKiemNhiem = await resKiemNhiem.json();
-        //     const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
-        //     setKiemNhiem(totalKiemNhiem);
-        //   }
-        // }
+          if (resKiemNhiem.ok) {
+            const dataKiemNhiem = await resKiemNhiem.json();
+            const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
+            setKiemNhiem(totalKiemNhiem);
+          }
+        }
 
       } catch (error) {
         console.error("Error fetching all data:", error);
@@ -485,7 +507,7 @@ const Pages = () => {
     };
 
     fetchAllDataOnLoad();
-  }, [ namHoc, type]);
+  }, [currentUser?._id, namHoc, type, kyHoc, fetchCongTacGiangDay]);
 
   return (
     <div className=" mx-auto px-2 py-2">
