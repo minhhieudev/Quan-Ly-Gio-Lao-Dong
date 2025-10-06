@@ -38,6 +38,8 @@ const Pages = () => {
     tong: 0,
   });
   const [kiemNhiem, setKiemNhiem] = useState(0);
+  const [isKiemNhiemCalculated, setIsKiemNhiemCalculated] = useState(false);
+  const [kiemNhiemKey, setKiemNhiemKey] = useState(0);
   const router = useRouter();
 
   const { data: session } = useSession();
@@ -283,7 +285,11 @@ const Pages = () => {
   }, []);
 
   const updateCongTacKiemNhiem = useCallback((data) => {
+    console.log("📥 Received kiem nhiem data in parent:", data);
     setKiemNhiem(data);
+    setIsKiemNhiemCalculated(true); // Đánh dấu dữ liệu từ form
+    setKiemNhiemKey(prev => prev + 1); // Buộc re-render
+    console.log("✅ Updated kiemNhiem state to:", data, "(from form)");
   }, []);
 
   const submitResult = async () => {
@@ -486,7 +492,7 @@ const Pages = () => {
           setCongTacKhac(prev => ({ ...prev, deThi: totalRaDe }));
         }
 
-        // Nếu là chính quy, tải dữ liệu kiêm nhiệm
+        // Nếu là chính quy, tải dữ liệu kiêm nhiệm (chỉ khi chưa được tính toán từ form)
         if (type === 'chinh-quy') {
           const resKiemNhiem = await fetch(`/api/work-hours/kiem-nhiem/?user=${encodeURIComponent(currentUser._id)}&type=${encodeURIComponent(type)}&namHoc=${namHoc}`, {
             method: "GET",
@@ -496,7 +502,15 @@ const Pages = () => {
           if (resKiemNhiem.ok) {
             const dataKiemNhiem = await resKiemNhiem.json();
             const totalKiemNhiem = dataKiemNhiem.reduce((total, item) => total + (item.soTietQuyChuan || 0), 0);
-            setKiemNhiem(totalKiemNhiem);
+            console.log("📊 Loaded kiem nhiem from API:", totalKiemNhiem, "isCalculated:", isKiemNhiemCalculated);
+
+            // Chỉ cập nhật nếu dữ liệu chưa được tính toán từ form
+            if (!isKiemNhiemCalculated) {
+              setKiemNhiem(totalKiemNhiem);
+              console.log("✅ Set kiem nhiem from API (not calculated yet)");
+            } else {
+              console.log("⏭️ Skip API data (already calculated from form)");
+            }
           }
         }
 
@@ -568,6 +582,17 @@ const Pages = () => {
           {!exportLoading && <FileExcelOutlined />}
           {exportLoading ? 'Đang xuất...' : 'Xuất Excel'}
         </Button>
+        <Button
+          className="bg-orange-600 text-white font-bold shadow-md"
+          onClick={() => {
+            console.log("🔄 Reset kiem nhiem calculation flag");
+            setIsKiemNhiemCalculated(false);
+            setKiemNhiem(0);
+            setKiemNhiemKey(0);
+          }}
+        >
+          🔄 Reset Data
+        </Button>
       </div>
 
       {type !== 'boi-duong' && (
@@ -594,11 +619,13 @@ const Pages = () => {
         <div className="p-2 bg-white w-[100%] rounded-xl shadow-md">
           <div className="flex justify-around w-full flex-wrap">
             {type == 'chinh-quy' && (
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center" key={kiemNhiemKey}>
                 <div className="font-bold">
                   KIÊM NHIỆM:
                 </div>
-                <p className="font-bold text-red-500">{kiemNhiem}</p>
+                <p className="font-bold text-red-500" style={{color: kiemNhiem > 0 ? 'red' : 'red'}}>
+                  {kiemNhiem || 0}
+                </p>
               </div>
             )}
             <div className="flex gap-2 justify-center">

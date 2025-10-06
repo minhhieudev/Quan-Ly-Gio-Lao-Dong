@@ -326,13 +326,13 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
 
   const handelKiemNhiem = () => {
     if (!dataListSelect || dataListSelect.length === 0) {
-      return;
+      return 0;
     }
     // Nếu không có dữ liệu thì return luôn, tránh xử lý tiếp
     if (!dataListSelect || dataListSelect.length === 0) {
       setResultsDisplay([]);
       setDataTong([]);
-      return;
+      return 0;
     }
 
     // Lấy giá trị schoolYearStart và schoolYearEnd từ state (lấy từ DB)
@@ -613,13 +613,18 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
     let totalMax = results.reduce((sum, r) => sum + (Number(r.max) || 0), 0);
     totalMax = Math.round(totalMax * 100) / 100;
 
+    console.log("📈 Calculation breakdown:");
+    console.log("  - totalMax:", totalMax);
+    console.log("  - mienGiam2:", mienGiam2);
+    console.log("  - mienGiam:", mienGiam);
+
     if (dataListSelect3.length > 0) {
       const result = (GCGD - totalMax) * dataListSelect3[0].chucVu.soMien;
 
       const schoolYearEndDate = schoolYearEnd ? new Date(schoolYearEnd) : null;
-      const dateStart = new Date(item.startTime);
-      const itemEndDate = item.endTime
-        ? new Date(item.endTime)
+      const dateStart = new Date(dataListSelect3[0].startTime);
+      const itemEndDate = dataListSelect3[0].endTime
+        ? new Date(dataListSelect3[0].endTime)
         : schoolYearEndDate;
       const dateEnd =
         itemEndDate > schoolYearEndDate ? schoolYearEndDate : itemEndDate;
@@ -633,14 +638,20 @@ const DutyExemptionForm = ({ onUpdateCongTacKiemNhiem, namHoc, ky }) => {
       setMienGiam(gValue);
       onSubmitMienGiam(dataListSelect3[0], gValue);
     }
+
     let resultFinal = totalMax + mienGiam2 + mienGiam;
     resultFinal = Math.round(resultFinal);
+
+    console.log("🎯 Final result calculation:");
+    console.log("  - totalMax + mienGiam2 + mienGiam =", totalMax, "+", mienGiam2, "+", mienGiam, "=", resultFinal);
+
     return resultFinal;
   };
 
   useEffect(() => {
+    console.log("🔄 Updating kiem nhiem with finalResult:", finalResult);
     onUpdateCongTacKiemNhiem(finalResult);
-  }, [finalResult]);
+  }, [finalResult, onUpdateCongTacKiemNhiem]);
 
   const onReset = () => {
     // Giữ lại user và startTime sau khi submit thành công
