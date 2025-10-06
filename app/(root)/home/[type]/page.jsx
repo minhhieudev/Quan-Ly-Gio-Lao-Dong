@@ -283,7 +283,6 @@ const Pages = () => {
   }, []);
 
   const updateCongTacKiemNhiem = useCallback((data) => {
-    alert(data)
     setKiemNhiem(data);
   }, []);
 
