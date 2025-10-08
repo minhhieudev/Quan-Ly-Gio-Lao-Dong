@@ -573,7 +573,7 @@ const Pages = () => {
             {renderStatusBadge()}
           </div>
         )}
-        <Button
+        {/* <Button
           className="button-lien-thong-vlvh text-white font-bold shadow-md mr-2"
           onClick={() => fetchAllData()}
           loading={exportLoading}
@@ -592,7 +592,7 @@ const Pages = () => {
           }}
         >
           🔄 Reset Data
-        </Button>
+        </Button> */}
       </div>
 
       {type !== 'boi-duong' && (
