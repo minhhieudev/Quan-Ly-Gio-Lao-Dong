@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { FileExcelOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { FileExcelOutlined, DeleteOutlined, EditOutlined, ClearOutlined } from '@ant-design/icons';
 import { exportChamThi } from '@/lib/fileExport';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
 
@@ -104,6 +104,40 @@ const PcChamThiTable = () => {
 
   const handleExport = () => {
     exportChamThi(filteredData, hocKy, namHoc, loaiKyThi, loai);
+  };
+
+  const handleDeleteByYear = async () => {
+    if (!namHoc) {
+      toast.error("Vui lòng chọn năm học để xóa!");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/giaovu/pc-cham-thi/delete-by-year`, {
+        method: "DELETE",
+        body: JSON.stringify({ namHoc, loai, hocKy, loaiKyThi }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        toast.success(`Đã xóa ${result.deletedCount} bản ghi của năm học ${namHoc} (${loai})`);
+        // Refresh data after deletion
+        const fetchRes = await fetch(`/api/giaovu/pc-cham-thi?namHoc=${namHoc}&hocKy=${hocKy}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if (fetchRes.ok) {
+          const data = await fetchRes.json();
+          setDataList(data);
+          setFilteredData(data);
+        }
+      } else {
+        toast.error("Xóa thất bại!");
+      }
+    } catch (err) {
+      toast.error("Có lỗi xảy ra khi xóa dữ liệu!");
+    }
   };
 
   const columns = [
@@ -305,13 +339,31 @@ const PcChamThiTable = () => {
       )}
 
       <div className="mt-2 flex justify-between">
-        <Button
-          className="button-lien-thong-vlvh text-white font-bold shadow-md"
-          onClick={handleExport}
-        >
-          <FileExcelOutlined />
-          Xuất file Excel
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            className="button-lien-thong-vlvh text-white font-bold shadow-md"
+            onClick={handleExport}
+          >
+            <FileExcelOutlined />
+            Xuất file Excel
+          </Button>
+          <Popconfirm
+            title={`Bạn có chắc chắn muốn xóa tất cả dữ liệu của năm học ${namHoc || 'đã chọn'} (${loai})?`}
+            description="Hành động này không thể hoàn tác!"
+            onConfirm={handleDeleteByYear}
+            okText="Có, xóa tất cả"
+            cancelText="Không"
+            okType="danger"
+          >
+            <Button
+              className="bg-red-500 text-white font-bold shadow-md hover:bg-red-600"
+              disabled={!namHoc}
+              icon={<ClearOutlined />}
+            >
+              Xóa dữ liệu năm học
+            </Button>
+          </Popconfirm>
+        </div>
         <Pagination
           current={current}
           pageSize={pageSize}

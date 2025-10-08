@@ -1,10 +1,11 @@
 "use client";
 
-import { DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, FileExcelOutlined, PlusOutlined, ClearOutlined } from '@ant-design/icons';
 import { getAcademicYearConfig } from '@lib/academicYearUtils';
 import { exportPcCoiThi } from "@lib/fileExport";
 import { Button, Form, Input, Modal, Popconfirm, Select, Space, Table, message } from 'antd';
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const { Option } = Select;
 
@@ -111,27 +112,53 @@ const PcCoiThiManagement = () => {
         }
     };
 
-    // Handle delete
-    const handleDelete = async (id) => {
-        try {
-            const res = await fetch('/api/pc-coi-thi', {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id }),
-            });
+  // Handle delete
+  const handleDelete = async (id) => {
+    try {
+      const res = await fetch('/api/pc-coi-thi', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
 
-            if (res.ok) {
-                message.success('Xóa thành công');
-                fetchData();
-            } else {
-                const errorText = await res.text();
-                message.error('Lỗi: ' + errorText);
-            }
-        } catch (error) {
-            console.error('Error deleting:', error);
-            message.error('Lỗi khi xóa dữ liệu');
-        }
-    };
+      if (res.ok) {
+        message.success('Xóa thành công');
+        fetchData();
+      } else {
+        const errorText = await res.text();
+        message.error('Lỗi: ' + errorText);
+      }
+    } catch (error) {
+      console.error('Error deleting:', error);
+      message.error('Lỗi khi xóa dữ liệu');
+    }
+  };
+
+  // Handle delete by year
+  const handleDeleteByYear = async () => {
+    if (!namHoc) {
+      toast.error("Vui lòng chọn năm học để xóa!");
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/pc-coi-thi/delete-by-year`, {
+        method: "DELETE",
+        body: JSON.stringify({ namHoc, loai, ky, loaiKyThi }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        toast.success(`Đã xóa ${result.deletedCount} bản ghi của năm học ${namHoc} (${loai})`);
+        fetchData();
+      } else {
+        toast.error("Xóa thất bại!");
+      }
+    } catch (err) {
+      toast.error("Có lỗi xảy ra khi xóa dữ liệu!");
+    }
+  };
 
 
 
@@ -463,6 +490,22 @@ const PcCoiThiManagement = () => {
                     >
                         Xuất Excel
                     </Button>
+                    <Popconfirm
+                        title={`Bạn có chắc chắn muốn xóa tất cả dữ liệu của năm học ${namHoc || 'đã chọn'} (${loai})?`}
+                        description="Hành động này không thể hoàn tác!"
+                        onConfirm={handleDeleteByYear}
+                        okText="Có, xóa tất cả"
+                        cancelText="Không"
+                        okType="danger"
+                    >
+                        <Button
+                            className="bg-red-500 text-white font-bold shadow-md hover:bg-red-600"
+                            disabled={!namHoc}
+                            icon={<ClearOutlined />}
+                        >
+                            Xóa dữ liệu năm học
+                        </Button>
+                    </Popconfirm>
                     <Button
                         type="primary"
                         icon={<PlusOutlined />}
@@ -508,6 +551,7 @@ const PcCoiThiManagement = () => {
                         onChange={setKy}
                         className="w-full"
                         placeholder="Chọn kỳ"
+                        allowClear
                     >
                         <Option value="1">1</Option>
                         <Option value="2">2</Option>
