@@ -1078,7 +1078,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
     ) : (
         <div className="flex gap-2 max-sm:flex-col h-full overflow-hidden">
             {showForm && (
-                <div className="flex flex-col flex-[30%]">
+                <div className="flex flex-col flex-[30%] ">
                     <Button
                         onClick={() => setShowForm(v => !v)}
                         className="mb-1 w-full bg-gray-100 hover:bg-gray-200 border border-gray-300 hover:border-gray-400 text-gray-700 font-medium rounded-lg h-10 shadow-sm transition duration-200"
@@ -1087,7 +1087,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                             Ẩn Form
                         </span>
                     </Button>
-                    <div className="px-6 py-7 shadow-lg bg-white rounded-xl border border-gray-200 overflow-auto">
+                    <div className="px-6 h-[100%] py-7 shadow-lg bg-white rounded-xl border border-gray-200 overflow-auto">
                         <div className="border-b border-blue-500 pb-2 mb-1">
                             <Title className="text-center text-blue-600 !mb-0" level={4}>CÔNG TÁC COI THI</Title>
                         </div>
@@ -1327,7 +1327,7 @@ const ExamMonitoringForm = ({ onUpdateCongTacCoiThi, namHoc, ky }) => {
                 </div>
             )}
             {!showForm && (
-                <div className="flex flex-col flex-[0%]">
+                <div className="flex flex-col">
                     <Button onClick={() => setShowForm(v => !v)} className="mb-2 w-full">
                         Hiện Form
                     </Button>
