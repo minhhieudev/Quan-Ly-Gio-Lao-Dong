@@ -41,24 +41,30 @@ const BieuMauPage = () => {
 
   // Hàm upload file
   const uploadFile = async (fileBlob) => {
-    const formData = new FormData();
-    formData.append('file', fileBlob);
-    formData.append('upload_preset', 'e0rggou2');
-    formData.append('use_filename', 'true');
-    formData.append('unique_filename', 'false');
-    formData.append('public_id', fileBlob.name.split('.')[0]); // giữ tên gốc
+    try {
+      const formData = new FormData();
+      formData.append('file', fileBlob);
+      formData.append('upload_preset', 'e0rggou2');
+      
+      // Tạo tên file an toàn
+      const safeName = fileBlob.name.replace(/[^a-zA-Z0-9.]/g, '_');
+      formData.append('public_id', safeName.split('.')[0]);
+      
+      const response = await fetch("https://api.cloudinary.com/v1_1/dpxcvonet/raw/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const response = await fetch("https://api.cloudinary.com/v1_1/dpxcvonet/upload", {
-      method: "POST",
-      body: formData,
-    });
+      const data = await response.json();
+      if (data.error) {
+        throw new Error(data.error.message);
+      }
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Failed to upload file: ${errorData.error.message}`);
+      return data;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
     }
-
-    return await response.json();
   };
 
 
