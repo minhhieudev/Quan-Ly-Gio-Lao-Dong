@@ -11,7 +11,6 @@ export const DELETE = async (req) => {
 
     // Lấy dữ liệu từ request body
     const { namHoc, loai, ky, loaiKyThi } = await req.json();
-    console.log(namHoc, loai, ky, loaiKyThi);
 
     // Kiểm tra các tham số bắt buộc
     if (!namHoc) {
@@ -23,7 +22,7 @@ export const DELETE = async (req) => {
 
     // Thêm loại hình đào tạo nếu có
     if (loai && loai !== 'undefined') {
-      filter.loai = loai;
+      filter.type = loai;
     }
 
     // Thêm kỳ học nếu có
@@ -54,7 +53,7 @@ export const DELETE = async (req) => {
       deletedCount: deleteResult.deletedCount,
       namHoc,
       loai,
-      kiHoc,
+      ky,
       loaiKyThi
     }), { status: 200 });
 
