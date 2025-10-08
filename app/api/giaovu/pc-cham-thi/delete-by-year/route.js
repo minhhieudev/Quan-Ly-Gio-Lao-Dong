@@ -54,7 +54,7 @@ export const DELETE = async (req) => {
       deletedCount: deleteResult.deletedCount,
       namHoc,
       loai,
-      kiHoc,
+      hocKy,
       loaiKyThi
     }), { status: 200 });
 
