@@ -74,7 +74,6 @@ const TablePcChamThi = ({
           <p className="mt-2 text-blue-600 font-medium">Thông tin chuyển:</p>
           <ul className="list-disc pl-5 mt-1">
             <li>Năm học: {namHoc}</li>
-            <li>Kỳ: {ky}</li>
             <li>Số lượng: {listSelect.length} bản ghi</li>
           </ul>
           <p className="mt-2 text-red-500">
@@ -98,7 +97,7 @@ const TablePcChamThi = ({
             hinhThuc: item.hinhThuc,
             thoiGian: item.thoiGian,
             namHoc: namHoc,
-            ky: ky,
+            ky: item.ky,
             type: type,
             user: session.user._id,
           }));
