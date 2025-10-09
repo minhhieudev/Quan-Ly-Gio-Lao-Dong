@@ -19,7 +19,7 @@ export const POST = async (req) => {
           cb1, 
           cb2, 
           hocPhan, 
-          loaiKyThi, 
+          dot, 
           ky,
           namHoc, 
           ngayThi, 
@@ -32,7 +32,7 @@ export const POST = async (req) => {
 
         
         const updatedItem = await PcChamThi.findOneAndUpdate(
-          { namHoc, loaiKyThi, ngayThi, hocPhan,nhomLop }, 
+          { namHoc, dot, ngayThi, hocPhan,nhomLop }, 
           {
             $set: {
               soBai,

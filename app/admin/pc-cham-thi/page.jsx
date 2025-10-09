@@ -1,13 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Select, Input, Table, Popconfirm, Spin, Button, Space, Pagination } from "antd";
+import {
+  Select,
+  Input,
+  Table,
+  Popconfirm,
+  Spin,
+  Button,
+  Space,
+  Pagination,
+} from "antd";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { FileExcelOutlined, DeleteOutlined, EditOutlined, ClearOutlined } from '@ant-design/icons';
-import { exportChamThi } from '@/lib/fileExport';
-import { getAcademicYearConfig } from '@lib/academicYearUtils';
-
+import {
+  FileExcelOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  ClearOutlined,
+} from "@ant-design/icons";
+import { exportChamThi } from "@/lib/fileExport";
+import { getAcademicYearConfig } from "@lib/academicYearUtils";
 
 const { Option } = Select;
 
@@ -19,6 +32,7 @@ const PcChamThiTable = () => {
   const [loading, setLoading] = useState(false);
 
   const [loai, setLoai] = useState("Chính quy");
+  const [searchCB, setSearchCB] = useState("");
 
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -26,9 +40,9 @@ const PcChamThiTable = () => {
   const [hocKy, setHocKy] = useState("1");
 
   // Get academic year configuration
-  const { options: namHocOptions, defaultValue: defaultNamHoc } = getAcademicYearConfig();
+  const { options: namHocOptions, defaultValue: defaultNamHoc } =
+    getAcademicYearConfig();
   const [namHoc, setNamHoc] = useState(defaultNamHoc);
-
 
   const router = useRouter();
 
@@ -38,11 +52,13 @@ const PcChamThiTable = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/giaovu/pc-cham-thi?namHoc=${namHoc}&hocKy=${hocKy}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
-
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+        const res = await fetch(
+          `/api/giaovu/pc-cham-thi?namHoc=${namHoc}&ky=${hocKy}&dot=${loaiKyThi}&loai=${loai}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
         if (res.ok) {
           const data = await res.json();
           setDataList(data);
@@ -62,26 +78,31 @@ const PcChamThiTable = () => {
 
   useEffect(() => {
     const filtered = dataList.filter((item) => {
+      // Lọc học phần
+      let matchHP = false;
       if (Array.isArray(item.hocPhan)) {
-        // Nếu hocPhan là mảng, kiểm tra xem bất kỳ phần tử nào trong mảng có chứa searchTerm không
-        return item.hocPhan.some(
+        matchHP = item.hocPhan.some(
           (hp) =>
-            typeof hp === 'string' &&
+            typeof hp === "string" &&
             hp.trim().toLowerCase().includes(searchTerm.trim().toLowerCase())
         );
-      } else if (typeof item.hocPhan === 'string') {
-        // Nếu hocPhan là chuỗi, kiểm tra trực tiếp
-        return item.hocPhan
+      } else if (typeof item.hocPhan === "string") {
+        matchHP = item.hocPhan
           .trim()
           .toLowerCase()
           .includes(searchTerm.trim().toLowerCase());
       }
-      return false;
+
+      // Lọc cán bộ
+      const matchCB =
+        !searchCB ||
+        (item.cb1 && item.cb1.toLowerCase().includes(searchCB.trim().toLowerCase())) ||
+        (item.cb2 && item.cb2.toLowerCase().includes(searchCB.trim().toLowerCase()));
+
+      return matchHP && matchCB;
     });
     setFilteredData(filtered);
-  }, [searchTerm, dataList]);
-
-
+  }, [searchTerm, searchCB, dataList]);
 
   const handleDelete = async (id) => {
     try {
@@ -121,12 +142,17 @@ const PcChamThiTable = () => {
 
       if (res.ok) {
         const result = await res.json();
-        toast.success(`Đã xóa ${result.deletedCount} bản ghi của năm học ${namHoc} (${loai})`);
+        toast.success(
+          `Đã xóa ${result.deletedCount} bản ghi của năm học ${namHoc} (${loai})`
+        );
         // Refresh data after deletion
-        const fetchRes = await fetch(`/api/giaovu/pc-cham-thi?namHoc=${namHoc}&hocKy=${hocKy}&loaiKyThi=${loaiKyThi}&loai=${loai}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        });
+        const fetchRes = await fetch(
+          `/api/giaovu/pc-cham-thi?namHoc=${namHoc}&hocKy=${hocKy}&loaiKyThi=${loaiKyThi}&loai=${loai}`,
+          {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
         if (fetchRes.ok) {
           const data = await fetchRes.json();
           setDataList(data);
@@ -142,78 +168,80 @@ const PcChamThiTable = () => {
 
   const columns = [
     {
-      title: 'STT',
-      dataIndex: 'index',
+      title: "STT",
+      dataIndex: "index",
       width: 10,
-      render: (text, record, index) => <span style={{ fontWeight: 'bold' }}>{index + 1}</span>,
-    },
-    {
-      title: 'Học phần',
-      dataIndex: 'hocPhan',
-      key: 'hocPhan',
-      render: (text) => (
-        <span style={{ color: 'green', fontWeight: 'bold' }}>
-          {text}
-        </span>
+      render: (text, record, index) => (
+        <span style={{ fontWeight: "bold" }}>{index + 1}</span>
       ),
     },
     {
-      title: 'Nhóm/Lớp',
-      dataIndex: 'nhomLop',
-      key: 'nhomLop',
+      title: "Học phần",
+      dataIndex: "hocPhan",
+      key: "hocPhan",
       render: (text) => (
-        <span style={{ color: 'red', fontWeight: 'bold' }}>
-          {text}
-        </span>
+        <span style={{ color: "green", fontWeight: "bold" }}>{text}</span>
       ),
     },
     {
-      title: 'Ngày thi',
-      dataIndex: 'ngayThi',
-      key: 'ngayThi',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      title: "Nhóm/Lớp",
+      dataIndex: "nhomLop",
+      key: "nhomLop",
+      render: (text) => (
+        <span style={{ color: "red", fontWeight: "bold" }}>{text}</span>
+      ),
     },
     {
-      title: 'Cán bộ chấm thi 1',
-      dataIndex: 'cb1',
-      key: 'cb1',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+      title: "Ngày thi",
+      dataIndex: "ngayThi",
+      key: "ngayThi",
+      render: (text) => <span style={{ fontWeight: "bold" }}>{text}</span>,
     },
     {
-      title: 'Cán bộ chấm thi 2',
-      dataIndex: 'cb2',
-      key: 'cb2',
-      render: (text) => <span style={{ fontWeight: 'bold', color: 'blue' }}>{text}</span>,
+      title: "Cán bộ chấm thi 1",
+      dataIndex: "cb1",
+      key: "cb1",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "blue" }}>{text}</span>
+      ),
     },
     {
-      title: 'Số bài',
-      dataIndex: 'soBai',
-      key: 'soBai',
+      title: "Cán bộ chấm thi 2",
+      dataIndex: "cb2",
+      key: "cb2",
+      render: (text) => (
+        <span style={{ fontWeight: "bold", color: "blue" }}>{text}</span>
+      ),
+    },
+    {
+      title: "Số bài",
+      dataIndex: "soBai",
+      key: "soBai",
       width: 20,
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      render: (text) => <span style={{ fontWeight: "bold" }}>{text}</span>,
     },
     {
-      title: 'HT',
-      dataIndex: 'hinhThuc',
-      key: 'hinhThuc',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      title: "HT",
+      dataIndex: "hinhThuc",
+      key: "hinhThuc",
+      render: (text) => <span style={{ fontWeight: "bold" }}>{text}</span>,
       width: 60,
     },
     {
-      title: 'TG',
-      dataIndex: 'thoiGian',
-      key: 'thoiGian',
-      render: (text) => <span style={{ fontWeight: 'bold' }}>{text}</span>,
+      title: "TG",
+      dataIndex: "thoiGian",
+      key: "thoiGian",
+      render: (text) => <span style={{ fontWeight: "bold" }}>{text}</span>,
       width: 60,
     },
     {
-      title: 'Hành động',
-      key: 'action',
+      title: "Hành động",
+      key: "action",
       render: (_, record) => (
         <Space size="small">
-          <Button 
-            size="small" 
-            onClick={() => router.push(`/admin/pc-cham-thi/edit/${record._id}`)} 
+          <Button
+            size="small"
+            onClick={() => router.push(`/admin/pc-cham-thi/edit/${record._id}`)}
             type="primary"
             icon={<EditOutlined />}
             title="Sửa"
@@ -224,9 +252,9 @@ const PcChamThiTable = () => {
             okText="Có"
             cancelText="Không"
           >
-            <Button 
-              size="small" 
-              type="primary" 
+            <Button
+              size="small"
+              type="primary"
               danger
               icon={<DeleteOutlined />}
               title="Xóa"
@@ -238,7 +266,6 @@ const PcChamThiTable = () => {
     },
   ];
 
-
   // Phân trang dữ liệu
   const paginatedData = filteredData.slice(
     (current - 1) * pageSize,
@@ -247,16 +274,22 @@ const PcChamThiTable = () => {
 
   return (
     <div className="py-1 px-3 shadow-xl bg-white rounded-xl mt-1 h-[92vh] flex flex-col">
-
       <div className="flex items-center justify-between mb-1">
         <div className="flex gap-2">
           <div className="font-bold text-small-bold">LOẠI:</div>
-          <Select value={loai} size="small" placeholder="Chọn loại hình đào tạo..." onChange={(value) => setLoai(value)}>
+          <Select
+            value={loai}
+            size="small"
+            placeholder="Chọn loại hình đào tạo..."
+            onChange={(value) => setLoai(value)}
+          >
             <Option value="Chính quy">Chính quy</Option>
             <Option value="Liên thông vlvh">Liên thông vlvh</Option>
           </Select>
         </div>
-        <h2 className="font-bold text-[18px] text-center text-green-500">DANH SÁCH PHÂN CÔNG CHẤM THI</h2>
+        <h2 className="font-bold text-[18px] text-center text-green-500">
+          DANH SÁCH PHÂN CÔNG CHẤM THI
+        </h2>
         <Button
           className="button-dang-day text-white font-bold shadow-md mb-2 text-small-bold"
           onClick={() => router.push(`/admin/pc-cham-thi/create`)}
@@ -267,21 +300,26 @@ const PcChamThiTable = () => {
       <div className="flex justify-between items-center mb-2 text-small-bold">
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Năm học:</label>
-          <Select size="small"
+          <Select
+            size="small"
             placeholder="Chọn năm học"
             onChange={(value) => setNamHoc(value)}
             className="w-[50%]"
             value={namHoc}
           >
-            {namHocOptions.map(option => (
-              <Option key={option.value} value={option.value}>{option.label}</Option>
+            {namHocOptions.map((option) => (
+              <Option key={option.value} value={option.value}>
+                {option.label}
+              </Option>
             ))}
           </Select>
         </div>
 
         <div className="w-[25%] flex items-center gap-2">
           <label className="block text-sm font-semibold mb-1">Học kỳ:</label>
-          <Select size="small" allowClear
+          <Select
+            size="small"
+            allowClear
             placeholder="Chọn học kỳ"
             onChange={(value) => setHocKy(value)}
             className="w-[50%]"
@@ -289,36 +327,38 @@ const PcChamThiTable = () => {
           >
             <Option value="1">1</Option>
             <Option value="2">2</Option>
-            <Option value="he">Hè</Option>
+            <Option value="3">Hè</Option>
           </Select>
         </div>
 
-
         <div className="w-[25%] flex items-center gap-2">
-          <label className="block text-sm font-semibold mb-1">Loại kỳ thi:</label>
-          <Select allowClear size="small"
+          <label className="block text-sm font-semibold mb-1">Đợt thi:</label>
+          <Select
+            allowClear
+            size="small"
             placeholder="Chọn loại kỳ thi"
             onChange={(value) => setLoaiKyThi(value)}
             className="w-[50%]"
           >
-            <Option value="Học kỳ 1">Học kỳ 1</Option>
-            <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>
-            <Option value="Học kỳ 1 (đợt 3)">Học kỳ 1 (đợt 3)</Option>
-            <Option value="Học kỳ 2">Học kỳ 2</Option>
-            <Option value="Học kỳ 2 (đợt 2)">Học kỳ 2 (đợt 2)</Option>
-            <Option value="Học kỳ 2 (đợt 3)">Học kỳ 2 (đợt 3)</Option>
-            <Option value="Kỳ thi phụ (đợt 1)">Kỳ thi phụ (đợt 1)</Option>
-            <Option value="Kỳ thi phụ (đợt 2)">Kỳ thi phụ (đợt 2)</Option>
-            <Option value="Kỳ thi phụ (đợt 3)">Kỳ thi phụ (đợt 3)</Option>
-            <Option value="Học kỳ hè">Học kỳ hè</Option>
+            <Option value="1">Đợt 1</Option>
+            <Option value="2">Đợt 2</Option>
+            <Option value="3">Đợt 3</Option>
+            <Option value="4">Đợt 4</Option>
           </Select>
         </div>
 
-        <div className="w-[20%]">
-          <Input.Search size="small"
+        <div className="w-[20%] flex gap-2">
+          <Input.Search
+            size="small"
             placeholder="Tìm kiếm học phần..."
             allowClear
             onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Input.Search
+            size="small"
+            placeholder="Tìm cán bộ chấm thi..."
+            allowClear
+            onChange={(e) => setSearchCB(e.target.value)}
           />
         </div>
       </div>
@@ -328,7 +368,10 @@ const PcChamThiTable = () => {
           <Spin />
         </div>
       ) : (
-        <div className="flex-grow overflow-auto text-small-bold" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+        <div
+          className="flex-grow overflow-auto text-small-bold"
+          style={{ maxHeight: "calc(85vh - 80px)" }}
+        >
           <Table
             columns={columns}
             dataSource={paginatedData}
@@ -348,7 +391,9 @@ const PcChamThiTable = () => {
             Xuất file Excel
           </Button>
           <Popconfirm
-            title={`Bạn có chắc chắn muốn xóa tất cả dữ liệu của năm học ${namHoc || 'đã chọn'} (${loai})?`}
+            title={`Bạn có chắc chắn muốn xóa tất cả dữ liệu của năm học ${
+              namHoc || "đã chọn"
+            } (${loai})?`}
             description="Hành động này không thể hoàn tác!"
             onConfirm={handleDeleteByYear}
             okText="Có, xóa tất cả"
@@ -372,7 +417,7 @@ const PcChamThiTable = () => {
             setCurrent(page);
             setPageSize(size);
           }}
-          pageSizeOptions={['10', '25', '50', '100', '200']}
+          pageSizeOptions={["10", "25", "50", "100", "200", "1000"]}
           showSizeChanger
           className="flex justify-end"
         />

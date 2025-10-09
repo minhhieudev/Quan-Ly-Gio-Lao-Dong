@@ -143,29 +143,24 @@ const TeachingAssignmentForm = () => {
     const file = e.target.files[0];
     const reader = new FileReader();
 
-    // 🧠 Hàm parse ngày linh hoạt
+    // 🧠 Hàm parse ngày linh hoạt (dd-mm-yy, dd/mm/yyyy, Excel serial,...)
     const parseExcelDate = (value) => {
       if (!value) return "";
 
-      // ✅ 1. Nếu là số (Excel date serial)
       if (typeof value === "number") {
         const excelDate = new Date((value - 25569) * 86400 * 1000);
         return dayjs(excelDate).format("DD/MM/YYYY");
       }
 
-      // ✅ 2. Nếu là chuỗi có định dạng dd-mm-yy, dd/mm/yyyy, v.v.
       if (typeof value === "string") {
         const clean = value.trim();
-
-        // Thử match các dạng phổ biến
         const match = clean.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
         if (match) {
           const [, d, m, y] = match;
-          const fullYear = y.length === 2 ? `20${y}` : y; // chuyển 24 -> 2024
+          const fullYear = y.length === 2 ? `20${y}` : y;
           return dayjs(`${fullYear}-${m}-${d}`).format("DD/MM/YYYY");
         }
 
-        // Nếu là chuỗi chuẩn khác (ISO, mm/dd/yyyy, etc.)
         const parsed = dayjs(clean);
         if (parsed.isValid()) return parsed.format("DD/MM/YYYY");
       }
@@ -182,85 +177,83 @@ const TeachingAssignmentForm = () => {
 
         const structuredData = [];
         let currentEntry = null;
-        let loaiKyThi = "";
+        let ky = "";
+        let dot = "";
         let namHoc = "";
 
         rawData.forEach((row) => {
-          // 🏷️ Nhận dạng dòng tiêu đề (ví dụ: "1. Thi kết thúc học phần, Năm học 2024 - 2025")
-          if (
-            row.length === 1 &&
-            typeof row[0] === "string" &&
-            /^\d\./.test(row[0])
-          ) {
-            const inputString = row[0].trim();
-            const yearMatch = inputString.match(
-              /(?:Năm học\s*|\s*[-|,]?\s*)?(\d{4}\s*[-\s]\s*\d{4})$/
+          if (!row || row.length === 0) return;
+          const firstCell = row[0]?.toString().trim();
+
+          // 🎯 1️⃣ Chỉ đọc năm học 1 lần duy nhất
+          if (!namHoc && /NĂM\s*HỌC/i.test(firstCell)) {
+            const namHocMatch = firstCell.match(
+              /NĂM\s*HỌC\s*(\d{4})\s*[-–]\s*(\d{4})/i
             );
-
-            if (yearMatch) {
-              namHoc = yearMatch[1]
-                .trim()
-                .replace(/\s+/g, "-")
-                .replace(/-{2,}/g, "-");
-              loaiKyThi = inputString.split(namHoc)[0].trim();
-              loaiKyThi = loaiKyThi
-                .replace(/[-|,]?\s*Năm học.*$/, "")
-                .trim()
-                .replace(/^\d+\.\s*/, "");
-              loaiKyThi = loaiKyThi.split(/,\s*| - /)[0].trim();
-            } else {
-              loaiKyThi = inputString;
-            }
-
-            if (
-              loaiKyThi.includes("Năm học") ||
-              loaiKyThi.includes("năm học")
-            ) {
-              loaiKyThi = loaiKyThi.split(/[-|,]?\s*Năm học/)[0].trim();
+            if (namHocMatch) {
+              namHoc = `${namHocMatch[1]}-${namHocMatch[2]}`;
             }
           }
 
-          // 🧾 Xử lý dòng dữ liệu (có STT, học phần, ngày thi, ...)
-          else if (row.length > 1) {
-            if (typeof row[0] === "number") {
-              if (currentEntry) {
-                structuredData.push(currentEntry);
-              }
+          // 🎯 2️⃣ Nhận diện dòng tiêu đề đợt & kỳ
+          else if (/^\d+\./.test(firstCell)) {
+            const inputString = firstCell;
 
-              // Xử lý ngày thi (định dạng linh hoạt)
-              const ngayThiFormatted = parseExcelDate(row[3]);
+            // 🔹 Đợt thi
+            const dotMatch = inputString.match(/[Đđ]ợt\s*(\d+)/);
+            dot = dotMatch ? dotMatch[1] : "";
 
-              currentEntry = {
-                loaiKyThi,
-                namHoc,
-                hocPhan: row[1],
-                nhomLop: row[2],
-                ngayThi: ngayThiFormatted,
-                cb1: row[4],
-                cb2: row[5],
-                soBai: parseInt(row[6], 10) || 0,
-                hinhThuc: row[7],
-                thoiGian: row[8],
-                loai,
-              };
+            // 🔹 Kỳ học
+            const kyMatch = inputString.match(/Học\s*kỳ\s*(\d+)/i);
+            if (kyMatch) ky = kyMatch[1];
+
+            // 🔹 Nếu có chữ "Kỳ thi phụ" → kỳ = 3
+            if (/Kỳ\s*thi\s*phụ/i.test(inputString)) {
+              ky = "3";
             }
+          }
+
+          // 🎯 3️⃣ Dòng “THUỘC HỌC KỲ ...” (chỉ dùng để cập nhật kỳ)
+          else if (/THUỘC\s*HỌC\s*KỲ/i.test(firstCell)) {
+            const kyMatch = firstCell.match(/HỌC\s*KỲ\s*(\d+)/i);
+            if (kyMatch) ky = kyMatch[1];
+          }
+
+          // 🎯 4️⃣ Dòng dữ liệu thi
+          else if (row.length > 1 && typeof row[0] === "number") {
+            if (currentEntry) structuredData.push(currentEntry);
+
+            const ngayThiFormatted = parseExcelDate(row[3]);
+
+            currentEntry = {
+              ky,
+              dot,
+              namHoc,
+              hocPhan: row[1],
+              nhomLop: row[2],
+              ngayThi: ngayThiFormatted,
+              cb1: row[4],
+              cb2: row[5],
+              soBai: parseInt(row[6], 10) || 0,
+              hinhThuc: row[7],
+              thoiGian: row[8],
+              loai,
+            };
           }
         });
 
-        if (currentEntry) {
-          structuredData.push(currentEntry);
-        }
+        if (currentEntry) structuredData.push(currentEntry);
 
         if (structuredData.length === 0) {
           toast.error("Không có dữ liệu hợp lệ trong file Excel!");
           return;
         }
 
-        // 📤 Gọi API hoặc hàm tạo dữ liệu
         createMany(structuredData);
         toast.success(
           `Import thành công ${structuredData.length} dòng dữ liệu!`
         );
+        console.table(structuredData);
       } catch (err) {
         console.error("❌ Lỗi xử lý Excel:", err);
         toast.error("Đã xảy ra lỗi khi xử lý file Excel!");
@@ -342,6 +335,7 @@ const TeachingAssignmentForm = () => {
                 >
                   <Option value="1">1</Option>
                   <Option value="2">2</Option>
+                  <Option value="3">Hè</Option>
                 </Select>
               )}
             />
@@ -357,17 +351,10 @@ const TeachingAssignmentForm = () => {
               name="loaiKyThi"
               control={control}
               render={({ field }) => (
-                <Select placeholder="Chọn loại kỳ thi" {...field}>
-                  <Option value="Học kỳ 1">Học kỳ 1</Option>
-                  <Option value="Học kỳ 1 (đợt 2)">Học kỳ 1 (đợt 2)</Option>
-                  <Option value="Học kỳ 1 (đợt 3)">Học kỳ 1 (đợt 3)</Option>
-                  <Option value="Học kỳ 2">Học kỳ 2</Option>
-                  <Option value="Học kỳ 2 (đợt 2)">Học kỳ 2 (đợt 2)</Option>
-                  <Option value="Học kỳ 2 (đợt 3)">Học kỳ 2 (đợt 3)</Option>
-                  <Option value="Kỳ thi phụ (đợt 1)">Kỳ thi phụ (đợt 1)</Option>
-                  <Option value="Kỳ thi phụ (đợt 2)">Kỳ thi phụ (đợt 2)</Option>
-                  <Option value="Kỳ thi phụ (đợt 3)">Kỳ thi phụ (đợt 3)</Option>
-                  <Option value="Học kỳ hè">Học kỳ hè</Option>
+                <Select placeholder="Chọn đợt thi" {...field}>
+                  <Option value="1">Đợt 1</Option>
+                  <Option value="2">Đợt 2</Option>
+                  <Option value="3">Đợt 3</Option>
                 </Select>
               )}
             />

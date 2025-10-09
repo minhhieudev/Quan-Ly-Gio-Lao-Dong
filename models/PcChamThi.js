@@ -23,7 +23,7 @@ const PcChamThiSchema = new mongoose.Schema({
   namHoc: {
     type: String,  
   },
-  loaiKyThi: {
+  dot: {
     type: String,  
   },
   loai: {

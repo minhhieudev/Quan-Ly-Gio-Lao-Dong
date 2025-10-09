@@ -10,15 +10,15 @@ export const GET = async (req) => {
     // Lấy các tham số từ query
     const { searchParams } = new URL(req.url);
     const namHoc = searchParams.get('namHoc');
-    const loaiKyThi = searchParams.get('loaiKyThi');
+    const dot = searchParams.get('dot');
     const loai = searchParams.get('loai');
-    const ky = searchParams.get('hocKy');
+    const ky = searchParams.get('ky');
 
     let filter = {};
 
     // Nếu có tham số loaiKyThi, thêm vào điều kiện tìm kiếm
-    if (loaiKyThi) {
-      filter.loaiKyThi = loaiKyThi;
+    if (dot && dot !== 'null'&& dot !== 'undefined') {
+      filter.dot = dot;
     }
     if (namHoc) {
       filter.namHoc = namHoc;
@@ -33,11 +33,11 @@ export const GET = async (req) => {
     }
 
     // Nếu không có cả namHoc lẫn loaiKyThi thì trả về lỗi
-    if (!namHoc && !loaiKyThi) {
-      return new Response(JSON.stringify({ message: "Thiếu tham số năm học hoặc loại kỳ thi." }), { status: 400 });
+    if (!namHoc) {
+      return new Response(JSON.stringify({ message: "Thiếu tham số năm học " }), { status: 400 });
     }
 
-
+console.log(filter);
     // Tìm kiếm các bản ghi phân công giảng dạy theo điều kiện filter
     const assignments = await PcChamThi.find(filter);
 
@@ -45,7 +45,7 @@ export const GET = async (req) => {
     return new Response(JSON.stringify(assignments), { status: 200 });
   } catch (err) {
     // Bắt lỗi và trả về phản hồi lỗi
-    console.error("Lỗi khi lấy danh sách phân công giảng dạy:", err);
+    console.error("Lỗi khi lấy danh sách phân công chấm thi:", err);
     return new Response(JSON.stringify({ message: `Lỗi: ${err.message}` }), { status: 500 });
   }
 };
