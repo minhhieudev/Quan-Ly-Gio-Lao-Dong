@@ -380,7 +380,7 @@ const App = () => {
           title: 'Chấm thi',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.chamThi',
-          render: (text, record) => record.congTacKhac.chamThi,
+          render: (text, record) => Number(record.congTacKhac.chamThi || 0).toFixed(1),
           align: 'center',
 
         },
@@ -412,7 +412,7 @@ const App = () => {
           title: 'Tổng',
           dataIndex: 'congTacKhac',
           key: 'congTacKhac.tong',
-          render: (text, record) => record.congTacKhac.tong,
+          render: (text, record) => Number(record.congTacKhac.tong || 0).toFixed(1),
           className: 'text-yellow-500 font-bold',
           align: 'center',
 
