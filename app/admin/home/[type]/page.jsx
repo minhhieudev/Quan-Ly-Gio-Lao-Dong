@@ -935,10 +935,10 @@ const App = () => {
           </Select>
         </div>
 
-        <div className="w-[35%] flex items-center gap-2 font-bold">
+        <div className=" flex items-center gap-2 font-bold">
           <div className="text-base-bold">Khoa:</div>
           <Select size="small"
-            className="w-[40%]"
+            className="w-[140px]"
             placeholder="Lọc theo khoa"
             allowClear
             value={selectedKhoa}
@@ -952,7 +952,7 @@ const App = () => {
           </Select>
         </div>
         <div className='text-small-bold mr-4'>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex  gap-4 justify-center">
             <div className="bg-green-100 rounded p-1 font-semibold">
               Đã duyệt: {filteredDataList.filter(item => item.trangThai == 2).length}
             </div>
